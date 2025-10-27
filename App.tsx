@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Sector, LeadStatus, UserData, Answer } from './types';
@@ -12,7 +11,7 @@ import Footer from './components/Footer';
 const App: React.FC = () => {
     const [step, setStep] = useState<number>(0);
     const [sector, setSector] = useState<Sector | null>(null);
-    const [userData, setUserData] = useState<UserData>({ firstName: '', lastName: '', email: '', phone: '' });
+    const [userData, setUserData] = useState<UserData>({ firstName: '', lastName: '', email: '', phone: '', city: '', state: '' });
     const [answers, setAnswers] = useState<{ [key: number]: Answer }>({});
     const [score, setScore] = useState<number>(0);
     const [leadStatus, setLeadStatus] = useState<LeadStatus>('cold');
@@ -47,15 +46,22 @@ const App: React.FC = () => {
             }).filter(Boolean);
 
             const prompt = `
-            You are an expert consultant for TKCP, a company specializing in high-end LED video walls for churches and hospitality venues.
-            A potential client from the '${finalSector}' sector has just completed an assessment.
-            Their final score is ${finalScore} out of 13.
-            Their answers are: ${JSON.stringify(formattedAnswers, null, 2)}
+            You are an expert BANT (Budget, Authority, Need, Timeline) sales consultant for TKCP, a company specializing in high-end LED video walls for houses of worship and hospitality venues.
+            A potential client from the '${finalSector === 'church' ? 'House of Worship' : 'Venue/Business'}' sector has just completed a qualification assessment.
 
-            Based on this information, provide three distinct, personalized, specific, and actionable insights that offer immediate value.
-            The tone should be professional, consultative, and encouraging. Address the client directly.
-            For example, if they have a short timeline and approved budget, commend their readiness. If they are struggling with maintenance, highlight how LED solves that specific pain point.
-            Focus on creating value and building trust.
+            Their final qualification score is ${finalScore} out of 10.
+            Their specific answers are:
+            ${JSON.stringify(formattedAnswers, null, 2)}
+
+            Based on this BANT data, provide three distinct, personalized, and actionable insights that offer immediate value and guide them to the next step.
+            The tone should be professional, consultative, and encouraging. Address the client directly (e.g., "Because your timeline is...").
+            Directly reference their answers to build rapport. For example:
+            - If they have an urgent need due to a failing system, acknowledge that pressure and frame LED as an immediate, reliable solution.
+            - If they are the final decision-maker, empower them with key ROI figures.
+            - If their main frustration is maintenance, emphasize the "never change a bulb again" benefit.
+            - If their timeline is short, highlight TKCP's ability to meet deadlines.
+
+            Focus on creating value, building trust, and clearly justifying why the recommended next step (e.g., a budget discussion, an ROI calculator) is right for them.
             `;
             
             const response = await ai.models.generateContent({
@@ -125,7 +131,7 @@ const App: React.FC = () => {
     const handleReset = () => {
         setStep(0);
         setSector(null);
-        setUserData({ firstName: '', lastName: '', email: '', phone: '' });
+        setUserData({ firstName: '', lastName: '', email: '', phone: '', city: '', state: '' });
         setAnswers({});
         setScore(0);
         setLeadStatus('cold');

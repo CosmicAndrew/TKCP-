@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { UserData } from '../types';
-import { IconArrowRight, IconUser, IconMail, IconPhone } from './common/Icon';
+import { IconArrowRight, IconUser, IconMail, IconPhone, IconLocation } from './common/Icon';
 
 interface ContactFormProps {
     onSubmit: (data: UserData) => void;
@@ -32,6 +31,8 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
         lastName: '',
         email: '',
         phone: '',
+        city: '',
+        state: '',
     });
     
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -49,6 +50,10 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = "Email is invalid.";
         }
+        if (!formData.phone) newErrors.phone = "Phone number is required.";
+        if (!formData.city) newErrors.city = "City is required.";
+        if (!formData.state) newErrors.state = "State is required.";
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     }
@@ -62,8 +67,8 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
 
     return (
         <div>
-            <h2 className="text-3xl font-display font-bold text-center text-gray-800">Let's Get Started</h2>
-            <p className="text-center text-gray-600 mt-2">First, tell us who you are.</p>
+            <h2 className="text-3xl font-display font-bold text-center text-gray-800">One Last Step...</h2>
+            <p className="text-center text-gray-600 mt-2">Let us know where to send your personalized results.</p>
             <form onSubmit={handleSubmit} className="mt-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
@@ -79,13 +84,26 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
                   <InputField id="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} icon={<IconMail />} required />
                   {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
-                <InputField id="phone" type="tel" placeholder="Phone Number (Optional)" value={formData.phone || ''} onChange={handleChange} icon={<IconPhone />} />
+                <div>
+                    <InputField id="phone" type="tel" placeholder="Phone Number" value={formData.phone} onChange={handleChange} icon={<IconPhone />} required/>
+                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div>
+                     <InputField id="city" type="text" placeholder="City" value={formData.city} onChange={handleChange} icon={<IconLocation />} required />
+                     {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                   </div>
+                   <div>
+                     <InputField id="state" type="text" placeholder="State" value={formData.state} onChange={handleChange} icon={<IconLocation />} required />
+                     {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
+                   </div>
+                </div>
 
                 <button
                     type="submit"
                     className="w-full flex items-center justify-center bg-church-primary text-white font-bold py-3 px-6 rounded-md hover:bg-church-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-church-primary transition-all duration-300"
                 >
-                    Next Step
+                    See My Results
                     <IconArrowRight className="ml-2" />
                 </button>
             </form>

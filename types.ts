@@ -1,4 +1,3 @@
-
 export enum Sector {
   Church = 'church',
   Hospitality = 'hospitality',
@@ -28,5 +27,7 @@ export interface UserData {
     firstName: string;
     lastName: string;
     email: string;
-    phone?: string;
+    phone: string;
+    city: string;
+    state: string;
 }

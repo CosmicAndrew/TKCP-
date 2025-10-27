@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Sector, LeadStatus, UserData } from '../types';
 import Spinner from './common/Spinner';
@@ -17,11 +16,14 @@ interface ResultsProps {
     userData: UserData;
 }
 
-const getStatusDetails = (status: LeadStatus, sector: Sector) => {
-    const churchPrimary = 'church-primary';
-    const hospitalityPrimary = 'hospitality-primary';
-    const primaryColor = sector === Sector.Church ? churchPrimary : hospitalityPrimary;
+interface CTA {
+  text: string;
+  subtext?: string;
+  icon: React.ReactNode;
+  href: string;
+}
 
+const getStatusDetails = (status: LeadStatus, sector: Sector): { headline: string; color: string; textColor: string; borderColor: string; bgColor: string; primaryCTA: CTA; secondaryCTA: CTA; } => {
     switch (status) {
         case 'hot':
             return {
@@ -30,8 +32,7 @@ const getStatusDetails = (status: LeadStatus, sector: Sector) => {
                 textColor: `text-green-600`,
                 borderColor: `border-green-500`,
                 bgColor: `bg-green-50`,
-                // FIX: Added href property for consistent object shape.
-                primaryCTA: { text: "Schedule Priority Consultation", icon: <IconCalendar />, href: "#" },
+                primaryCTA: { text: "Schedule Priority Budget Discussion", subtext: "Next 48 Hours Only", icon: <IconCalendar />, href: "#" },
                 secondaryCTA: { text: "Call Us Now", icon: <IconPhone />, href: "tel:+14698409808" }
             };
         case 'warm':
@@ -41,10 +42,8 @@ const getStatusDetails = (status: LeadStatus, sector: Sector) => {
                 textColor: `text-yellow-600`,
                 borderColor: `border-yellow-500`,
                 bgColor: `bg-yellow-50`,
-                // FIX: Added href property for consistent object shape.
                 primaryCTA: { text: "Download ROI Calculator", icon: <IconDownload />, href: "#" },
-                // FIX: Added href property for consistent object shape.
-                secondaryCTA: { text: "Reserve Webinar Seat", icon: <IconVideo />, href: "#" }
+                secondaryCTA: { text: "Reserve Discovery Call", icon: <IconVideo />, href: "#" }
             };
         case 'cold':
         default:
@@ -54,9 +53,7 @@ const getStatusDetails = (status: LeadStatus, sector: Sector) => {
                 textColor: `text-blue-600`,
                 borderColor: `border-blue-500`,
                 bgColor: `bg-blue-50`,
-                // FIX: Added href property for consistent object shape.
                 primaryCTA: { text: "Get the LED Buyer's Guide", icon: <IconBookOpen />, href: "#" },
-                // FIX: Added href property for consistent object shape.
                 secondaryCTA: { text: "Subscribe to LED Insights", icon: <IconMail />, href: "#" }
             };
     }
@@ -64,8 +61,6 @@ const getStatusDetails = (status: LeadStatus, sector: Sector) => {
 
 const Results: React.FC<ResultsProps> = ({ sector, score, leadStatus, insights, isLoading, error, onReset, completionTime, userData }) => {
     const details = getStatusDetails(leadStatus, sector);
-    const accentColor = sector === Sector.Church ? 'church-accent' : 'hospitality-accent';
-    const primaryColor = sector === Sector.Church ? 'church-primary' : 'hospitality-primary';
     const accentBg = sector === Sector.Church ? 'bg-church-accent' : 'bg-hospitality-accent';
     const primaryBg = sector === Sector.Church ? 'bg-church-primary' : 'bg-hospitality-primary';
     
@@ -79,7 +74,7 @@ const Results: React.FC<ResultsProps> = ({ sector, score, leadStatus, insights, 
 
                 <div className="my-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                     <div className="flex flex-col items-center">
-                        <ScoreGauge score={score} maxScore={13} sector={sector} />
+                        <ScoreGauge score={score} maxScore={10} sector={sector} />
                         <p className="mt-2 text-gray-500 text-sm">Completed in {completionTime} seconds</p>
                     </div>
                     
@@ -107,11 +102,16 @@ const Results: React.FC<ResultsProps> = ({ sector, score, leadStatus, insights, 
                 <div className="mt-10 border-t pt-8">
                     <h3 className="text-2xl font-display font-bold">Your Next Steps</h3>
                     <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                        <a href={details.primaryCTA.href || '#'} className={`flex items-center justify-center w-full sm:w-auto px-8 py-3 font-bold text-white rounded-md ${primaryBg} hover:opacity-90 transition-opacity`}>
+                        <a href={details.primaryCTA.href} className={`flex items-center justify-center w-full sm:w-auto px-8 py-3 font-bold text-white rounded-md ${primaryBg} hover:opacity-90 transition-opacity`}>
                             {details.primaryCTA.icon}
-                            <span className="ml-2">{details.primaryCTA.text}</span>
+                            <div className="ml-2 text-left">
+                                <span>{details.primaryCTA.text}</span>
+                                {details.primaryCTA.subtext && (
+                                    <span className="block text-xs opacity-80 font-normal">{details.primaryCTA.subtext}</span>
+                                )}
+                            </div>
                         </a>
-                        <a href={details.secondaryCTA.href || '#'} className={`flex items-center justify-center w-full sm:w-auto px-8 py-3 font-bold text-white rounded-md ${accentBg} hover:opacity-90 transition-opacity`}>
+                        <a href={details.secondaryCTA.href} className={`flex items-center justify-center w-full sm:w-auto px-8 py-3 font-bold text-white rounded-md ${accentBg} hover:opacity-90 transition-opacity`}>
                             {details.secondaryCTA.icon}
                             <span className="ml-2">{details.secondaryCTA.text}</span>
                         </a>

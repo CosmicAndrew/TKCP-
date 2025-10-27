@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Sector, UserData, Answer } from '../types';
 import { ASSESSMENT_QUESTIONS } from '../constants';
 import ContactForm from './ContactForm';
@@ -14,28 +13,27 @@ interface QuizProps {
 const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState<{ [key: number]: Answer }>({});
-    const [userData, setUserData] = useState<UserData>({ firstName: '', lastName: '', email: '', phone: '' });
-    const [isContactStep, setIsContactStep] = useState(true);
+    const [isContactStep, setIsContactStep] = useState(false);
     const startTimeRef = useRef<number>(Date.now());
 
-    const totalSteps = ASSESSMENT_QUESTIONS.length + 1; // 1 for contact form
-    const progress = Math.round(((currentQuestionIndex + (isContactStep ? 0 : 1)) / totalSteps) * 100);
+    const progress = isContactStep ? 100 : Math.round((currentQuestionIndex / ASSESSMENT_QUESTIONS.length) * 100);
 
     const handleAnswer = (questionIndex: number, answer: Answer) => {
-        setAnswers(prev => ({ ...prev, [questionIndex]: answer }));
+        const newAnswers = { ...answers, [questionIndex]: answer };
+        setAnswers(newAnswers);
+
          setTimeout(() => {
             if (currentQuestionIndex < ASSESSMENT_QUESTIONS.length - 1) {
                 setCurrentQuestionIndex(prev => prev + 1);
             } else {
-                 const completionTime = Math.round((Date.now() - startTimeRef.current) / 1000);
-                onComplete( { ...answers, [questionIndex]: answer }, userData, completionTime);
+                 setIsContactStep(true);
             }
         }, 300);
     };
 
     const handleContactSubmit = (data: UserData) => {
-        setUserData(data);
-        setIsContactStep(false);
+        const completionTime = Math.round((Date.now() - startTimeRef.current) / 1000);
+        onComplete(answers, data, completionTime);
     };
 
     const currentQuestion = ASSESSMENT_QUESTIONS[currentQuestionIndex];

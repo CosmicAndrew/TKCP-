@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Sector } from '../types';
 import { IconArrowRight } from './common/Icon';
@@ -25,7 +24,7 @@ const SectorCard: React.FC<{
             onClick={onSelect}
             className={`w-full text-left p-6 font-bold text-xl ${accentColor} ${textColor} flex justify-between items-center transition-opacity hover:opacity-80`}
         >
-            I'm with a {sector === Sector.Church ? 'Church' : 'Venue'}
+            I'm with a {sector === Sector.Church ? 'House of Worship' : 'Venue/Business'}
             <IconArrowRight />
         </button>
     </div>
@@ -37,7 +36,7 @@ const Landing: React.FC<LandingProps> = ({ onStart }) => {
         <div className="text-center">
             <h2 className="text-4xl md:text-6xl font-display font-bold text-gray-800">Find Your Perfect Screen in 60 Seconds</h2>
             <p className="mt-4 max-w-3xl mx-auto text-xl text-gray-600">
-                Answer a few quick questions to get a personalized recommendation and discover the ROI of a zero-maintenance LED wall for your organization.
+                Answer 5 quick questions to get a personalized recommendation and discover the ROI of a zero-maintenance LED wall for your organization.
             </p>
             <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                 <SectorCard
