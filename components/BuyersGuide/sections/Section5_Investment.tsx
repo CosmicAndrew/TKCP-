@@ -1,35 +1,34 @@
 import React from 'react';
-import { Sector } from '../../../types';
-import CallToAction from '../common/CallToAction';
+import { Sector, Result } from '../../../types';
+import CalendarCTA from '../common/CalendarCTA';
 
 interface SectionProps {
   sector: Sector;
+  result: Result;
 }
 
 const Section5_Investment: React.FC<SectionProps> = ({ sector }) => {
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800">5. Investment & Financing</h2>
+            <h2 className="text-3xl font-display font-bold text-gray-800">3. Investment & Financing</h2>
             <p className="mt-2 text-gray-600">Understanding the financial side of your LED upgrade and the long-term value it brings.</p>
             
              <div className="mt-8 p-6 bg-gray-50 rounded-lg text-center">
-                <h3 className="text-xl font-bold text-gray-700">Financial Planning Tools Coming Soon!</h3>
+                <h3 className="text-xl font-bold text-gray-700">Financial Planning Tools</h3>
                 <p className="mt-2 text-gray-600">
-                    We're building interactive tools to help you plan:
+                    We provide clear, comprehensive financial options to make your vision a reality.
                 </p>
-                <ul className="mt-4 text-left max-w-md mx-auto list-disc list-inside">
-                    <li>Total Cost of Ownership (TCO) Calculator</li>
-                    <li>Financing & Leasing Monthly Payment Estimator</li>
-                    <li>Grant and Fundraising Resources ({sector === 'church' ? 'for Churches' : 'for Businesses'})</li>
-                    <li>Trade-in Program Information</li>
+                <ul className="mt-4 text-left max-w-md mx-auto list-disc list-inside space-y-2">
+                    <li>Total Cost of Ownership (TCO) Analysis vs. Projectors</li>
+                    <li>Flexible Financing & Leasing Options</li>
+                    <li>Grant and Fundraising Resources ({sector === 'church' ? 'for Houses of Worship' : 'for Businesses'})</li>
+                    <li>Potential Trade-in Value for Your Old Equipment</li>
                 </ul>
             </div>
 
-            <CallToAction
-                headline="Need a Ballpark Quote?"
-                subtext="Get a preliminary quote based on your assessment answers to help with your budget planning."
-                buttonText="Generate My Estimate"
-                onClick={() => console.log('CTA Clicked: Generate Estimate')}
+            <CalendarCTA
+                headline="💰 Discuss Your Investment Options"
+                buttonText="Schedule Budget Planning Call"
             />
         </div>
     );

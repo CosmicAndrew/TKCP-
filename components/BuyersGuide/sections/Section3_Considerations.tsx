@@ -1,9 +1,10 @@
 import React from 'react';
-import { Sector } from '../../../types';
-import CallToAction from '../common/CallToAction';
+import { Sector, Result } from '../../../types';
+import CalendarCTA from '../common/CalendarCTA';
 
 interface SectionProps {
   sector: Sector;
+  result: Result;
 }
 
 const Section3_Considerations: React.FC<SectionProps> = ({ sector }) => {
@@ -11,19 +12,19 @@ const Section3_Considerations: React.FC<SectionProps> = ({ sector }) => {
         church: {
             title: "Church-Specific Considerations",
             points: [
-                "Enhancing Worship: How LED creates immersive, distraction-free environments.",
-                "Livestream Quality: Achieving a professional broadcast look for your online ministry.",
-                "Volunteer-Friendly Tech: Simple control systems anyone can learn in minutes.",
-                "Case Studies: See how Texas churches are leveraging LED for growth."
+                "Enhancing Worship: How LED creates immersive, distraction-free environments for your congregation.",
+                "Livestream Quality: Achieving a professional, flicker-free broadcast look for your online ministry.",
+                "Volunteer-Friendly Tech: Simple control systems (like ProPresenter) that anyone can learn in minutes.",
+                "Environmental Projection: Transforming your entire stage into a dynamic canvas for storytelling."
             ]
         },
         hospitality: {
             title: "Venue & Business Use Cases",
             points: [
-                "Generating Revenue: Commanding premium prices for events with high-impact visuals.",
-                "Competitive Advantage: Why modern venues are choosing LED over projection.",
-                "Ultimate Flexibility: Reconfigure digital canvases for conferences, concerts, and galas.",
-                "Case Studies: Explore successful transformations in hotels and event centers."
+                "Generating Revenue: Commanding premium prices for events with high-impact visuals and sponsorship opportunities.",
+                "Competitive Advantage: Why modern venues are choosing integrated LED over temporary projection setups.",
+                "Ultimate Flexibility: Reconfigure digital canvases for conferences, concerts, and galas on the fly.",
+                "Architectural Integration: Seamlessly blending technology with your venue's aesthetic."
             ]
         }
     };
@@ -32,22 +33,25 @@ const Section3_Considerations: React.FC<SectionProps> = ({ sector }) => {
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800">3. {relevantContent.title}</h2>
+            <h2 className="text-3xl font-display font-bold text-gray-800">2. {relevantContent.title}</h2>
             <p className="mt-2 text-gray-600">Discover how an LED transformation directly impacts your organization's goals.</p>
-            
-             <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-                <ul className="space-y-4 list-disc list-inside text-gray-700">
-                    {relevantContent.points.map((point, index) => <li key={index}>{point}</li>)}
-                </ul>
-            </div>
-            
-            <p className="mt-6 text-center font-semibold text-gray-800">More content, including detailed case studies and videos, coming soon!</p>
 
-             <CallToAction
-                headline="Want to See a Local Success Story?"
-                subtext="We can connect you with a client near you for a first-hand look."
-                buttonText="Arrange a Reference Visit"
-                onClick={() => console.log('CTA Clicked: Reference Visit')}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div className="p-6 bg-gray-50 rounded-lg">
+                    <h3 className="font-bold font-display text-lg text-gray-800">Key Impact Areas</h3>
+                    <ul className="mt-4 space-y-4 list-disc list-inside text-gray-700">
+                        {relevantContent.points.map((point, index) => <li key={index}>{point}</li>)}
+                    </ul>
+                </div>
+                <div className="space-y-4">
+                    <div className="h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">AI-Generated Image Placeholder 1</div>
+                    <div className="h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">AI-Generated Image Placeholder 2</div>
+                </div>
+            </div>
+
+            <CalendarCTA
+                headline="📅 Want Your Custom Church Assessment?"
+                buttonText="Book Discovery Call"
             />
         </div>
     );

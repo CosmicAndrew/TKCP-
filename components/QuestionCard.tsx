@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Question, Answer, Sector, PathDetail } from '../types';
-import { IconCheckCircle } from './common/Icon';
 
 interface QuestionCardProps {
     question: Question;
@@ -10,25 +9,41 @@ interface QuestionCardProps {
     selectedAnswer?: string;
 }
 
-const TwoPathsSimple: React.FC<{ left: PathDetail; right: PathDetail }> = ({ left, right }) => {
+const TwoPathsSimple: React.FC<{ path: PathDetail; sector: Sector }> = ({ path, sector }) => {
+    // A bit of a complex structure to allow for sector-specific path content.
+    // The first "path" is the problem, the second is the solution.
+    const problem = {
+        title: path.title[sector],
+        points: path.points[sector],
+        footer: path.footer[sector]
+    };
+    const solution = {
+        title: { church: "LED Transformation", hospitality: "The LED Advantage" }[sector],
+        points: {
+            church: ["Never change bulbs again", "Technology that just works", "Perfect visibility everywhere", "Ministry focus, not tech stress"],
+            hospitality: ["Zero annual rental costs", "Command premium event pricing", "Unlimited creative flexibility", "Rock-solid reliability"]
+        }[sector],
+        footer: { church: "Best decision we ever made", hospitality: "Our best investment in years" }[sector]
+    };
+
     return (
       <div className="flex flex-col md:flex-row gap-4 md:gap-6 my-8">
         {/* Problem Card */}
         <div className="flex-1 p-5 md:p-6 border-2 border-[#dc3545] rounded-xl bg-[#fff5f5] shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
-          <h3 className="text-center text-xl font-display font-bold text-[#b02a37] mb-4">{left.title}</h3>
+          <h3 className="text-center text-xl font-display font-bold text-[#b02a37] mb-4">{problem.title}</h3>
           <ul className="space-y-2 list-disc list-inside text-gray-700" style={{ lineHeight: 1.5 }}>
-            {left.points.map((point, i) => <li key={i}>{point}</li>)}
+            {problem.points.map((point, i) => <li key={i}>{point}</li>)}
           </ul>
-          <p className="mt-6 text-center italic text-gray-600">"{left.footer}"</p>
+          <p className="mt-6 text-center italic text-gray-600">"{problem.footer}"</p>
         </div>
   
         {/* Solution Card */}
         <div className="flex-1 p-5 md:p-6 border-2 border-church-primary rounded-xl bg-[#f0f4ff] shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
-          <h3 className="text-center text-xl font-display font-bold text-church-primary mb-4">{right.title}</h3>
+          <h3 className="text-center text-xl font-display font-bold text-church-primary mb-4">{solution.title}</h3>
           <ul className="space-y-2 list-disc list-inside text-gray-800" style={{ lineHeight: 1.5 }}>
-            {right.points.map((point, i) => <li key={i}>{point}</li>)}
+            {solution.points.map((point, i) => <li key={i}>{point}</li>)}
           </ul>
-          <p className="mt-6 text-center italic text-church-accent font-semibold">"{right.footer}"</p>
+          <p className="mt-6 text-center italic text-church-accent font-semibold">"{solution.footer}"</p>
         </div>
       </div>
     );
@@ -44,15 +59,21 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
         return () => clearTimeout(timer);
     }, [question]);
 
+    const header = (
+        <div>
+            <p className="text-sm font-bold uppercase tracking-wider text-gray-500 text-center">{question.category}</p>
+            <h2 className="mt-2 text-2xl md:text-3xl font-display font-bold text-gray-800 text-center">{question.text(sector)}</h2>
+        </div>
+    );
+
     if (question.visual === 'two-paths') {
         return (
-             <div className="animate-fade-in">
-                <p className="text-sm font-bold uppercase tracking-wider text-gray-500 text-center">{question.category}</p>
-                <h2 className="mt-2 text-2xl md:text-3xl font-display font-bold text-gray-800 text-center">{question.text}</h2>
+             <div className="animate-fade-in flex-grow flex flex-col">
+                {header}
                 
-                {question.paths && <TwoPathsSimple left={question.paths.left} right={question.paths.right} />}
+                {question.paths && <TwoPathsSimple path={question.paths} sector={sector} />}
                
-                <div className="mt-8 border-t border-gray-200 pt-6">
+                <div className="mt-auto">
                     <h4 className="text-xl font-display font-bold text-gray-700 mb-4 text-center">How committed are you to this transformation?</h4>
                     <div className="space-y-3 max-w-lg mx-auto">
                         {question.options.map((option, index) => (
@@ -60,12 +81,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
                                 key={option.value}
                                 onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
                                 className={`w-full text-left p-4 border rounded-lg text-lg transition-all duration-200 flex items-center
-                                ${isAnimating ? 'opacity-0 animate-fade-in-up' : ''}
                                 ${selectedAnswer === option.value
                                     ? (sector === Sector.Church ? 'border-church-primary ring-2 ring-church-primary/50 bg-church-primary/5' : 'border-hospitality-primary ring-2 ring-hospitality-primary/50 bg-hospitality-primary/5')
                                     : 'border-gray-300 hover:border-gray-400 bg-white'
                                 }`}
-                                style={isAnimating ? { animationDelay: `${100 + index * 100}ms` } : {}}
                             >
                                 <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center
                                   ${selectedAnswer === option.value 
@@ -86,11 +105,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
 
     // Default question card renderer
     return (
-        <div className="animate-fade-in">
-            <p className="text-sm font-bold uppercase tracking-wider text-gray-500">{question.category}</p>
-            <h2 className="mt-2 text-2xl md:text-3xl font-display font-bold text-gray-800">{question.text}</h2>
+        <div className="animate-fade-in flex-grow flex flex-col">
+            <div className="text-left">
+                <p className="text-sm font-bold uppercase tracking-wider text-gray-500">{question.category}</p>
+                <h2 className="mt-2 text-2xl md:text-3xl font-display font-bold text-gray-800">{question.text(sector)}</h2>
+            </div>
 
-            <div className="mt-8 space-y-4">
+            <div className="mt-8 space-y-4 flex-grow">
                 {question.options.map((option, index) => (
                     <button
                         key={option.value}

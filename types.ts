@@ -13,20 +13,17 @@ export interface QuestionOption {
 }
 
 export interface PathDetail {
-    title: string;
-    points: string[];
-    footer: string;
+    title: { [key in Sector]: string };
+    points: { [key in Sector]: string[] };
+    footer: { [key in Sector]: string };
 }
 
 export interface Question {
-  text: string;
-  category: 'Pain Scale' | 'Project Scoping' | 'Timeline' | 'Budget Authority' | 'Impact';
+  text: (sector: Sector) => string;
+  category: string;
   options: QuestionOption[];
   visual?: 'two-paths';
-  paths?: {
-      left: PathDetail;
-      right: PathDetail;
-  };
+  paths?: PathDetail;
 }
 
 export interface Answer {
@@ -35,12 +32,16 @@ export interface Answer {
 }
 
 export interface UserData {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    city: string;
-    state: string;
+    // From main contact form
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    city?: string;
+    state?: string;
+    // from progressive/gatekeeper forms
+    email?: string;
+    fullName?: string;
+    organizationType?: string;
 }
 
 export interface Result {

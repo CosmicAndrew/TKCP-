@@ -1,7 +1,6 @@
 import React from 'react';
 import { GUIDE_SECTIONS } from './index';
-import { IconCheckCircle } from '../common/Icon';
-import { IconCompare, IconRuler, IconChurch, IconClipboard, IconDollarSign, IconChecklist } from '../common/Icon';
+import { IconCheckCircle, IconCompare, IconChurch, IconDollarSign, IconChecklist, IconPrint } from '../common/Icon';
 
 interface SidebarProps {
     activeSection: number;
@@ -11,16 +10,15 @@ interface SidebarProps {
 
 const SECTION_ICONS: { [key: number]: React.ReactNode } = {
     1: <IconCompare className="w-5 h-5" />,
-    2: <IconRuler className="w-5 h-5" />,
-    3: <IconChurch className="w-5 h-5" />,
-    4: <IconClipboard className="w-5 h-5" />,
-    5: <IconDollarSign className="w-5 h-5" />,
-    6: <IconChecklist className="w-5 h-5" />,
+    2: <IconChurch className="w-5 h-5" />,
+    3: <IconDollarSign className="w-5 h-5" />,
+    4: <IconChecklist className="w-5 h-5" />,
+    5: <IconPrint className="w-5 h-5" />,
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection, completedSections }) => {
     return (
-        <div className="bg-white p-4 rounded-lg shadow-lg sticky top-8">
+        <div className="bg-white p-4 rounded-lg shadow-lg sticky top-8 print-hide">
             <h3 className="text-lg font-bold font-display text-gray-800 mb-4 px-2">Guide Sections</h3>
             <nav>
                 <ul>

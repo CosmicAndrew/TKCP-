@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Sector } from '../../../types';
+import { Sector, Result } from '../../../types';
 import InfoCard from '../common/InfoCard';
-import CallToAction from '../common/CallToAction';
-import { IconCheckCircle, IconDollarSign, IconPhone, IconRuler } from '../../common/Icon';
+import CalendarCTA from '../common/CalendarCTA';
+import { IconCheckCircle, IconDollarSign } from '../../common/Icon';
 
 
 interface SectionProps {
   sector: Sector;
+  result: Result;
 }
 
 const Section1_Comparison: React.FC<SectionProps> = ({ sector }) => {
@@ -79,11 +80,9 @@ const Section1_Comparison: React.FC<SectionProps> = ({ sector }) => {
                 </div>
             </div>
 
-            <CallToAction
-                headline="See the Real-World Difference?"
-                subtext="Let's build a custom ROI calculation for your specific needs."
-                buttonText="Schedule a 15-Min ROI Call"
-                onClick={() => console.log('CTA Clicked: ROI Call')}
+            <CalendarCTA
+                headline="🗓️ Ready to See Your Perfect Solution?"
+                buttonText="Schedule Free Consultation"
             />
         </div>
     );

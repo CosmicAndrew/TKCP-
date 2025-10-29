@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { UserData } from '../types';
+import { UserData, Sector } from '../types';
 import { IconArrowRight, IconUser, IconMail, IconPhone, IconLocation } from './common/Icon';
 
 interface ContactFormProps {
     onSubmit: (data: UserData) => void;
+    sector: Sector;
 }
 
 const InputField: React.FC<{ id: string, type: string, placeholder: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, icon: React.ReactNode, required?: boolean, 'aria-label': string }> = 
@@ -26,7 +27,7 @@ const InputField: React.FC<{ id: string, type: string, placeholder: string, valu
     </div>
 );
 
-const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
+const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, sector }) => {
     const [formData, setFormData] = useState<UserData>({
         firstName: '',
         lastName: '',
@@ -69,37 +70,45 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
             onSubmit(formData);
         }
     };
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const utmCampaign = urlParams.get('utm_campaign') || '';
 
     return (
         <div>
             <h2 className="text-3xl font-display font-bold text-center text-gray-800">Excellent! Let's Talk Next Steps.</h2>
             <p className="text-center text-gray-600 mt-2">Provide your details for a priority consultation.</p>
             <form onSubmit={handleSubmit} className="mt-8 space-y-6" noValidate>
+                {/* Hidden fields for HubSpot */}
+                <input type="hidden" name="sector" value={sector} />
+                <input type="hidden" name="source_url" value={window.location.href} />
+                <input type="hidden" name="campaign_source" value={utmCampaign} />
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
-                     <InputField id="firstName" type="text" placeholder="First Name" value={formData.firstName} onChange={handleChange} icon={<IconUser />} required aria-label="First Name" />
+                     <InputField id="firstName" type="text" placeholder="First Name" value={formData.firstName || ''} onChange={handleChange} icon={<IconUser />} required aria-label="First Name" />
                      {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
                    </div>
                    <div>
-                     <InputField id="lastName" type="text" placeholder="Last Name" value={formData.lastName} onChange={handleChange} icon={<IconUser />} required aria-label="Last Name" />
+                     <InputField id="lastName" type="text" placeholder="Last Name" value={formData.lastName || ''} onChange={handleChange} icon={<IconUser />} required aria-label="Last Name" />
                      {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
                    </div>
                 </div>
                 <div>
-                  <InputField id="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} icon={<IconMail />} required aria-label="Email Address" />
+                  <InputField id="email" type="email" placeholder="Email Address" value={formData.email || ''} onChange={handleChange} icon={<IconMail />} required aria-label="Email Address" />
                   {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
                 <div>
-                    <InputField id="phone" type="tel" placeholder="Phone Number" value={formData.phone} onChange={handleChange} icon={<IconPhone />} required aria-label="Phone Number"/>
+                    <InputField id="phone" type="tel" placeholder="Phone Number" value={formData.phone || ''} onChange={handleChange} icon={<IconPhone />} required aria-label="Phone Number"/>
                     {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
-                     <InputField id="city" type="text" placeholder="City" value={formData.city} onChange={handleChange} icon={<IconLocation />} required aria-label="City" />
+                     <InputField id="city" type="text" placeholder="City" value={formData.city || ''} onChange={handleChange} icon={<IconLocation />} required aria-label="City" />
                      {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
                    </div>
                    <div>
-                     <InputField id="state" type="text" placeholder="State" value={formData.state} onChange={handleChange} icon={<IconLocation />} required aria-label="State" />
+                     <InputField id="state" type="text" placeholder="State" value={formData.state || ''} onChange={handleChange} icon={<IconLocation />} required aria-label="State" />
                      {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
                    </div>
                 </div>

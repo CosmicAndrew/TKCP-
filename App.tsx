@@ -3,11 +3,11 @@ import { GoogleGenAI } from "@google/genai";
 import { Sector, LeadStatus, UserData, Answer } from './types';
 import { ASSESSMENT_QUESTIONS, calculateLeadTemperature } from './constants';
 import Header from './components/Header';
-import Landing from './components/Landing';
 import Quiz from './components/Quiz';
 import Confirmation from './components/Confirmation';
 import BuyersGuide from './components/BuyersGuide';
 import Footer from './components/Footer';
+import Spinner from './components/common/Spinner';
 
 // Placeholder for Meta Pixel tracking
 const trackEvent = (eventName: string, params: object = {}) => {
@@ -18,7 +18,7 @@ const trackEvent = (eventName: string, params: object = {}) => {
 
 
 const App: React.FC = () => {
-    const [step, setStep] = useState<'landing' | 'quiz' | 'confirmation' | 'buyersGuide'>('landing');
+    const [step, setStep] = useState<'loading' | 'quiz' | 'confirmation' | 'buyersGuide'>('loading');
     const [sector, setSector] = useState<Sector | null>(null);
     const [quizResult, setQuizResult] = useState<{
         userData: Partial<UserData>;
@@ -31,13 +31,25 @@ const App: React.FC = () => {
 
     useEffect(() => {
         trackEvent('PageView');
-    }, []);
+        
+        // Auto-detect sector from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const sectorParam = (urlParams.get('sector') || urlParams.get('org') || '').toLowerCase();
+        const utmCampaign = (urlParams.get('utm_campaign') || '').toLowerCase();
 
-    const handleStart = (selectedSector: Sector) => {
-        trackEvent('SectorSelected', { sector: selectedSector });
-        setSector(selectedSector);
+        let detectedSector: Sector = Sector.Church; // Default to church
+
+        if (utmCampaign.includes('hospitality') || sectorParam === 'hospitality' || sectorParam === 'venue' || sectorParam === 'business') {
+            detectedSector = Sector.Hospitality;
+        } else if (utmCampaign.includes('church') || sectorParam === 'church' || sectorParam === 'worship' || sectorParam === 'ministry') {
+            detectedSector = Sector.Church;
+        }
+        
+        console.log(`Detected Sector: ${detectedSector}`);
+        setSector(detectedSector);
         setStep('quiz');
-    };
+
+    }, []);
 
     const generatePersonalizedInsights = useCallback(async (finalScore: number, finalAnswers: { [key: number]: Answer }, finalSector: Sector) => {
         setIsLoading(true);
@@ -53,7 +65,7 @@ const App: React.FC = () => {
                 if (!answer) return null;
                 const option = q.options.find(o => o.value === answer.value);
                 return {
-                    question: q.text,
+                    question: q.text(finalSector),
                     answer: option ? option.text[finalSector] : 'Not answered',
                     points: answer.points
                 };
@@ -62,7 +74,7 @@ const App: React.FC = () => {
             const prompt = `
             You are an expert BANT (Budget, Authority, Need, Timeline) sales consultant for TKCP.
             A potential client from the '${finalSector === 'church' ? 'House of Worship' : 'Venue/Business'}' sector has completed a qualification assessment.
-            Their final score is ${finalScore} out of 20.
+            Their final score is ${finalScore} out of 16.
             Their answers: ${JSON.stringify(formattedAnswers, null, 2)}
             Based on this, generate a brief, encouraging summary and three actionable insights to be sent in a follow-up email.
             The tone should be consultative and justify the next steps.
@@ -105,37 +117,34 @@ const App: React.FC = () => {
     };
 
     const handleReset = () => {
-        setStep('landing');
-        setSector(null);
-        setQuizResult(null);
-        setIsLoading(false);
-        setError(null);
+        window.location.search = ''; // Clears params and re-triggers detection
     };
 
     const renderContent = () => {
         switch(step) {
-            case 'landing':
-                return <Landing onStart={handleStart} />;
+            case 'loading':
+                return <div className="flex justify-center items-center h-64"><Spinner /></div>;
             case 'quiz':
                  if (sector) {
                     return <Quiz sector={sector} onComplete={handleQuizComplete} />;
                  }
-                 setStep('landing');
-                 return <Landing onStart={handleStart} />;
+                 // This case should ideally not be reached due to the initial detection
+                 return <div className="text-center">Loading assessment...</div>;
             case 'confirmation':
                 if (quizResult) {
                      return <Confirmation result={quizResult} onReset={handleReset} />;
                 }
-                 setStep('landing');
-                 return <Landing onStart={handleStart} />;
+                 setStep('loading'); // Go back to loading to re-detect
+                 return null;
             case 'buyersGuide':
                 if (quizResult && sector) {
                     return <BuyersGuide result={quizResult} sector={sector} onReset={handleReset} />;
                 }
-                setStep('landing');
-                return <Landing onStart={handleStart} />;
+                setStep('loading'); // Go back to loading to re-detect
+                return null;
             default:
-                return <Landing onStart={handleStart} />;
+                setStep('loading');
+                return null;
         }
     };
 

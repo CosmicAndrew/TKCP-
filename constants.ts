@@ -1,4 +1,4 @@
-import { Question } from './types';
+import { Question, Sector } from './types';
 
 export const TKCP_CONFIG = {
     companyName: "Thy Kingdom Come Productions",
@@ -22,7 +22,9 @@ export const calculateLeadTemperature = (totalScore: number) => {
 export const ASSESSMENT_QUESTIONS: Question[] = [
   // Question 1: Pain Scale
   {
-    text: "On a scale of 1-10, how frustrated are you with projector maintenance and failures?",
+    text: (sector: Sector) => sector === 'church' 
+        ? "On a scale of 1-10, how frustrated are you with projector maintenance and Sunday failures?"
+        : "On a scale of 1-10, how frustrated are you with high AV rental costs and booking limitations?",
     category: "Pain Scale",
     options: [
       { value: '9-10', text: { church: '9-10: Extremely frustrated - It\'s a major pain point.', hospitality: '9-10: Extremely frustrated - It\'s costing us significantly.' }, points: 4 },
@@ -33,7 +35,7 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
   },
   // Question 2: Organization Size
   {
-    text: "What's your organization's size?",
+    text: () => "What's your organization's size?",
     category: "Project Scoping",
     options: [
       { value: '<200', text: { church: 'Under 200 people', hospitality: 'Under 200 capacity' }, points: 1 },
@@ -44,7 +46,7 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
   },
   // Question 3: Timeline/Compelling Event
   {
-    text: "Within the next 3-6 months, are you planning to upgrade your visual/tech capabilities?",
+    text: () => "Within the next 3-6 months, are you planning to upgrade your visual/tech capabilities?",
     category: "Timeline",
     options: [
       { value: 'yes_now', text: { church: 'Yes, we are actively exploring options now.', hospitality: 'Yes, we are actively exploring options now.' }, points: 4 },
@@ -55,7 +57,9 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
   },
    // Question 4: Budget Authority
   {
-    text: "Is an LED/AV upgrade part of your 2026 budget conversation?",
+    text: (sector: Sector) => sector === 'church' 
+        ? "Is upgrading your worship technology something your leadership team is discussing for 2026?"
+        : "Is upgrading your venue's AV capabilities something you're budgeting for in 2026?",
     category: "Budget Authority",
     options: [
       { value: 'approved', text: { church: 'Yes, it\'s already approved/allocated.', hospitality: 'Yes, it\'s already approved/allocated.' }, points: 4 },
@@ -66,34 +70,36 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
   },
   // Question 5: Transformation Thirst Builder
   {
-    text: "Which path best describes your future?",
+    text: () => "Which path best describes your future?",
     category: "Impact",
     visual: 'two-paths',
     paths: {
-        left: {
-            title: "Current Projector Reality",
-            points: [
+        title: {
+            church: "Current Projector Reality",
+            hospitality: "The Old AV Approach"
+        },
+        points: {
+            church: [
                 "Constant bulb replacements",
                 "Emergency repair calls",
                 "Sunday morning stress",
                 "Poor back-row visibility",
             ],
-            footer: `Maybe next year we'll upgrade...`
+            hospitality: [
+                "High AV rental costs",
+                "Lost bookings to better-equipped venues",
+                "Limited creative options",
+                "Complex, unreliable setups"
+            ]
         },
-        right: {
-            title: "LED Transformation",
-            points: [
-                "Never change bulbs again",
-                "Technology that just works",
-                "Perfect visibility everywhere",
-                "Ministry focus, not tech stress",
-            ],
-            footer: `Best decision we ever made`
+        footer: {
+            church: `Maybe next year we'll upgrade...`,
+            hospitality: `It's just the cost of doing business...`
         }
     },
     options: [
-        { value: 'committed', text: { church: '🎯 Fully committed - let\'s make this happen', hospitality: '🎯 Fully committed - let\'s make this happen' }, points: 4 },
-        { value: 'leaning', text: { church: '🧭 Leaning toward it - want to understand the process', hospitality: '🧭 Leaning toward it - want to understand the process' }, points: 2 },
+        { value: 'committed', text: { church: '🎯 Fully committed - let\'s make this happen', hospitality: '🎯 Fully committed - let\'s make this happen' }, points: 0 },
+        { value: 'leaning', text: { church: '🧭 Leaning toward it - want to understand the process', hospitality: '🧭 Leaning toward it - want to understand the process' }, points: 0 },
         { value: 'exploring', text: { church: '📚 Just exploring - not ready to decide yet', hospitality: '📚 Just exploring - not ready to decide yet' }, points: 0 },
     ],
   },
