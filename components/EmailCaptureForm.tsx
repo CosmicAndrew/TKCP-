@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { UserData } from '../types';
-import { IconArrowRight, IconUser, IconMail, IconPhone, IconLocation } from './common/Icon';
+import { IconArrowRight, IconUser, IconMail } from './common/Icon';
 
-interface ContactFormProps {
-    onSubmit: (data: UserData) => void;
+interface EmailCaptureFormProps {
+    onSubmit: (data: Partial<UserData>) => void;
 }
 
 const InputField: React.FC<{ id: string, type: string, placeholder: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, icon: React.ReactNode, required?: boolean, 'aria-label': string }> = 
@@ -26,21 +26,17 @@ const InputField: React.FC<{ id: string, type: string, placeholder: string, valu
     </div>
 );
 
-const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
-    const [formData, setFormData] = useState<UserData>({
+const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit }) => {
+    const [formData, setFormData] = useState({
         firstName: '',
-        lastName: '',
         email: '',
-        phone: '',
-        city: '',
-        state: '',
     });
     
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        if (errors[e.target.name]) {
+         if (errors[e.target.name]) {
              setErrors({ ...errors, [e.target.name]: '' });
         }
     };
@@ -48,16 +44,11 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
     const validate = () => {
         const newErrors: { [key: string]: string } = {};
         if (!formData.firstName) newErrors.firstName = "First name is required.";
-        if (!formData.lastName) newErrors.lastName = "Last name is required.";
         if (!formData.email) {
             newErrors.email = "Email is required.";
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = "Email is invalid.";
         }
-        if (!formData.phone) newErrors.phone = "Phone number is required.";
-        if (!formData.city) newErrors.city = "City is required.";
-        if (!formData.state) newErrors.state = "State is required.";
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     }
@@ -65,50 +56,28 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if(validate()){
-            console.log("Submitting to HubSpot (simulated):", formData);
             onSubmit(formData);
         }
     };
 
     return (
         <div>
-            <h2 className="text-3xl font-display font-bold text-center text-gray-800">Excellent! Let's Talk Next Steps.</h2>
-            <p className="text-center text-gray-600 mt-2">Provide your details for a priority consultation.</p>
-            <form onSubmit={handleSubmit} className="mt-8 space-y-6" noValidate>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div>
+            <h2 className="text-3xl font-display font-bold text-center text-gray-800">Great! Let's Stay in Touch.</h2>
+            <p className="text-center text-gray-600 mt-2">Enter your info to receive our LED Buyer's Guide and valuable insights.</p>
+            <form onSubmit={handleSubmit} className="mt-8 space-y-6 max-w-md mx-auto" noValidate>
+                 <div>
                      <InputField id="firstName" type="text" placeholder="First Name" value={formData.firstName} onChange={handleChange} icon={<IconUser />} required aria-label="First Name" />
                      {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
                    </div>
-                   <div>
-                     <InputField id="lastName" type="text" placeholder="Last Name" value={formData.lastName} onChange={handleChange} icon={<IconUser />} required aria-label="Last Name" />
-                     {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
-                   </div>
-                </div>
                 <div>
-                  <InputField id="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} icon={<IconMail />} required aria-label="Email Address" />
+                  <InputField id="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} icon={<IconMail />} required aria-label="Email Address"/>
                   {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
-                <div>
-                    <InputField id="phone" type="tel" placeholder="Phone Number" value={formData.phone} onChange={handleChange} icon={<IconPhone />} required aria-label="Phone Number"/>
-                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div>
-                     <InputField id="city" type="text" placeholder="City" value={formData.city} onChange={handleChange} icon={<IconLocation />} required aria-label="City" />
-                     {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
-                   </div>
-                   <div>
-                     <InputField id="state" type="text" placeholder="State" value={formData.state} onChange={handleChange} icon={<IconLocation />} required aria-label="State" />
-                     {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
-                   </div>
-                </div>
-
                 <button
                     type="submit"
                     className="w-full flex items-center justify-center bg-church-primary text-white font-bold py-3 px-6 rounded-md hover:bg-church-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-church-primary transition-all duration-300"
                 >
-                    Book My Consultation
+                    Send Information
                     <IconArrowRight className="ml-2" />
                 </button>
             </form>
@@ -116,4 +85,4 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
     );
 };
 
-export default ContactForm;
+export default EmailCaptureForm;

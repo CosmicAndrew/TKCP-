@@ -1,15 +1,15 @@
-
 import React from 'react';
+import { TKCP_CONFIG } from '../constants';
 
 const Header: React.FC = () => {
     return (
         <header className="bg-white shadow-md">
             <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                <h1 className="text-2xl md:text-3xl font-display font-bold text-church-primary">
-                    Thy Kingdom Come Productions
-                </h1>
-                <a href="tel:+14698409808" className="hidden sm:inline-block text-sm font-bold text-church-primary hover:text-church-accent transition-colors">
-                    (469) 840-9808
+                <a href={TKCP_CONFIG.website} target="_blank" rel="noopener noreferrer" className="text-2xl md:text-3xl font-display font-bold text-church-primary">
+                    {TKCP_CONFIG.companyName}
+                </a>
+                <a href={TKCP_CONFIG.phoneLink} className="hidden sm:inline-block text-sm font-bold text-church-primary hover:text-church-accent transition-colors">
+                    {TKCP_CONFIG.phone}
                 </a>
             </div>
         </header>

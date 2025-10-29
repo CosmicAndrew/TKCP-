@@ -12,10 +12,21 @@ export interface QuestionOption {
   tooltip?: { [key in Sector]: string };
 }
 
+export interface PathDetail {
+    title: string;
+    points: string[];
+    footer: string;
+}
+
 export interface Question {
   text: string;
-  category: 'Readiness' | 'Alignment' | 'Impact';
+  category: 'Pain Scale' | 'Project Scoping' | 'Timeline' | 'Budget Authority' | 'Impact';
   options: QuestionOption[];
+  visual?: 'two-paths';
+  paths?: {
+      left: PathDetail;
+      right: PathDetail;
+  };
 }
 
 export interface Answer {
