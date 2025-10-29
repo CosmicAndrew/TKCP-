@@ -39,10 +39,13 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
     text: "What is the approximate capacity of your main venue space?",
     category: "Alignment",
     options: [
+      { value: '<200', text: { church: 'Seats less than 200 people', hospitality: 'Accommodates less than 100 guests' }, points: 0.5 }      
+      { value: '200-500', text: { church: 'Seats 200-500 people', hospitality: 'Accommodates 100-300 guests' }, points: 1 }      
+      { value: '500-1000', text: { church: 'Seats 500-1,000 people', hospitality: 'Accommodates 300-750 guests' }, points: 1.5 }      
       { value: '1000+', text: { church: 'Seats over 1,000 people', hospitality: 'Accommodates over 750 guests' }, points: 2 },
-      { value: '500-1000', text: { church: 'Seats 500-1,000 people', hospitality: 'Accommodates 300-750 guests' }, points: 1.5 },
-      { value: '200-500', text: { church: 'Seats 200-500 people', hospitality: 'Accommodates 100-300 guests' }, points: 1 },
-      { value: '<200', text: { church: 'Seats less than 200 people', hospitality: 'Accommodates less than 100 guests' }, points: 0.5 },
+,
+,
+,
     ],
   },
   // Question 5: Timeline
