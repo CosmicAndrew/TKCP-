@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { UserData } from '../types';
+import { UserData, Sector } from '../types';
 import { IconArrowRight, IconUser, IconPhone, IconBuildingOffice } from './common/Icon';
 
 interface EmailCaptureFormProps {
     onSubmit: (data: Partial<UserData>) => void;
+    sector: Sector;
 }
 
-const InputField: React.FC<{ id: string, type: string, placeholder: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, icon: React.ReactNode, required?: boolean, 'aria-label': string }> = 
-({ id, type, placeholder, value, onChange, icon, required, 'aria-label': ariaLabel }) => (
+const InputField: React.FC<{ id: string, type: string, placeholder: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, icon: React.ReactNode, required?: boolean, 'aria-label': string, error?: string }> = 
+({ id, type, placeholder, value, onChange, icon, required, 'aria-label': ariaLabel, error }) => (
     <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400" aria-hidden="true">
             {icon}
@@ -21,13 +22,19 @@ const InputField: React.FC<{ id: string, type: string, placeholder: string, valu
             onChange={onChange}
             required={required}
             aria-label={ariaLabel}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-church-primary focus:border-transparent transition"
+            aria-invalid={!!error}
+            aria-describedby={error ? `${id}-error` : undefined}
+            className={`w-full pl-10 pr-4 py-3 border rounded-md focus:ring-2 focus:border-transparent transition ${
+                error 
+                ? 'border-red-500 focus:ring-red-500' 
+                : 'border-gray-300 focus:ring-church-primary'
+            }`}
         />
     </div>
 );
 
-const SelectField: React.FC<{ id: string, value: string, onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void, icon: React.ReactNode, required?: boolean, children: React.ReactNode, 'aria-label': string }> =
-({ id, value, onChange, icon, required, children, 'aria-label': ariaLabel }) => (
+const SelectField: React.FC<{ id: string, value: string, onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void, icon: React.ReactNode, required?: boolean, children: React.ReactNode, 'aria-label': string, error?: string }> =
+({ id, value, onChange, icon, required, children, 'aria-label': ariaLabel, error }) => (
     <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400" aria-hidden="true">
             {icon}
@@ -39,7 +46,13 @@ const SelectField: React.FC<{ id: string, value: string, onChange: (e: React.Cha
             onChange={onChange}
             required={required}
             aria-label={ariaLabel}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-church-primary focus:border-transparent transition appearance-none"
+            aria-invalid={!!error}
+            aria-describedby={error ? `${id}-error` : undefined}
+            className={`w-full pl-10 pr-4 py-3 border rounded-md focus:ring-2 focus:border-transparent transition appearance-none ${
+                error 
+                ? 'border-red-500 focus:ring-red-500' 
+                : 'border-gray-300 focus:ring-church-primary'
+            }`}
         >
             {children}
         </select>
@@ -50,11 +63,11 @@ const SelectField: React.FC<{ id: string, value: string, onChange: (e: React.Cha
 );
 
 
-const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit }) => {
+const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit, sector }) => {
     const [formData, setFormData] = useState({
         fullName: '',
         phone: '',
-        organizationType: '',
+        organizationType: sector,
     });
     
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -88,20 +101,20 @@ const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit }) => {
             <p className="text-center text-gray-600 mt-2">Enter your details to access the complete guide and valuable insights.</p>
             <form onSubmit={handleSubmit} className="mt-8 space-y-6 max-w-md mx-auto" noValidate>
                  <div>
-                     <InputField id="fullName" type="text" placeholder="Full Name*" value={formData.fullName} onChange={handleChange} icon={<IconUser />} required aria-label="Full Name" />
-                     {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+                     <InputField id="fullName" type="text" placeholder="Full Name*" value={formData.fullName} onChange={handleChange} icon={<IconUser />} required aria-label="Full Name" error={errors.fullName} />
+                     {errors.fullName && <p id="fullName-error" className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
                    </div>
                 <div>
-                  <InputField id="phone" type="tel" placeholder="Phone Number*" value={formData.phone} onChange={handleChange} icon={<IconPhone />} required aria-label="Phone Number"/>
-                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                  <InputField id="phone" type="tel" placeholder="Phone Number*" value={formData.phone} onChange={handleChange} icon={<IconPhone />} required aria-label="Phone Number" error={errors.phone} />
+                  {errors.phone && <p id="phone-error" className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
                 <div>
-                  <SelectField id="organizationType" value={formData.organizationType} onChange={handleChange} icon={<IconBuildingOffice/>} required aria-label="Organization Type">
+                  <SelectField id="organizationType" value={formData.organizationType} onChange={handleChange} icon={<IconBuildingOffice/>} required aria-label="Organization Type" error={errors.organizationType}>
                         <option value="">Organization Type*</option>
                         <option value="church">House of Worship</option>
                         <option value="hospitality">Venue/Business</option>
                   </SelectField>
-                  {errors.organizationType && <p className="text-red-500 text-sm mt-1">{errors.organizationType}</p>}
+                  {errors.organizationType && <p id="organizationType-error" className="text-red-500 text-sm mt-1">{errors.organizationType}</p>}
                 </div>
 
                 <button

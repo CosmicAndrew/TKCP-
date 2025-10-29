@@ -10,7 +10,7 @@ interface SectionProps {
 const Section5_Investment: React.FC<SectionProps> = ({ sector }) => {
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800">3. Investment & Financing</h2>
+            <h2 className="text-3xl font-display font-bold text-gray-800">4. Investment & Financing</h2>
             <p className="mt-2 text-gray-600">Understanding the financial side of your LED upgrade and the long-term value it brings.</p>
             
              <div className="mt-8 p-6 bg-gray-50 rounded-lg text-center">
@@ -29,6 +29,7 @@ const Section5_Investment: React.FC<SectionProps> = ({ sector }) => {
             <CalendarCTA
                 headline="💰 Discuss Your Investment Options"
                 buttonText="Schedule Budget Planning Call"
+                meetingType="planning"
             />
         </div>
     );

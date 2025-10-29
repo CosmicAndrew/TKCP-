@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Result, Sector, UserData } from '../../types';
+import * as HubSpot from '../../services/hubspot';
 import Sidebar from './Sidebar';
-import Section1_Comparison from './sections/Section1_Comparison';
-import Section3_Considerations from './sections/Section3_Considerations';
-import Section5_Investment from './sections/Section5_Investment';
-import Section6_Process from './sections/Section6_Process';
-import Section5_Summary from './sections/Section5_Summary';
 import { IconBookOpen, IconRefresh } from '../common/Icon';
 import ProgressiveForm from './common/ProgressiveForm';
+import Spinner from '../common/Spinner';
+
+// Lazy load sections for performance
+const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
+const Section2_MarketIntelligence = lazy(() => import('./sections/Section2_MarketIntelligence'));
+const Section3_Considerations = lazy(() => import('./sections/Section3_Considerations'));
+const Section5_Investment = lazy(() => import('./sections/Section5_Investment'));
+const Section6_Process = lazy(() => import('./sections/Section6_Process'));
+const Section5_Summary = lazy(() => import('./sections/Section5_Summary'));
+
 
 interface BuyersGuideProps {
     result: Result;
@@ -17,53 +23,64 @@ interface BuyersGuideProps {
 
 export const GUIDE_SECTIONS = [
     { id: 1, title: 'LED vs. Projector', component: Section1_Comparison },
-    { id: 2, title: 'Church-Specific Considerations', component: Section3_Considerations },
-    { id: 3, title: 'Investment & Financing', component: Section5_Investment },
-    { id: 4, title: 'Implementation Process', component: Section6_Process },
-    { id: 5, title: 'Your Custom LED Summary', component: Section5_Summary },
+    { id: 2, title: 'Market Intelligence', component: Section2_MarketIntelligence },
+    { id: 3, title: 'Sector-Specific Considerations', component: Section3_Considerations },
+    { id: 4, title: 'Investment & Financing', component: Section5_Investment },
+    { id: 5, title: 'Implementation Process', component: Section6_Process },
+    { id: 6, title: 'Your Custom LED Summary', component: Section5_Summary },
 ];
 
 const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) => {
     const [activeSection, setActiveSection] = useState(1);
     const [completedSections, setCompletedSections] = useState<Set<number>>(new Set([1]));
-    const [isProfileComplete, setIsProfileComplete] = useState(!!result.userData.email);
+    const [userData, setUserData] = useState(result.userData);
     const [showProgressiveForm, setShowProgressiveForm] = useState(false);
 
+    const isProfileComplete = !!userData.email;
+
      useEffect(() => {
-        // Track section view in HubSpot
-        console.log(`Lead Nurturing Event: User viewed Section ${activeSection}`, { email: result.userData.email });
+        HubSpot.trackEvent(`Viewed Guide Section ${activeSection}`, HubSpot.getSessionUserId());
         
-        // Trigger progressive form on sections 2 or 3 if profile is not complete
         if ((activeSection === 2 || activeSection === 3) && !isProfileComplete) {
             setShowProgressiveForm(true);
         }
+        
+        if (activeSection === GUIDE_SECTIONS.length) {
+            HubSpot.trackEvent('Finished Buyer\'s Guide', HubSpot.getSessionUserId());
+        }
 
-    }, [activeSection, isProfileComplete, result.userData.email]);
+    }, [activeSection, isProfileComplete]);
 
     const handleSectionChange = (sectionId: number) => {
-        if ((sectionId === 2 || sectionId === 3) && !isProfileComplete) {
-            setShowProgressiveForm(true);
-        } else {
-            setActiveSection(sectionId);
-            setCompletedSections(prev => new Set(prev).add(sectionId));
+        if (sectionId > 0 && sectionId <= GUIDE_SECTIONS.length) {
+             if ((sectionId > 1) && !isProfileComplete) {
+                setShowProgressiveForm(true);
+            } else {
+                setActiveSection(sectionId);
+                setCompletedSections(prev => new Set(prev).add(sectionId));
+            }
         }
     };
     
     const handleProgressiveFormSubmit = (data: Partial<UserData>) => {
-        // In a real app, you'd send this to your backend/HubSpot
-        console.log("Progressive form submitted:", data);
-        // Here we just update local state to unblock the UI
-        setIsProfileComplete(true);
+        const updatedUserData = { ...userData, ...data };
+        setUserData(updatedUserData);
+        HubSpot.upsertContact({
+            session_user_id: HubSpot.getSessionUserId(),
+            ...data
+        });
+        HubSpot.trackEvent('Progressive Form Submitted', HubSpot.getSessionUserId());
         setShowProgressiveForm(false);
-        // We can now proceed to the section the user wanted to see
         setCompletedSections(prev => new Set(prev).add(activeSection));
     };
 
     const ActiveComponent = GUIDE_SECTIONS.find(s => s.id === activeSection)?.component;
     const isLastSection = activeSection === GUIDE_SECTIONS.length;
 
+    const currentResult = { ...result, userData };
+
     return (
-        <div className="animate-fade-in">
+        <div className="animate-fade-in buyer-guide-container">
             {showProgressiveForm && (
                 <ProgressiveForm
                     onSubmit={handleProgressiveFormSubmit}
@@ -74,7 +91,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
                 <IconBookOpen className="w-12 h-12 mx-auto text-church-primary" />
                 <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-800 mt-4">Your Interactive LED Buyer's Guide</h1>
                 <p className="mt-2 text-lg text-gray-600 max-w-2xl mx-auto">
-                    Welcome, {result.userData.firstName || result.userData.fullName}! This guide is tailored to help you make the most informed decision for your {sector === 'church' ? 'House of Worship' : 'Venue'}.
+                    Welcome, {userData.firstName || userData.fullName}! This guide is tailored to help you make the most informed decision for your {sector === 'church' ? 'House of Worship' : 'Venue'}.
                 </p>
             </div>
 
@@ -88,7 +105,9 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
                 </aside>
                 <main className="flex-1 bg-white p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col">
                    <div className="flex-grow">
-                     {ActiveComponent && <ActiveComponent sector={sector} result={result} />}
+                        <Suspense fallback={<div className="flex justify-center items-center h-64"><Spinner /></div>}>
+                            {ActiveComponent && <ActiveComponent sector={sector} result={currentResult} />}
+                        </Suspense>
                    </div>
                    {!isLastSection && (
                        <div className="mt-8 pt-6 border-t flex justify-between items-center print-hide">

@@ -10,6 +10,16 @@ export const TKCP_CONFIG = {
         churchAccent: "#D4AF37",
         hospitalityPrimary: "#1B365D",
         hospitalityAccent: "#FF6B35"
+    },
+    logoBase64: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjYwIiB2aWV3Qm94PSIwIDAgMjAwIDYwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjx0ZXh0IHg9IjEwIiB5PSI0NSIgZm9udC1mYW1pbHk9IidQbGF5ZmFpciBEaXNwbGF5Jywgc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiBmb250LXNpemU9IjI0IiBmaWxsPSIjMkI0QzdFIj5US0NQPC90ZXh0Pjwvc3ZnPg=="
+};
+
+export const HUBSPOT_CONFIG = {
+    portalId: 'YOUR_PORTAL_ID', // Replace with actual Portal ID
+    meetingLinks: {
+        priority: 'https://meetings.hubspot.com/tkcp/priority',
+        discovery: 'https://meetings.hubspot.com/tkcp/discovery',
+        planning: 'https://meetings.hubspot.com/tkcp/followup'
     }
 };
 
@@ -55,17 +65,17 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
       { value: 'no', text: { church: 'No immediate plans.', hospitality: 'No immediate plans.' }, points: 0 },
     ],
   },
-   // Question 4: Budget Authority
+  // Question 4: NEW - Compelling Event Driver
   {
     text: (sector: Sector) => sector === 'church' 
-        ? "Is upgrading your worship technology something your leadership team is discussing for 2026?"
-        : "Is upgrading your venue's AV capabilities something you're budgeting for in 2026?",
-    category: "Budget Authority",
+        ? "What's the main driver behind your interest in LED technology?"
+        : "What's the main driver behind your interest in LED technology?",
+    category: "Compelling Event",
     options: [
-      { value: 'approved', text: { church: 'Yes, it\'s already approved/allocated.', hospitality: 'Yes, it\'s already approved/allocated.' }, points: 4 },
-      { value: 'advocating', text: { church: 'Yes, we\'re currently advocating for it.', hospitality: 'Yes, we\'re currently advocating for it.' }, points: 3 },
-      { value: 'discuss', text: { church: 'We still need to discuss it with leadership.', hospitality: 'We still need to discuss it with the project team.' }, points: 2 },
-      { value: 'not_yet', text: { church: 'No, it\'s not on the radar yet.', hospitality: 'No, it\'s not on the radar yet.' }, points: 0 },
+        { value: 'urgent_problem', text: { church: 'Our current system keeps failing when we need it most', hospitality: 'Our current limitations are costing us bookings' }, points: 4 },
+        { value: 'planned_upgrade', text: { church: 'We\'re planning facility improvements for 2026', hospitality: 'We\'re planning venue upgrades for competitive advantage' }, points: 3 },
+        { value: 'future_proofing', text: { church: 'Want to future-proof our ministry technology', hospitality: 'Want to enhance our event capabilities' }, points: 2 },
+        { value: 'general_interest', text: { church: 'Just learning about LED options', hospitality: 'Just exploring what\'s available' }, points: 1 },
     ],
   },
   // Question 5: Transformation Thirst Builder
@@ -98,9 +108,9 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
         }
     },
     options: [
-        { value: 'committed', text: { church: '🎯 Fully committed - let\'s make this happen', hospitality: '🎯 Fully committed - let\'s make this happen' }, points: 0 },
-        { value: 'leaning', text: { church: '🧭 Leaning toward it - want to understand the process', hospitality: '🧭 Leaning toward it - want to understand the process' }, points: 0 },
-        { value: 'exploring', text: { church: '📚 Just exploring - not ready to decide yet', hospitality: '📚 Just exploring - not ready to decide yet' }, points: 0 },
+        { value: 'committed', text: { church: '🎯 Fully committed - let\'s make this happen', hospitality: '🎯 Fully committed - let\'s make this happen' }, points: 4 },
+        { value: 'leaning', text: { church: '🧭 Leaning toward it - want to understand the process', hospitality: '🧭 Leaning toward it - want to understand the process' }, points: 2 },
+        { value: 'exploring', text: { church: '📚 Just exploring - not ready to decide yet', hospitality: '📚 Just exploring - not ready to decide yet' }, points: 1 },
     ],
   },
 ];

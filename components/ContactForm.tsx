@@ -7,8 +7,8 @@ interface ContactFormProps {
     sector: Sector;
 }
 
-const InputField: React.FC<{ id: string, type: string, placeholder: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, icon: React.ReactNode, required?: boolean, 'aria-label': string }> = 
-({ id, type, placeholder, value, onChange, icon, required, 'aria-label': ariaLabel }) => (
+const InputField: React.FC<{ id: string, type: string, placeholder: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, icon: React.ReactNode, required?: boolean, 'aria-label': string, error?: string }> = 
+({ id, type, placeholder, value, onChange, icon, required, 'aria-label': ariaLabel, error }) => (
     <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400" aria-hidden="true">
             {icon}
@@ -22,7 +22,13 @@ const InputField: React.FC<{ id: string, type: string, placeholder: string, valu
             onChange={onChange}
             required={required}
             aria-label={ariaLabel}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-church-primary focus:border-transparent transition"
+            aria-invalid={!!error}
+            aria-describedby={error ? `${id}-error` : undefined}
+            className={`w-full pl-10 pr-4 py-3 border rounded-md focus:ring-2 focus:border-transparent transition ${
+                error 
+                ? 'border-red-500 focus:ring-red-500' 
+                : 'border-gray-300 focus:ring-church-primary'
+            }`}
         />
     </div>
 );
@@ -86,36 +92,36 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, sector }) => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
-                     <InputField id="firstName" type="text" placeholder="First Name" value={formData.firstName || ''} onChange={handleChange} icon={<IconUser />} required aria-label="First Name" />
-                     {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
+                     <InputField id="firstName" type="text" placeholder="First Name" value={formData.firstName || ''} onChange={handleChange} icon={<IconUser />} required aria-label="First Name" error={errors.firstName} />
+                     {errors.firstName && <p id="firstName-error" className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
                    </div>
                    <div>
-                     <InputField id="lastName" type="text" placeholder="Last Name" value={formData.lastName || ''} onChange={handleChange} icon={<IconUser />} required aria-label="Last Name" />
-                     {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
+                     <InputField id="lastName" type="text" placeholder="Last Name" value={formData.lastName || ''} onChange={handleChange} icon={<IconUser />} required aria-label="Last Name" error={errors.lastName} />
+                     {errors.lastName && <p id="lastName-error" className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
                    </div>
                 </div>
                 <div>
-                  <InputField id="email" type="email" placeholder="Email Address" value={formData.email || ''} onChange={handleChange} icon={<IconMail />} required aria-label="Email Address" />
-                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                  <InputField id="email" type="email" placeholder="Email Address" value={formData.email || ''} onChange={handleChange} icon={<IconMail />} required aria-label="Email Address" error={errors.email} />
+                  {errors.email && <p id="email-error" className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
                 <div>
-                    <InputField id="phone" type="tel" placeholder="Phone Number" value={formData.phone || ''} onChange={handleChange} icon={<IconPhone />} required aria-label="Phone Number"/>
-                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                    <InputField id="phone" type="tel" placeholder="Phone Number" value={formData.phone || ''} onChange={handleChange} icon={<IconPhone />} required aria-label="Phone Number" error={errors.phone} />
+                    {errors.phone && <p id="phone-error" className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
-                     <InputField id="city" type="text" placeholder="City" value={formData.city || ''} onChange={handleChange} icon={<IconLocation />} required aria-label="City" />
-                     {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                     <InputField id="city" type="text" placeholder="City" value={formData.city || ''} onChange={handleChange} icon={<IconLocation />} required aria-label="City" error={errors.city} />
+                     {errors.city && <p id="city-error" className="text-red-500 text-sm mt-1">{errors.city}</p>}
                    </div>
                    <div>
-                     <InputField id="state" type="text" placeholder="State" value={formData.state || ''} onChange={handleChange} icon={<IconLocation />} required aria-label="State" />
-                     {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
+                     <InputField id="state" type="text" placeholder="State" value={formData.state || ''} onChange={handleChange} icon={<IconLocation />} required aria-label="State" error={errors.state} />
+                     {errors.state && <p id="state-error" className="text-red-500 text-sm mt-1">{errors.state}</p>}
                    </div>
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full flex items-center justify-center bg-church-primary text-white font-bold py-3 px-6 rounded-md hover:bg-church-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-church-primary transition-all duration-300"
+                    className="w-full flex items-center justify-center bg-church-primary text-white font-bold py-3 px-6 rounded-md hover:bg-church-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-church-primary transform hover:-translate-y-1 transition-all duration-300"
                 >
                     Book My Consultation
                     <IconArrowRight className="ml-2" />

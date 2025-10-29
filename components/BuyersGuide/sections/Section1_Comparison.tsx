@@ -83,6 +83,7 @@ const Section1_Comparison: React.FC<SectionProps> = ({ sector }) => {
             <CalendarCTA
                 headline="🗓️ Ready to See Your Perfect Solution?"
                 buttonText="Schedule Free Consultation"
+                meetingType="discovery"
             />
         </div>
     );

@@ -10,8 +10,6 @@ interface QuestionCardProps {
 }
 
 const TwoPathsSimple: React.FC<{ path: PathDetail; sector: Sector }> = ({ path, sector }) => {
-    // A bit of a complex structure to allow for sector-specific path content.
-    // The first "path" is the problem, the second is the solution.
     const problem = {
         title: path.title[sector],
         points: path.points[sector],
@@ -27,9 +25,9 @@ const TwoPathsSimple: React.FC<{ path: PathDetail; sector: Sector }> = ({ path, 
     };
 
     return (
-      <div className="flex flex-col md:flex-row gap-4 md:gap-6 my-8">
+      <div className="two-paths-comparison flex flex-col md:flex-row gap-4 md:gap-6 my-8">
         {/* Problem Card */}
-        <div className="flex-1 p-5 md:p-6 border-2 border-[#dc3545] rounded-xl bg-[#fff5f5] shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
+        <div className="path-card flex-1 p-5 md:p-6 border-2 border-[#dc3545] rounded-xl bg-[#fff5f5] shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
           <h3 className="text-center text-xl font-display font-bold text-[#b02a37] mb-4">{problem.title}</h3>
           <ul className="space-y-2 list-disc list-inside text-gray-700" style={{ lineHeight: 1.5 }}>
             {problem.points.map((point, i) => <li key={i}>{point}</li>)}
@@ -38,7 +36,7 @@ const TwoPathsSimple: React.FC<{ path: PathDetail; sector: Sector }> = ({ path, 
         </div>
   
         {/* Solution Card */}
-        <div className="flex-1 p-5 md:p-6 border-2 border-church-primary rounded-xl bg-[#f0f4ff] shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
+        <div className="path-card flex-1 p-5 md:p-6 border-2 border-church-primary rounded-xl bg-[#f0f4ff] shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
           <h3 className="text-center text-xl font-display font-bold text-church-primary mb-4">{solution.title}</h3>
           <ul className="space-y-2 list-disc list-inside text-gray-800" style={{ lineHeight: 1.5 }}>
             {solution.points.map((point, i) => <li key={i}>{point}</li>)}
@@ -51,24 +49,16 @@ const TwoPathsSimple: React.FC<{ path: PathDetail; sector: Sector }> = ({ path, 
 
 
 const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, onAnswer, sector, selectedAnswer }) => {
-    const [isAnimating, setIsAnimating] = useState(true);
-
-    useEffect(() => {
-        setIsAnimating(true);
-        const timer = setTimeout(() => setIsAnimating(false), 500);
-        return () => clearTimeout(timer);
-    }, [question]);
-
     const header = (
         <div>
             <p className="text-sm font-bold uppercase tracking-wider text-gray-500 text-center">{question.category}</p>
-            <h2 className="mt-2 text-2xl md:text-3xl font-display font-bold text-gray-800 text-center">{question.text(sector)}</h2>
+            <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800 text-center">{question.text(sector)}</h2>
         </div>
     );
 
     if (question.visual === 'two-paths') {
         return (
-             <div className="animate-fade-in flex-grow flex flex-col">
+             <div className="animate-slide-in-right flex-grow flex flex-col">
                 {header}
                 
                 {question.paths && <TwoPathsSimple path={question.paths} sector={sector} />}
@@ -80,9 +70,9 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
                              <button
                                 key={option.value}
                                 onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
-                                className={`w-full text-left p-4 border rounded-lg text-lg transition-all duration-200 flex items-center
+                                className={`assessment-question-option w-full text-left p-4 border rounded-lg text-lg transition-all duration-200 flex items-center transform hover:-translate-y-1
                                 ${selectedAnswer === option.value
-                                    ? (sector === Sector.Church ? 'border-church-primary ring-2 ring-church-primary/50 bg-church-primary/5' : 'border-hospitality-primary ring-2 ring-hospitality-primary/50 bg-hospitality-primary/5')
+                                    ? (sector === Sector.Church ? 'border-church-primary ring-2 ring-church-primary/50 bg-church-primary/5 scale-[1.01] shadow-lg' : 'border-hospitality-primary ring-2 ring-hospitality-primary/50 bg-hospitality-primary/5 scale-[1.01] shadow-lg')
                                     : 'border-gray-300 hover:border-gray-400 bg-white'
                                 }`}
                             >
@@ -105,10 +95,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
 
     // Default question card renderer
     return (
-        <div className="animate-fade-in flex-grow flex flex-col">
+        <div className="animate-slide-in-right flex-grow flex flex-col">
             <div className="text-left">
                 <p className="text-sm font-bold uppercase tracking-wider text-gray-500">{question.category}</p>
-                <h2 className="mt-2 text-2xl md:text-3xl font-display font-bold text-gray-800">{question.text(sector)}</h2>
+                <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800">{question.text(sector)}</h2>
             </div>
 
             <div className="mt-8 space-y-4 flex-grow">
@@ -116,13 +106,11 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
                     <button
                         key={option.value}
                         onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
-                        className={`w-full text-left p-4 border-2 rounded-lg text-lg transition-all duration-200 flex items-center
-                            ${isAnimating ? 'opacity-0 animate-fade-in-up' : ''}
+                        className={`assessment-question-option w-full text-left p-4 border-2 rounded-lg text-lg transition-all duration-200 flex items-center transform hover:-translate-y-1
                             ${selectedAnswer === option.value
-                                ? (sector === Sector.Church ? 'bg-church-accent/20 border-church-accent' : 'bg-hospitality-accent/20 border-hospitality-accent')
+                                ? (sector === Sector.Church ? 'bg-church-accent/20 border-church-accent scale-[1.01] shadow-lg' : 'bg-hospitality-accent/20 border-hospitality-accent scale-[1.01] shadow-lg')
                                 : 'border-gray-200 hover:border-gray-400'
                             }`}
-                        style={isAnimating ? { animationDelay: `${100 + index * 100}ms` } : {}}
                     >
                         <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center
                           ${selectedAnswer === option.value 

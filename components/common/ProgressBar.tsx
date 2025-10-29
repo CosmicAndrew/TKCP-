@@ -17,8 +17,8 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress, sector, currentQues
     return (
         <div>
             <div className="relative pt-1">
-                <div className="flex mb-2 items-center justify-between">
-                    <div className="flex items-center">
+                <div className="flex mb-2 items-start justify-between gap-2">
+                    <div className="flex items-center flex-wrap gap-x-1">
                         {Array.from({ length: totalQuestions }).map((_, i) => (
                             <span
                                 key={i}
@@ -29,7 +29,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress, sector, currentQues
                             </span>
                         ))}
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex-shrink-0">
                        {isFinalQuestion ? (
                             <span className="text-xs font-bold bg-church-accent text-white px-2 py-1 rounded-full animate-bounce-in">
                                 IMPACT QUESTION

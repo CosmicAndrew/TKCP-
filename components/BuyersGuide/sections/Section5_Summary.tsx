@@ -1,23 +1,23 @@
 import React from 'react';
+// @ts-ignore
+import { jsPDF } from 'jspdf';
+// @ts-ignore
+import html2canvas from 'html2canvas';
 import { Result, Sector } from '../../../types';
-import { ASSESSMENT_QUESTIONS } from '../../../constants';
-import { TKCP_CONFIG } from '../../../constants';
-import { IconPrint } from '../../common/Icon';
+import { ASSESSMENT_QUESTIONS, TKCP_CONFIG } from '../../../constants';
+import * as HubSpot from '../../../services/hubspot';
+import { IconPrint, IconCheckCircle } from '../../common/Icon';
+import ScoreGauge from '../../common/ScoreGauge';
+
 
 interface SectionProps {
     sector: Sector;
     result: Result;
 }
 
-const ResultItem: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-    <div className="bg-gray-50 p-4 rounded-lg border">
-        <strong className="block text-sm text-gray-500">{label}</strong>
-        <span className="text-lg font-semibold text-gray-800">{value}</span>
-    </div>
-);
 
 const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
-    const { answers, score, userData } = result;
+    const { answers, score, maxScore, userData, leadStatus, geminiInsights } = result;
 
     const findAnswerText = (questionIndex: number, answerValue: string | undefined) => {
         if (answerValue === undefined) return 'N/A';
@@ -26,42 +26,80 @@ const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
         return option ? option.text[sector] : 'N/A';
     };
 
+    const painLevel = findAnswerText(0, answers[0]?.value);
     const orgSize = findAnswerText(1, answers[1]?.value);
     const timeline = findAnswerText(2, answers[2]?.value);
-    const commitment = findAnswerText(4, answers[4]?.value);
-    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const budgetStatus = findAnswerText(3, answers[3]?.value);
+    const date = new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const handleGeneratePdf = () => {
+        HubSpot.trackEvent('Generated PDF Summary', HubSpot.getSessionUserId());
+        const input = document.getElementById('printable-summary');
+        if (input) {
+            html2canvas(input, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`TKCP_LED_Summary_${userData.lastName || 'Client'}.pdf`);
+            });
+        }
+    };
+
 
     return (
         <div className="animate-fade-in-up">
-            <div id="printable-summary">
-                <header className="print-header mb-8 text-center border-b pb-4">
-                    {/* In a real app, you'd use a local image asset */}
-                    <h1 className="text-3xl font-display font-bold text-church-primary">{TKCP_CONFIG.companyName}</h1>
-                    <h2 className="text-2xl font-display font-semibold text-gray-700 mt-2">Your Personal LED Assessment Summary</h2>
-                    <p className="text-sm text-gray-500 mt-2">
-                        Prepared for: {userData.firstName || userData.fullName || 'Valued Client'} | Generated on: {date}
-                    </p>
+            <div id="printable-summary" className="bg-white p-4">
+                <header className="print-header mb-6 text-center border-b-2 border-church-primary pb-4">
+                     <img src={TKCP_CONFIG.logoBase64} alt="TKCP Logo" className="mx-auto h-12 mb-2" />
+                    <h1 className="text-3xl font-display font-bold text-church-primary">Personal LED Assessment Summary</h1>
+                     <div className="text-sm text-gray-500 mt-2">
+                        <p>{TKCP_CONFIG.companyName} | {TKCP_CONFIG.phone} | {TKCP_CONFIG.website}</p>
+                        <p className="mt-1">
+                            Prepared for: <strong>{userData.firstName || userData.fullName || 'Valued Client'}</strong> | Generated: <strong>{date}</strong>
+                        </p>
+                    </div>
                 </header>
+                
+                <div className="md:flex md:gap-8">
+                     <section className="assessment-recap mb-6 flex-1">
+                        <h2 className="text-xl font-display font-bold text-gray-800 mb-4">Your Assessment Results</h2>
+                         <table className="results-table w-full border-collapse">
+                            <tbody>
+                                <tr><td className="p-2 border border-gray-300 font-semibold">Organization Size:</td><td className="p-2 border border-gray-300">{orgSize}</td></tr>
+                                <tr><td className="p-2 border border-gray-300 font-semibold">Current Pain Level:</td><td className="p-2 border border-gray-300">{painLevel}</td></tr>
+                                <tr><td className="p-2 border border-gray-300 font-semibold">Project Timeline:</td><td className="p-2 border border-gray-300">{timeline}</td></tr>
+                                <tr><td className="p-2 border border-gray-300 font-semibold">Budget Status:</td><td className="p-2 border border-gray-300">{budgetStatus}</td></tr>
+                                <tr><td className="p-2 border border-gray-300 font-semibold">Lead Score:</td><td className="p-2 border border-gray-300">{score}/{maxScore} ({leadStatus.charAt(0).toUpperCase() + leadStatus.slice(1)})</td></tr>
+                            </tbody>
+                        </table>
+                    </section>
+                    <aside className="flex-shrink-0 flex justify-center items-center mb-6 md:mb-0">
+                         <ScoreGauge score={score} maxScore={maxScore} sector={sector} />
+                    </aside>
+                </div>
 
-                <section className="assessment-recap mb-8">
-                    <h2 className="text-xl font-display font-bold text-gray-800 mb-4">Your Assessment Results</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <ResultItem label="Organization Size" value={orgSize} />
-                        <ResultItem label="Timeline" value={timeline} />
-                        <ResultItem label="Commitment Level" value={commitment} />
-                         <div className="bg-church-primary text-white p-4 rounded-lg flex flex-col items-center justify-center">
-                            <strong className="block text-sm opacity-80">Lead Score</strong>
-                            <span className="text-3xl font-bold">{score}<span className="text-lg opacity-80">/16</span></span>
+
+                {geminiInsights && (
+                    <section className="recommendations mb-6">
+                        <h2 className="text-xl font-display font-bold text-gray-800 mb-4">Personalized Insights & Recommendations</h2>
+                        <div className="recommendation-content bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                            <p className="font-semibold text-gray-800">Summary:</p>
+                            <p className="mb-4">{geminiInsights.summary}</p>
+                            <p className="font-semibold text-gray-800">Actionable Next Steps:</p>
+                             <ul className="space-y-2 mt-2">
+                                {geminiInsights.actionable_steps.map((step, i) => (
+                                    <li key={i} className="flex items-start">
+                                        <IconCheckCircle className="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" />
+                                        <span>{step}</span>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                )}
 
-                <section className="recommendations mb-8">
-                    <h2 className="text-xl font-display font-bold text-gray-800 mb-4">Our Recommendations for {userData.organizationType ? (userData.organizationType === 'church' ? 'Your House of Worship' : 'Your Venue') : 'You'}</h2>
-                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                        <p>Based on your score of <strong>{score}</strong> and your stated timeline, you are a <strong>{result.leadStatus}</strong> candidate for an LED upgrade. We recommend exploring a solution with a pixel pitch between 2.6mm and 3.9mm to maximize visual impact and value for an organization of your size.</p>
-                    </div>
-                </section>
 
                 <section className="next-steps">
                     <h2 className="text-xl font-display font-bold text-gray-800 mb-4">Your Next Steps</h2>
@@ -72,17 +110,17 @@ const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     </ol>
                 </section>
                 
-                 <footer className="print-footer mt-8 pt-4 border-t text-center text-xs text-gray-500">
-                    <p>{TKCP_CONFIG.companyName} | {TKCP_CONFIG.phone} | {TKCP_CONFIG.website}</p>
+                 <footer className="print-footer mt-6 pt-4 border-t text-center text-xs text-gray-500">
+                    <p>© {new Date().getFullYear()} {TKCP_CONFIG.companyName} - Your Partner in Visual Excellence</p>
                 </footer>
             </div>
             
             <button
                 className="print-btn mt-8 w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-700 text-white font-semibold rounded-md hover:bg-gray-800 transition-colors"
-                onClick={() => window.print()}
+                onClick={handleGeneratePdf}
             >
                 <IconPrint className="w-5 h-5" />
-                Print This Summary
+                Download PDF Summary
             </button>
         </div>
     );

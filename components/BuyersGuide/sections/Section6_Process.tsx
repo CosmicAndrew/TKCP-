@@ -18,7 +18,7 @@ const Section6_Process: React.FC<SectionProps> = ({ sector }) => {
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800">4. The TKCP Implementation Process</h2>
+            <h2 className="text-3xl font-display font-bold text-gray-800">5. The TKCP Implementation Process</h2>
             <p className="mt-2 text-gray-600">Our partnership approach ensures a smooth, successful project from start to finish.</p>
             
              <div className="mt-8 p-6 bg-gray-50 rounded-lg">
@@ -39,6 +39,7 @@ const Section6_Process: React.FC<SectionProps> = ({ sector }) => {
             <CalendarCTA
                 headline="🚀 Ready to Move Forward?"
                 buttonText="Book Implementation Planning Call"
+                meetingType="planning"
             />
         </div>
     );
