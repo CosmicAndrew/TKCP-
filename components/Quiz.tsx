@@ -46,6 +46,7 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
                     <ContactForm onSubmit={handleContactSubmit} />
                 ) : (
                     <QuestionCard
+                        key={currentQuestionIndex}
                         question={currentQuestion}
                         questionIndex={currentQuestionIndex}
                         onAnswer={handleAnswer}
