@@ -1,13 +1,9 @@
 import React from 'react';
-import { LeadStatus, UserData } from '../types';
-import { IconCalendar, IconMail, IconPhone, IconRefresh } from './common/Icon';
+import { Result } from '../types';
+import { IconCalendar, IconPhone, IconRefresh } from './common/Icon';
 
 interface ConfirmationProps {
-    result: {
-        userData: Partial<UserData>;
-        leadStatus: LeadStatus;
-        score: number;
-    };
+    result: Result;
     onReset: () => void;
 }
 

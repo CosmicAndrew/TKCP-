@@ -42,3 +42,10 @@ export interface UserData {
     city: string;
     state: string;
 }
+
+export interface Result {
+    userData: Partial<UserData>;
+    leadStatus: LeadStatus;
+    score: number;
+    answers: { [key: number]: Answer };
+}

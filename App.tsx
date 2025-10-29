@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { Sector, LeadStatus, UserData, Answer } from './types';
-import { ASSESSMENT_QUESTIONS, calculateLeadTemperature, TKCP_CONFIG } from './constants';
+import { ASSESSMENT_QUESTIONS, calculateLeadTemperature } from './constants';
 import Header from './components/Header';
 import Landing from './components/Landing';
 import Quiz from './components/Quiz';
 import Confirmation from './components/Confirmation';
+import BuyersGuide from './components/BuyersGuide';
 import Footer from './components/Footer';
 
 // Placeholder for Meta Pixel tracking
@@ -17,12 +18,13 @@ const trackEvent = (eventName: string, params: object = {}) => {
 
 
 const App: React.FC = () => {
-    const [step, setStep] = useState<'landing' | 'quiz' | 'confirmation'>('landing');
+    const [step, setStep] = useState<'landing' | 'quiz' | 'confirmation' | 'buyersGuide'>('landing');
     const [sector, setSector] = useState<Sector | null>(null);
     const [quizResult, setQuizResult] = useState<{
         userData: Partial<UserData>;
         leadStatus: LeadStatus;
         score: number;
+        answers: { [key: number]: Answer };
     } | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -87,13 +89,19 @@ const App: React.FC = () => {
         }
         trackEvent('LeadSubmitted', { score: totalScore, status: leadStatus, commitment: finalAnswers[4]?.value });
 
-        setQuizResult({ userData: finalUserData, leadStatus, score: totalScore });
+        setQuizResult({ userData: finalUserData, leadStatus, score: totalScore, answers: finalAnswers });
         
         if (sector) {
             generatePersonalizedInsights(totalScore, finalAnswers, sector);
         }
         
-        setStep('confirmation');
+        const commitment = finalAnswers[ASSESSMENT_QUESTIONS.length - 1]?.value;
+        if (commitment === 'exploring') {
+            trackEvent('BuyersGuideViewed', { score: totalScore });
+            setStep('buyersGuide');
+        } else {
+            setStep('confirmation');
+        }
     };
 
     const handleReset = () => {
@@ -112,16 +120,20 @@ const App: React.FC = () => {
                  if (sector) {
                     return <Quiz sector={sector} onComplete={handleQuizComplete} />;
                  }
-                 // Fallback to landing if sector is somehow lost
                  setStep('landing');
                  return <Landing onStart={handleStart} />;
             case 'confirmation':
                 if (quizResult) {
                      return <Confirmation result={quizResult} onReset={handleReset} />;
                 }
-                 // Fallback to landing if result is somehow lost
                  setStep('landing');
                  return <Landing onStart={handleStart} />;
+            case 'buyersGuide':
+                if (quizResult && sector) {
+                    return <BuyersGuide result={quizResult} sector={sector} onReset={handleReset} />;
+                }
+                setStep('landing');
+                return <Landing onStart={handleStart} />;
             default:
                 return <Landing onStart={handleStart} />;
         }

@@ -63,7 +63,7 @@ const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit }) => {
     return (
         <div>
             <h2 className="text-3xl font-display font-bold text-center text-gray-800">Great! Let's Stay in Touch.</h2>
-            <p className="text-center text-gray-600 mt-2">Enter your info to receive our LED Buyer's Guide and valuable insights.</p>
+            <p className="text-center text-gray-600 mt-2">Enter your info to receive our exclusive <span className="font-bold text-church-primary">LED Buyer's Guide</span> and valuable insights.</p>
             <form onSubmit={handleSubmit} className="mt-8 space-y-6 max-w-md mx-auto" noValidate>
                  <div>
                      <InputField id="firstName" type="text" placeholder="First Name" value={formData.firstName} onChange={handleChange} icon={<IconUser />} required aria-label="First Name" />
@@ -77,7 +77,7 @@ const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit }) => {
                     type="submit"
                     className="w-full flex items-center justify-center bg-church-primary text-white font-bold py-3 px-6 rounded-md hover:bg-church-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-church-primary transition-all duration-300"
                 >
-                    Send Information
+                    Send My Guide
                     <IconArrowRight className="ml-2" />
                 </button>
             </form>
