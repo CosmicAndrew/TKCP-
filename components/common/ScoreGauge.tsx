@@ -12,10 +12,10 @@ const ScoreGauge: React.FC<ScoreGaugeProps> = ({ score, maxScore, sector }) => {
   const percentage = (score / maxScore) * 100;
   const rotation = -90 + (percentage * 1.8);
   const strokeColor = sector === Sector.Church ? '#D4AF37' : '#FF6B35';
-  const primaryTextColor = sector === Sector.Church ? 'text-church-primary' : 'text-hospitality-primary';
+  const primaryTextColor = sector === Sector.Church ? 'text-church-primary dark:text-blue-300' : 'text-hospitality-primary dark:text-orange-300';
 
   return (
-    <div className="relative w-48 h-48">
+    <div className="relative w-48 h-48" role="status" aria-live="polite">
       <svg className="w-full h-full" viewBox="0 0 120 120">
         <defs>
           <linearGradient id="gaugeGradientChurch" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -33,7 +33,8 @@ const ScoreGauge: React.FC<ScoreGaugeProps> = ({ score, maxScore, sector }) => {
           cy="60"
           r="54"
           fill="none"
-          stroke="#e6e6e6"
+          stroke="currentColor"
+          className="text-gray-200 dark:text-gray-700"
           strokeWidth="12"
         />
         {/* Score arc */}
@@ -48,8 +49,8 @@ const ScoreGauge: React.FC<ScoreGaugeProps> = ({ score, maxScore, sector }) => {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className={`text-5xl font-bold ${primaryTextColor}`}>{score}</span>
-        <span className="text-lg font-semibold text-gray-500">/ {maxScore}</span>
-        <span className="text-sm uppercase tracking-wider text-gray-400">Score</span>
+        <span className="text-lg font-semibold text-gray-500 dark:text-gray-400">/ {maxScore}</span>
+        <span className="text-sm uppercase tracking-wider text-gray-400 dark:text-gray-500">Score</span>
       </div>
     </div>
   );

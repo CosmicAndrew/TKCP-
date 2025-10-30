@@ -15,6 +15,11 @@ interface SectionProps {
     result: Result;
 }
 
+// Placeholder for Meta Pixel tracking
+const trackMetaEvent = (eventName: string, params: object = {}) => {
+    console.log(`[Meta Pixel Event]: ${eventName}`, params);
+};
+
 
 const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
     const { answers, score, maxScore, userData, leadStatus, geminiInsights } = result;
@@ -33,6 +38,7 @@ const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
     const date = new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
     const handleGeneratePdf = () => {
+        trackMetaEvent('Download', { content_type: 'buyers_guide_summary' });
         HubSpot.trackEvent('Generated PDF Summary', HubSpot.getSessionUserId());
         const input = document.getElementById('printable-summary');
         if (input) {

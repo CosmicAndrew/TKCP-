@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Sector, UserData, Answer } from '../types';
-import { ASSESSMENT_QUESTIONS } from '../constants';
+import React, { useState, useEffect, useRef } from 'react';
+import { Sector, UserData, Answer, LeadStatus } from '../types';
+import { ASSESSMENT_QUESTIONS, calculateLeadTemperature } from '../constants';
 import * as HubSpot from '../services/hubspot';
 import ContactForm from './ContactForm';
 import EmailCaptureForm from './EmailCaptureForm';
@@ -13,9 +13,12 @@ interface QuizProps {
 }
 
 // Placeholder for Meta Pixel tracking
-const trackEvent = (eventName: string, params: object = {}) => {
-    console.log(`Meta Pixel Event: ${eventName}`, params);
+const trackMetaEvent = (eventName: string, params: object = {}) => {
+    console.log(`[Meta Pixel Event]: ${eventName}`, params);
+    // In a real app, you would integrate the Meta Pixel SDK here.
+    // window.fbq('track', eventName, params);
 };
+
 
 const QUIZ_STATE_KEY = 'tkcp_quiz_state';
 
@@ -41,9 +44,21 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(initialState.currentQuestionIndex);
     const [answers, setAnswers] = useState<{ [key: number]: Answer }>(initialState.answers);
     const [postQuizStep, setPostQuizStep] = useState<'contact' | 'emailCapture' | null>(null);
+    const [leadStatusForForm, setLeadStatusForForm] = useState<LeadStatus | null>(null);
+
+    const answerSound = useRef<HTMLAudioElement | null>(null);
+    // A pleasant, subtle sound for answer selection.
+    const answerAudioData = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU0AAAAA//8/AIA/AP8/AD8A//8/AP8/AAAAAP8/AP8/AAAAAP8/AD8A/z8AAAAA/z8AAAAA/z8AAAAA/z8A/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z8AAAAA/z-';
+
 
     useEffect(() => {
-        trackEvent('AssessmentStarted', { sector });
+        // Initialize the audio object once on component mount.
+        answerSound.current = new Audio(answerAudioData);
+        answerSound.current.volume = 0.4; // Keep it subtle
+    }, [answerAudioData]);
+
+    useEffect(() => {
+        trackMetaEvent('AssessmentStarted', { sector });
         HubSpot.trackEvent('Started Assessment', HubSpot.getSessionUserId(), { sector });
     }, [sector]);
 
@@ -58,8 +73,21 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
     }, [currentQuestionIndex, answers]);
     
     const handleAnswer = (questionIndex: number, answer: Answer) => {
+        // Play the sound effect
+        if (answerSound.current) {
+            answerSound.current.currentTime = 0; // Rewind to start for rapid clicks
+            answerSound.current.play().catch(error => console.error("Audio playback failed:", error));
+        }
+
         const newAnswers = { ...answers, [questionIndex]: answer };
         setAnswers(newAnswers);
+
+        trackMetaEvent('AnswerQuestion', {
+            question_index: questionIndex,
+            question_category: ASSESSMENT_QUESTIONS[questionIndex].category,
+            answer_value: answer.value,
+            sector: sector
+        });
     };
     
     const handleSubmit = () => {
@@ -67,14 +95,19 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
         const finalAnswer = answers[currentQuestionIndex];
         if (!finalAnswer) return; // Should not happen if button is enabled
         
+        // Calculate score and lead status here to pass to the form component
+        const totalScore = Object.values(answers).reduce((sum, answer) => sum + answer.points, 0);
+        const leadStatus = calculateLeadTemperature(totalScore);
+        setLeadStatusForForm(leadStatus);
+
         const finalAnswerValue = finalAnswer.value;
         const compellingEvent = answers[3]?.value; // Get compelling event answer
 
         if (finalAnswerValue === 'committed' || finalAnswerValue === 'leaning' || compellingEvent === 'urgent_problem') {
-            trackEvent('ContactFormShown', { type: 'full_contact_form' });
+            trackMetaEvent('ContactFormShown', { type: 'full_contact_form', lead_status: leadStatus });
             setPostQuizStep('contact');
         } else { // 'exploring' or 'general_interest'
-            trackEvent('ContactFormShown', { type: 'email_capture_form' });
+            trackMetaEvent('ContactFormShown', { type: 'email_capture_form', lead_status: leadStatus });
             setPostQuizStep('emailCapture');
         }
     };
@@ -100,8 +133,8 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
     const isLastQuestion = currentQuestionIndex === ASSESSMENT_QUESTIONS.length - 1;
 
     const renderFinalStep = () => {
-        if (postQuizStep === 'contact') {
-            return <ContactForm onSubmit={handleFormSubmit} sector={sector} />;
+        if (postQuizStep === 'contact' && leadStatusForForm) {
+            return <ContactForm onSubmit={handleFormSubmit} sector={sector} leadStatus={leadStatusForForm} />;
         }
         if (postQuizStep === 'emailCapture') {
             return <EmailCaptureForm onSubmit={handleFormSubmit} sector={sector} />;
@@ -111,18 +144,19 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-xl transition-all duration-500 flex flex-col">
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 md:p-8 rounded-lg shadow-xl transition-all duration-500 flex flex-col">
                 {postQuizStep ? (
                     renderFinalStep()
                 ) : (
                     <>
                         <ProgressBar 
-                            progress={((currentQuestionIndex) / ASSESSMENT_QUESTIONS.length) * 100}
+                            progress={((currentQuestionIndex + 1) / ASSESSMENT_QUESTIONS.length) * 100}
                             sector={sector}
                             currentQuestionIndex={currentQuestionIndex}
                             totalQuestions={ASSESSMENT_QUESTIONS.length}
+                            category={currentQuestion.category}
                         />
-                        <div className="mt-6 flex-grow flex flex-col">
+                        <div className="mt-6 flex-grow flex flex-col" role="region" aria-live="polite">
                            <QuestionCard
                                 key={currentQuestionIndex}
                                 question={currentQuestion}
@@ -132,18 +166,18 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
                                 selectedAnswer={answers[currentQuestionIndex]?.value}
                             />
                         </div>
-                        <div className="mt-auto pt-6 border-t border-gray-200 navigation-buttons">
+                        <div className="mt-auto pt-6 border-t border-gray-200 dark:border-gray-700 navigation-buttons">
                             <div className="flex justify-between items-center">
                                 <button
                                     onClick={handlePrevious}
                                     disabled={currentQuestionIndex === 0}
-                                    className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
                                     aria-label="Previous Question"
                                 >
                                     &larr; Previous
                                 </button>
                                 
-                                <div className="text-sm font-bold text-gray-500">
+                                <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
                                     Question {currentQuestionIndex + 1} of {ASSESSMENT_QUESTIONS.length}
                                 </div>
 

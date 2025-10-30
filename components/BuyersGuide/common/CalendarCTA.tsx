@@ -29,11 +29,11 @@ const CalendarCTA: React.FC<CalendarCTAProps> = ({ headline, buttonText, meeting
     };
 
     return (
-        <div className="my-8 p-6 bg-gray-100 border border-gray-200 rounded-lg text-center print-hide calendar-cta">
-            <h4 className="text-xl font-display font-bold text-gray-800">{headline}</h4>
+        <div className="my-8 p-6 bg-gray-100 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-lg text-center print-hide calendar-cta">
+            <h4 className="text-xl font-display font-bold text-gray-800 dark:text-gray-100">{headline}</h4>
             <button
                 onClick={handleScheduleClick}
-                className="mt-4 px-8 py-3 bg-church-accent text-church-primary font-bold rounded-md hover:bg-yellow-400 transition-transform hover:scale-105"
+                className="mt-4 px-8 py-3 bg-church-accent text-gray-900 font-bold rounded-md hover:bg-yellow-400 transition-transform hover:scale-105"
             >
                 {buttonText}
             </button>

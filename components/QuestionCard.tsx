@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Question, Answer, Sector, PathDetail } from '../types';
+import { IconProjectorDim, IconLEDBright } from './common/Icon';
 
 interface QuestionCardProps {
     question: Question;
@@ -27,18 +28,24 @@ const TwoPathsSimple: React.FC<{ path: PathDetail; sector: Sector }> = ({ path, 
     return (
       <div className="two-paths-comparison flex flex-col md:flex-row gap-4 md:gap-6 my-8">
         {/* Problem Card */}
-        <div className="path-card flex-1 p-5 md:p-6 border-2 border-[#dc3545] rounded-xl bg-[#fff5f5] shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
-          <h3 className="text-center text-xl font-display font-bold text-[#b02a37] mb-4">{problem.title}</h3>
-          <ul className="space-y-2 list-disc list-inside text-gray-700" style={{ lineHeight: 1.5 }}>
+        <div className="path-card flex-1 p-5 md:p-6 border-2 border-red-300 dark:border-red-700 rounded-xl bg-red-50 dark:bg-red-900/20 shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg relative">
+          <div className="flex justify-center items-center gap-3 mb-4">
+            <IconProjectorDim className="text-red-500" />
+            <h3 className="text-center text-xl font-display font-bold text-red-700 dark:text-red-400">{problem.title}</h3>
+          </div>
+          <ul className="space-y-2 list-disc list-inside text-gray-700 dark:text-gray-300" style={{ lineHeight: 1.5 }}>
             {problem.points.map((point, i) => <li key={i}>{point}</li>)}
           </ul>
-          <p className="mt-6 text-center italic text-gray-600">"{problem.footer}"</p>
+          <p className="mt-6 text-center italic text-gray-600 dark:text-gray-400">"{problem.footer}"</p>
         </div>
   
         {/* Solution Card */}
-        <div className="path-card flex-1 p-5 md:p-6 border-2 border-church-primary rounded-xl bg-[#f0f4ff] shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
-          <h3 className="text-center text-xl font-display font-bold text-church-primary mb-4">{solution.title}</h3>
-          <ul className="space-y-2 list-disc list-inside text-gray-800" style={{ lineHeight: 1.5 }}>
+        <div className="path-card flex-1 p-5 md:p-6 border-2 border-church-primary rounded-xl bg-blue-50 dark:bg-blue-900/20 shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg relative">
+          <div className="flex justify-center items-center gap-3 mb-4">
+              <IconLEDBright className="text-church-accent" />
+              <h3 className="text-center text-xl font-display font-bold text-church-primary dark:text-blue-300">{solution.title}</h3>
+          </div>
+          <ul className="space-y-2 list-disc list-inside text-gray-800 dark:text-gray-200" style={{ lineHeight: 1.5 }}>
             {solution.points.map((point, i) => <li key={i}>{point}</li>)}
           </ul>
           <p className="mt-6 text-center italic text-church-accent font-semibold">"{solution.footer}"</p>
@@ -51,8 +58,8 @@ const TwoPathsSimple: React.FC<{ path: PathDetail; sector: Sector }> = ({ path, 
 const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, onAnswer, sector, selectedAnswer }) => {
     const header = (
         <div>
-            <p className="text-sm font-bold uppercase tracking-wider text-gray-500 text-center">{question.category}</p>
-            <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800 text-center">{question.text(sector)}</h2>
+            <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">{question.category}</p>
+            <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100 text-center">{question.text(sector)}</h2>
         </div>
     );
 
@@ -64,27 +71,28 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
                 {question.paths && <TwoPathsSimple path={question.paths} sector={sector} />}
                
                 <div className="mt-auto">
-                    <h4 className="text-xl font-display font-bold text-gray-700 mb-4 text-center">How committed are you to this transformation?</h4>
+                    <h4 className="text-xl font-display font-bold text-gray-700 dark:text-gray-200 mb-4 text-center">How committed are you to this transformation?</h4>
                     <div className="space-y-3 max-w-lg mx-auto">
                         {question.options.map((option, index) => (
                              <button
                                 key={option.value}
                                 onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
+                                aria-pressed={selectedAnswer === option.value}
                                 className={`assessment-question-option w-full text-left p-4 border rounded-lg text-lg transition-all duration-200 flex items-center transform hover:-translate-y-1
                                 ${selectedAnswer === option.value
-                                    ? (sector === Sector.Church ? 'border-church-primary ring-2 ring-church-primary/50 bg-church-primary/5 scale-[1.01] shadow-lg' : 'border-hospitality-primary ring-2 ring-hospitality-primary/50 bg-hospitality-primary/5 scale-[1.01] shadow-lg')
-                                    : 'border-gray-300 hover:border-gray-400 bg-white'
+                                    ? (sector === Sector.Church ? 'border-church-primary ring-2 ring-church-primary/50 bg-church-primary/10 dark:bg-church-primary/20 animate-pop-in shadow-lg' : 'border-hospitality-primary ring-2 ring-hospitality-primary/50 bg-hospitality-primary/10 dark:bg-hospitality-primary/20 animate-pop-in shadow-lg')
+                                    : 'border-gray-300 hover:border-gray-400 bg-white dark:bg-gray-700 dark:border-gray-600 dark:hover:border-gray-500'
                                 }`}
                             >
                                 <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center
                                   ${selectedAnswer === option.value 
                                     ? (sector === Sector.Church ? 'border-church-primary' : 'border-hospitality-primary')
-                                    : 'border-gray-400'
+                                    : 'border-gray-400 dark:border-gray-500'
                                   }`}>
                                   {selectedAnswer === option.value && <span className={`w-3 h-3 rounded-full 
                                     ${sector === Sector.Church ? 'bg-church-primary' : 'bg-hospitality-primary'}`}></span>}
                                 </span>
-                                <span>{option.text[sector]}</span>
+                                <span className="dark:text-gray-200">{option.text[sector]}</span>
                             </button>
                         ))}
                     </div>
@@ -97,8 +105,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
     return (
         <div className="animate-slide-in-right flex-grow flex flex-col">
             <div className="text-left">
-                <p className="text-sm font-bold uppercase tracking-wider text-gray-500">{question.category}</p>
-                <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800">{question.text(sector)}</h2>
+                <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{question.category}</p>
+                <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100">{question.text(sector)}</h2>
             </div>
 
             <div className="mt-8 space-y-4 flex-grow">
@@ -106,21 +114,22 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
                     <button
                         key={option.value}
                         onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
+                        aria-pressed={selectedAnswer === option.value}
                         className={`assessment-question-option w-full text-left p-4 border-2 rounded-lg text-lg transition-all duration-200 flex items-center transform hover:-translate-y-1
                             ${selectedAnswer === option.value
-                                ? (sector === Sector.Church ? 'bg-church-accent/20 border-church-accent scale-[1.01] shadow-lg' : 'bg-hospitality-accent/20 border-hospitality-accent scale-[1.01] shadow-lg')
-                                : 'border-gray-200 hover:border-gray-400'
+                                ? (sector === Sector.Church ? 'bg-church-accent/20 dark:bg-church-accent/30 border-church-accent animate-pop-in shadow-lg' : 'bg-hospitality-accent/20 dark:bg-hospitality-accent/30 border-hospitality-accent animate-pop-in shadow-lg')
+                                : 'border-gray-200 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'
                             }`}
                     >
                         <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center
                           ${selectedAnswer === option.value 
                             ? (sector === Sector.Church ? 'border-church-accent' : 'border-hospitality-accent')
-                            : 'border-gray-400'
+                            : 'border-gray-400 dark:border-gray-500'
                           }`}>
                           {selectedAnswer === option.value && <span className={`w-3 h-3 rounded-full 
                             ${sector === Sector.Church ? 'bg-church-accent' : 'bg-hospitality-accent'}`}></span>}
                         </span>
-                        <span>{option.text[sector]}</span>
+                        <span className="dark:text-gray-200">{option.text[sector]}</span>
                     </button>
                 ))}
             </div>

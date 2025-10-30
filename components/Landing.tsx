@@ -23,7 +23,8 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect }) => {
                     </h1>
                     <button 
                         onClick={scrollToSelection}
-                        className="mt-8 px-8 py-3 bg-white text-church-primary font-bold rounded-md shadow-lg transition-transform hover:scale-105 animate-hero-cta opacity-0"
+                        aria-label="Take the LED assessment to see if it's right for you"
+                        className="mt-8 px-8 py-3 bg-white text-church-primary font-bold rounded-md shadow-lg transition-transform hover:scale-105 animate-hero-cta opacity-0 animate-pulse-delayed"
                     >
                         Take Assessment &rarr;
                     </button>
@@ -32,7 +33,7 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect }) => {
 
             {/* Sector Selection Section */}
             <section id="sector-selection" className="animate-fade-in-up opacity-0" style={{ animationDelay: '500ms' }}>
-                <h2 className="text-3xl md:text-4xl font-display font-bold text-center text-gray-800">
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-center text-gray-800 dark:text-gray-100">
                     First, tell us who you are.
                 </h2>
                 <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -46,7 +47,7 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect }) => {
                         </div>
                         <button 
                             onClick={() => onSectorSelect(Sector.Church)}
-                            className="w-full flex items-center justify-between p-4 bg-church-accent text-church-primary font-bold text-lg hover:bg-yellow-400 transition-colors"
+                            className="w-full flex items-center justify-between p-4 bg-church-accent text-gray-900 font-bold text-lg hover:bg-yellow-400 transition-colors"
                         >
                             <span>I'm with a House of Worship</span>
                             <IconArrowRight className="w-6 h-6" />

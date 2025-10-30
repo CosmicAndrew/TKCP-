@@ -16,8 +16,8 @@ const Section1_Comparison: React.FC<SectionProps> = ({ sector }) => {
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800">1. LED vs. Projector Comparison</h2>
-            <p className="mt-2 text-gray-600">Understand the fundamental differences and why leading organizations are making the switch.</p>
+            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">1. LED vs. Projector Comparison</h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">Understand the fundamental differences and why leading organizations are making the switch.</p>
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InfoCard
@@ -50,12 +50,12 @@ const Section1_Comparison: React.FC<SectionProps> = ({ sector }) => {
                 />
             </div>
             
-            <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
-                <h3 className="text-xl font-bold font-display text-gray-700">5-Year Maintenance Cost Calculator</h3>
-                <p className="text-sm text-gray-600 mb-4">Estimate the savings by eliminating projector maintenance.</p>
+            <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700">
+                <h3 className="text-xl font-bold font-display text-gray-700 dark:text-gray-200">5-Year Maintenance Cost Calculator</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Estimate the savings by eliminating projector maintenance.</p>
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                     <div className="flex-1 w-full">
-                        <label htmlFor="projector-cost" className="block text-sm font-medium text-gray-700">Annual Projector Maintenance ($)</label>
+                        <label htmlFor="projector-cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Annual Projector Maintenance ($)</label>
                         <input
                             id="projector-cost"
                             type="range"
@@ -64,17 +64,17 @@ const Section1_Comparison: React.FC<SectionProps> = ({ sector }) => {
                             step="500"
                             value={projectorCost}
                             onChange={(e) => setProjectorCost(Number(e.target.value))}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-church-primary"
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-church-primary dark:bg-gray-600"
                         />
-                         <div className="flex justify-between text-xs text-gray-500">
+                         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                             <span>$500</span>
                             <span>$15,000</span>
                         </div>
                     </div>
-                    <div className="text-center p-4 rounded-md bg-white shadow-inner">
-                        <p className="text-gray-600">Projector 5-Yr Cost:</p>
+                    <div className="text-center p-4 rounded-md bg-white dark:bg-gray-800 shadow-inner">
+                        <p className="text-gray-600 dark:text-gray-300">Projector 5-Yr Cost:</p>
                         <p className="text-2xl font-bold text-red-500">${(projectorCost * 5).toLocaleString()}</p>
-                        <p className="text-gray-600 mt-2">Est. LED 5-Yr Cost:</p>
+                        <p className="text-gray-600 dark:text-gray-300 mt-2">Est. LED 5-Yr Cost:</p>
                         <p className="text-2xl font-bold text-green-600">${(ledCost * 5).toLocaleString()}</p>
                     </div>
                 </div>

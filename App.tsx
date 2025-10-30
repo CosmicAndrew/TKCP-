@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
-import { Sector, LeadStatus, UserData, Answer, Result, GeminiInsights } from './types';
+import { Sector, LeadStatus, UserData, Answer, Result, GeminiInsights, Theme } from './types';
 import { ASSESSMENT_QUESTIONS, calculateLeadTemperature } from './constants';
 import * as HubSpot from './services/hubspot';
 import Header from './components/Header';
@@ -10,6 +10,7 @@ import Confirmation from './components/Confirmation';
 import BuyersGuide from './components/BuyersGuide';
 import Footer from './components/Footer';
 import Spinner from './components/common/Spinner';
+import CookieConsentBanner from './components/common/CookieConsentBanner';
 
 // --- Conversion Tracking Functions ---
 
@@ -27,6 +28,36 @@ const trackGA4Event = (eventName: string, params: object = {}) => {
     // window.gtag('event', eventName, params);
 }
 
+// --- Dark Mode Hook ---
+const useTheme = (): [Theme, () => void] => {
+    const [theme, setTheme] = useState<Theme>('light');
+
+    useEffect(() => {
+        const storedTheme = localStorage.getItem('theme') as Theme | null;
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        const initialTheme = storedTheme || (systemPrefersDark ? 'dark' : 'light');
+        setTheme(initialTheme);
+    }, []);
+
+    useEffect(() => {
+        const root = window.document.documentElement;
+        if (theme === 'dark') {
+            root.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            root.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    }, [theme]);
+
+    const toggleTheme = useCallback(() => {
+        setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+    }, []);
+
+    return [theme, toggleTheme];
+};
+
 
 const App: React.FC = () => {
     const [step, setStep] = useState<'loading' | 'landing' | 'quiz' | 'confirmation' | 'buyersGuide'>('loading');
@@ -35,6 +66,7 @@ const App: React.FC = () => {
     const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const sessionUserId = useRef<string>(HubSpot.getSessionUserId());
+    const [theme, toggleTheme] = useTheme();
 
 
     useEffect(() => {
@@ -142,6 +174,67 @@ const App: React.FC = () => {
         setStep('quiz');
     };
 
+    const sendFollowUpEmail = (result: Result, sector: Sector) => {
+        const { userData, score, maxScore, leadStatus, geminiInsights, answers } = result;
+        if (!userData.email) {
+            console.log("No email provided, skipping follow-up email.");
+            return;
+        }
+
+        const findAnswerText = (questionIndex: number, answerValue: string | undefined) => {
+            if (answerValue === undefined) return 'N/A';
+            const question = ASSESSMENT_QUESTIONS[questionIndex];
+            const option = question.options.find(o => o.value === answerValue);
+            return option ? option.text[sector] : 'N/A';
+        };
+
+        const answerSummary = ASSESSMENT_QUESTIONS.map((q, index) => {
+            const answer = answers[index];
+            if (!answer) return null;
+            return `
+- Question: ${q.text(sector)}
+- Your Answer: ${findAnswerText(index, answer.value)}
+`;
+        }).filter(Boolean).join('');
+
+        const emailBody = `
+Hi ${userData.firstName || userData.fullName || 'there'},
+
+Thank you for completing the LED Assessment with Thy Kingdom Come Productions! We've analyzed your responses and generated some personalized insights to help you on your journey to visual excellence.
+
+**Your Assessment Summary:**
+- Score: ${score}/${maxScore}
+- Your Profile: ${leadStatus.charAt(0).toUpperCase() + leadStatus.slice(1)} Lead
+
+**Personalized Insights from our AI Expert:**
+${geminiInsights?.summary || "No insights available."}
+
+**Actionable Next Steps:**
+${geminiInsights?.actionable_steps.map(step => `- ${step}`).join('\n') || "No steps available."}
+
+---
+
+**A Recap of Your Answers:**
+${answerSummary}
+
+---
+
+We're excited about the possibility of partnering with you. A member of our team will be in touch shortly. If you'd like to jump ahead, feel free to book a priority consultation directly on our calendar.
+
+Best regards,
+The Team at Thy Kingdom Come Productions
+`;
+
+        const email = {
+            to: userData.email,
+            subject: "Your Personalized LED Assessment Results from TKCP",
+            body: emailBody.trim(),
+        };
+
+        console.log("--- SIMULATING FOLLOW-UP EMAIL ---");
+        console.log(email);
+        console.log("---------------------------------");
+    };
 
     const handleQuizComplete = async (finalAnswers: { [key: number]: Answer }, finalUserData: Partial<UserData>) => {
         setSubmissionStatus('Analyzing your results...');
@@ -168,6 +261,10 @@ const App: React.FC = () => {
             maxScore,
             geminiInsights: insights ?? undefined
         };
+
+        if (sector) {
+            sendFollowUpEmail(result, sector);
+        }
 
         const commitment = finalAnswers[ASSESSMENT_QUESTIONS.length - 1]?.value;
 
@@ -233,9 +330,9 @@ const App: React.FC = () => {
     const renderContent = () => {
         if (submissionStatus) {
             return (
-                <div className="flex flex-col justify-center items-center h-[60vh] text-center">
+                <div role="status" className="flex flex-col justify-center items-center h-[60vh] text-center">
                     <Spinner />
-                    <p key={submissionStatus} className="mt-4 text-lg text-gray-700 animate-fade-in-up">
+                    <p key={submissionStatus} className="mt-4 text-lg text-gray-700 dark:text-gray-300 animate-fade-in-up">
                         {submissionStatus}
                     </p>
                 </div>
@@ -257,27 +354,28 @@ const App: React.FC = () => {
                 if (quizResult && sector) {
                      return <Confirmation result={quizResult} onReset={handleReset} sector={sector} />;
                 }
-                 setStep('loading'); // Go back to loading to re-detect
-                 return null;
+                 // Fallback to prevent state update during render
+                 return <div className="flex justify-center items-center h-64"><Spinner /></div>;
             case 'buyersGuide':
                 if (quizResult && sector) {
                     return <BuyersGuide result={quizResult} sector={sector} onReset={handleReset} />;
                 }
-                setStep('loading'); // Go back to loading to re-detect
-                return null;
+                // Fallback to prevent state update during render
+                return <div className="flex justify-center items-center h-64"><Spinner /></div>;
             default:
-                setStep('loading');
-                return null;
+                 // Fallback to prevent state update during render
+                 return <div className="flex justify-center items-center h-64"><Spinner /></div>;
         }
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-neutral-light">
-            <Header />
+        <div className="flex flex-col min-h-screen bg-neutral-light dark:bg-gray-900">
+            <Header theme={theme} toggleTheme={toggleTheme} />
             <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
                 {renderContent()}
             </main>
             <Footer />
+            <CookieConsentBanner />
         </div>
     );
 };

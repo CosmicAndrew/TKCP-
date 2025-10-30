@@ -5,6 +5,8 @@ export enum Sector {
 
 export type LeadStatus = 'hot' | 'warm' | 'cold';
 
+export type Theme = 'light' | 'dark';
+
 export interface QuestionOption {
   value: string;
   text: { [key in Sector]: string };

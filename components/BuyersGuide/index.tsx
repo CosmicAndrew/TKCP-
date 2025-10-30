@@ -1,17 +1,18 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy, useRef } from 'react';
 import { Result, Sector, UserData } from '../../types';
 import * as HubSpot from '../../services/hubspot';
 import Sidebar from './Sidebar';
 import { IconBookOpen, IconRefresh } from '../common/Icon';
 import ProgressiveForm from './common/ProgressiveForm';
 import Spinner from '../common/Spinner';
+import Feedback from '../common/Feedback';
 
 // Lazy load sections for performance
 const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
 const Section2_MarketIntelligence = lazy(() => import('./sections/Section2_MarketIntelligence'));
 const Section3_Considerations = lazy(() => import('./sections/Section3_Considerations'));
-const Section5_Investment = lazy(() => import('./sections/Section5_Investment'));
 const Section6_Process = lazy(() => import('./sections/Section6_Process'));
+const Section7_FAQ = lazy(() => import('./sections/Section7_FAQ'));
 const Section5_Summary = lazy(() => import('./sections/Section5_Summary'));
 
 
@@ -21,16 +22,19 @@ interface BuyersGuideProps {
     onReset: () => void;
 }
 
+// NOTE: The component filenames (e.g., Section6_Process) do not match the section order (e.g., section 4).
+// This is due to a historical file structure. The order below is the correct one presented to the user.
 export const GUIDE_SECTIONS = [
     { id: 1, title: 'LED vs. Projector', component: Section1_Comparison },
     { id: 2, title: 'Market Intelligence', component: Section2_MarketIntelligence },
     { id: 3, title: 'Sector-Specific Considerations', component: Section3_Considerations },
-    { id: 4, title: 'Investment & Financing', component: Section5_Investment },
-    { id: 5, title: 'Implementation Process', component: Section6_Process },
+    { id: 4, title: 'Implementation Process', component: Section6_Process },
+    { id: 5, title: 'Frequently Asked Questions', component: Section7_FAQ },
     { id: 6, title: 'Your Custom LED Summary', component: Section5_Summary },
 ];
 
 const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) => {
+    const mainContentRef = useRef<HTMLElement>(null);
     const [activeSection, setActiveSection] = useState(1);
     const [completedSections, setCompletedSections] = useState<Set<number>>(new Set([1]));
     const [userData, setUserData] = useState(result.userData);
@@ -50,6 +54,14 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
         }
 
     }, [activeSection, isProfileComplete]);
+    
+    // Effect for smooth scrolling
+    useEffect(() => {
+        if (mainContentRef.current) {
+            mainContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [activeSection]);
+
 
     const handleSectionChange = (sectionId: number) => {
         if (sectionId > 0 && sectionId <= GUIDE_SECTIONS.length) {
@@ -73,8 +85,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
         setShowProgressiveForm(false);
         setCompletedSections(prev => new Set(prev).add(activeSection));
     };
-
-    const ActiveComponent = GUIDE_SECTIONS.find(s => s.id === activeSection)?.component;
+    
     const isLastSection = activeSection === GUIDE_SECTIONS.length;
 
     const currentResult = { ...result, userData };
@@ -88,9 +99,9 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
                 />
             )}
             <div className="text-center mb-8">
-                <IconBookOpen className="w-12 h-12 mx-auto text-church-primary" />
-                <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-800 mt-4">Your Interactive LED Buyer's Guide</h1>
-                <p className="mt-2 text-lg text-gray-600 max-w-2xl mx-auto">
+                <IconBookOpen className="w-12 h-12 mx-auto text-church-primary dark:text-church-accent" />
+                <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your Interactive LED Buyer's Guide</h1>
+                <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     Welcome, {userData.firstName || userData.fullName}! This guide is tailored to help you make the most informed decision for your {sector === 'church' ? 'House of Worship' : 'Venue'}.
                 </p>
             </div>
@@ -103,18 +114,22 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
                         completedSections={completedSections}
                     />
                 </aside>
-                <main className="flex-1 bg-white p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col">
+                <main ref={mainContentRef} className="flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col">
                    <div className="flex-grow">
                         <Suspense fallback={<div className="flex justify-center items-center h-64"><Spinner /></div>}>
-                            {ActiveComponent && <ActiveComponent sector={sector} result={currentResult} />}
+                           {GUIDE_SECTIONS.map(section => (
+                                section.id === activeSection && (
+                                    <section.component key={section.id} sector={sector} result={currentResult} />
+                                )
+                           ))}
                         </Suspense>
                    </div>
                    {!isLastSection && (
-                       <div className="mt-8 pt-6 border-t flex justify-between items-center print-hide">
+                       <div className="mt-8 pt-6 border-t dark:border-gray-700 flex justify-between items-center print-hide">
                             <button 
                                 onClick={() => handleSectionChange(activeSection - 1)} 
                                 disabled={activeSection === 1}
-                                className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
                             >
                                 Previous
                             </button>
@@ -130,10 +145,13 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
                 </main>
             </div>
              <div className="mt-12 text-center">
-                 <button onClick={onReset} className="text-gray-500 hover:text-gray-800 font-semibold flex items-center mx-auto transition-colors">
+                 <button onClick={onReset} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-semibold flex items-center mx-auto transition-colors">
                     <IconRefresh className="mr-2"/>
                     Back to Start
                 </button>
+                <div className="max-w-md mx-auto mt-8">
+                    <Feedback />
+                </div>
             </div>
         </div>
     );
