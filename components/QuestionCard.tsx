@@ -40,7 +40,7 @@ const TwoPathsSimple: React.FC<{ path: PathDetail; sector: Sector }> = ({ path, 
         </div>
   
         {/* Solution Card */}
-        <div className="path-card flex-1 p-5 md:p-6 border-2 border-church-primary rounded-xl bg-blue-50 dark:bg-blue-900/20 shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg relative">
+        <div className="path-card flex-1 p-5 md:p-6 border-2 border-church-primary dark:border-blue-600 rounded-xl bg-blue-50 dark:bg-blue-900/20 shadow-md transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg relative">
           <div className="flex justify-center items-center gap-3 mb-4">
               <IconLEDBright className="text-church-accent" />
               <h3 className="text-center text-xl font-display font-bold text-church-primary dark:text-blue-300">{solution.title}</h3>
@@ -80,13 +80,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
                                 aria-pressed={selectedAnswer === option.value}
                                 className={`assessment-question-option w-full text-left p-4 border rounded-lg text-lg transition-all duration-200 flex items-center transform hover:-translate-y-1
                                 ${selectedAnswer === option.value
-                                    ? (sector === Sector.Church ? 'border-church-primary ring-2 ring-church-primary/50 bg-church-primary/10 dark:bg-church-primary/20 animate-pop-in shadow-lg' : 'border-hospitality-primary ring-2 ring-hospitality-primary/50 bg-hospitality-primary/10 dark:bg-hospitality-primary/20 animate-pop-in shadow-lg')
+                                    ? (sector === Sector.Church ? 'border-church-primary dark:border-church-accent ring-2 ring-church-primary/50 bg-church-primary/10 dark:bg-church-primary/20 animate-pop-in shadow-lg' : 'border-hospitality-primary dark:border-hospitality-accent ring-2 ring-hospitality-primary/50 bg-hospitality-primary/10 dark:bg-hospitality-primary/20 animate-pop-in shadow-lg')
                                     : 'border-gray-300 hover:border-gray-400 bg-white dark:bg-gray-700 dark:border-gray-600 dark:hover:border-gray-500'
                                 }`}
                             >
                                 <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center
                                   ${selectedAnswer === option.value 
-                                    ? (sector === Sector.Church ? 'border-church-primary' : 'border-hospitality-primary')
+                                    ? (sector === Sector.Church ? 'border-church-primary dark:border-church-accent' : 'border-hospitality-primary dark:border-hospitality-accent')
                                     : 'border-gray-400 dark:border-gray-500'
                                   }`}>
                                   {selectedAnswer === option.value && <span className={`w-3 h-3 rounded-full 

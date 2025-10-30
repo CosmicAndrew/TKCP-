@@ -8,12 +8,12 @@ interface SectionProps {
 }
 
 const InsightCard: React.FC<{ icon: string; title: string; text: string }> = ({ icon, title, text }) => (
-    <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 insight-card">
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 insight-card">
         <div className="flex items-center">
             <span className="text-2xl mr-3">{icon}</span>
-            <h4 className="font-bold text-lg text-gray-800">{title}</h4>
+            <h4 className="font-bold text-lg text-gray-800 dark:text-gray-100">{title}</h4>
         </div>
-        <p className="mt-2 text-gray-600">{text}</p>
+        <p className="mt-2 text-gray-600 dark:text-gray-300">{text}</p>
     </div>
 );
 
@@ -34,11 +34,11 @@ const Section2_MarketIntelligence: React.FC<SectionProps> = ({ sector }) => {
     
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800">2. LED Market Intelligence Dashboard</h2>
-            <p className="mt-2 text-gray-600">See how TKCP compares to other LED providers and market trends in your area.</p>
+            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">2. LED Market Intelligence Dashboard</h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">See how TKCP compares to other LED providers and market trends in your area.</p>
 
-            <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200 market-intelligence">
-                <h3 className="text-xl font-display font-bold text-center text-church-primary mb-6">🎯 Why Organizations Choose TKCP</h3>
+            <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700 market-intelligence">
+                <h3 className="text-xl font-display font-bold text-center text-church-primary dark:text-blue-300 mb-6">🎯 Why Organizations Choose TKCP</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 comparison-grid">
                     <InsightCard 
                         icon="🏆"
@@ -59,8 +59,8 @@ const Section2_MarketIntelligence: React.FC<SectionProps> = ({ sector }) => {
             </div>
 
             <div className="mt-8">
-                 <h3 className="text-xl font-display font-bold text-gray-700">Key {sector === 'church' ? 'Ministry' : 'Business'} Insights</h3>
-                 <ul className="mt-4 space-y-2 list-disc list-inside text-gray-700">
+                 <h3 className="text-xl font-display font-bold text-gray-700 dark:text-gray-200">Key {sector === 'church' ? 'Ministry' : 'Business'} Insights</h3>
+                 <ul className="mt-4 space-y-2 list-disc list-inside text-gray-700 dark:text-gray-300">
                     {marketInsights[sector].map((insight, index) => <li key={index}>{insight}</li>)}
                  </ul>
             </div>

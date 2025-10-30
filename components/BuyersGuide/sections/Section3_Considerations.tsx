@@ -46,23 +46,23 @@ const Section3_Considerations: React.FC<SectionProps> = ({ sector }) => {
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800">3. {relevantContent.title}</h2>
-            <p className="mt-2 text-gray-600">Discover how an LED transformation directly impacts your organization's goals.</p>
+            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">3. {relevantContent.title}</h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">Discover how an LED transformation directly impacts your organization's goals.</p>
 
             <div className="mt-8 space-y-8">
-                 <div className="p-6 bg-gray-50 rounded-lg">
-                    <h3 className="font-bold font-display text-lg text-gray-800">Key Impact Areas</h3>
-                    <ul className="mt-4 space-y-4 list-disc list-inside text-gray-700">
+                 <div className="p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700">
+                    <h3 className="font-bold font-display text-lg text-gray-800 dark:text-gray-100">Key Impact Areas</h3>
+                    <ul className="mt-4 space-y-4 list-disc list-inside text-gray-700 dark:text-gray-300">
                         {relevantContent.points.map((point, index) => <li key={index}>{point}</li>)}
                     </ul>
                 </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-gray-200">
-                <h3 className="font-bold font-display text-lg text-gray-800 text-center">Success Story</h3>
-                <blockquote className="mt-4 p-4 bg-yellow-50 border-l-4 border-church-accent text-gray-700 italic">
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="font-bold font-display text-lg text-gray-800 dark:text-gray-100 text-center">Success Story</h3>
+                <blockquote className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-church-accent text-gray-700 dark:text-gray-300 italic">
                     <p>"{relevantCaseStudy.quote}"</p>
-                    <cite className="block text-right mt-2 not-italic font-semibold text-gray-600">{relevantCaseStudy.source}</cite>
+                    <cite className="block text-right mt-2 not-italic font-semibold text-gray-600 dark:text-gray-400">{relevantCaseStudy.source}</cite>
                      <div className="text-right mt-2 not-italic">
                         <a href="#" onClick={(e) => e.preventDefault()} className="text-sm font-bold text-church-primary hover:underline">
                             Read Full Story &rarr;
