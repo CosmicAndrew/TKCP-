@@ -33,12 +33,16 @@ const Section3_Considerations: React.FC<SectionProps> = ({ sector }) => {
     
     const caseStudies = {
         church: {
-            quote: "We saw a 40% increase in online engagement after installing our TKCP LED wall. It created a dynamic, professional backdrop for our broadcast that projectors couldn't match.",
-            source: "— Pastor John, Grace Fellowship Church"
+            quote: "We have three new beautiful LED screens and all with one purpose, to get the message out and I know that the church, the congregation, the people are going to be so blessed with the work that's being done.",
+            source: "— Senior Pastor Arthur Reyes, Calvary Chapel Downey",
+            imageUrl: "https://placehold.co/600x400/2B4C7E/FFFFFF/png?text=Worship+Experience",
+            imageAlt: "A vibrant church service with an LED screen showing lyrics, enhancing the worship experience."
         },
         hospitality: {
-            quote: "The Grand Hall boosted premium event bookings by 60% in the first year. Our TKCP screen is now our biggest selling point and a significant revenue driver.",
-            source: "— A. Davis, Venue Director, The Grand Hall"
+            quote: "Since installing the LED wall, we've attracted higher-end corporate clients and increased our premium event bookings by 60% in the first year. The wall is our biggest selling point and has generated significant new revenue for us.",
+            source: "— A. Davis, Venue Director, The Grand Hall",
+            imageUrl: "https://placehold.co/600x400/1B365D/FFFFFF/png?text=Corporate+Event",
+            imageAlt: "A corporate event in a grand hall, with a large LED screen displaying the company's logo."
         }
     };
     const relevantCaseStudy = caseStudies[sector];
@@ -46,7 +50,7 @@ const Section3_Considerations: React.FC<SectionProps> = ({ sector }) => {
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">3. {relevantContent.title}</h2>
+            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">4. {relevantContent.title}</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">Discover how an LED transformation directly impacts your organization's goals.</p>
 
             <div className="mt-8 space-y-8">
@@ -60,15 +64,18 @@ const Section3_Considerations: React.FC<SectionProps> = ({ sector }) => {
 
             <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h3 className="font-bold font-display text-lg text-gray-800 dark:text-gray-100 text-center">Success Story</h3>
-                <blockquote className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-church-accent text-gray-700 dark:text-gray-300 italic">
-                    <p>"{relevantCaseStudy.quote}"</p>
-                    <cite className="block text-right mt-2 not-italic font-semibold text-gray-600 dark:text-gray-400">{relevantCaseStudy.source}</cite>
-                     <div className="text-right mt-2 not-italic">
-                        <a href="#" onClick={(e) => e.preventDefault()} className="text-sm font-bold text-church-primary hover:underline">
-                            Read Full Story &rarr;
-                        </a>
-                    </div>
-                </blockquote>
+                <div className="mt-4 flex flex-col md:flex-row items-center gap-6 bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border-l-4 border-church-accent">
+                    <img src={relevantCaseStudy.imageUrl} alt={relevantCaseStudy.imageAlt} className="w-full md:w-1/3 rounded-lg shadow-md" />
+                    <blockquote className="flex-1 text-gray-700 dark:text-gray-300 italic">
+                        <p>"{relevantCaseStudy.quote}"</p>
+                        <cite className="block text-right mt-2 not-italic font-semibold text-gray-600 dark:text-gray-400">{relevantCaseStudy.source}</cite>
+                         <div className="text-right mt-4 not-italic">
+                            <a href="https://thykingdomcomeproductions.com/testimonials/" target="_blank" rel="noopener noreferrer" className="inline-block px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 transition-all transform hover:-translate-y-0.5 shadow-md hover:shadow-lg text-sm">
+                                Read Full Story &rarr;
+                            </a>
+                        </div>
+                    </blockquote>
+                </div>
             </div>
 
 

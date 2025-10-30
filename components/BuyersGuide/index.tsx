@@ -9,9 +9,9 @@ import Feedback from '../common/Feedback';
 
 // Lazy load sections for performance
 const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
+const Section2_Sizing = lazy(() => import('./sections/Section2_Sizing'));
 const Section2_MarketIntelligence = lazy(() => import('./sections/Section2_MarketIntelligence'));
 const Section3_Considerations = lazy(() => import('./sections/Section3_Considerations'));
-const Section4_TechSpecs = lazy(() => import('./sections/Section4_TechSpecs'));
 const Section6_Process = lazy(() => import('./sections/Section6_Process'));
 const Section7_FAQ = lazy(() => import('./sections/Section7_FAQ'));
 const Section5_Summary = lazy(() => import('./sections/Section5_Summary'));
@@ -25,9 +25,9 @@ interface BuyersGuideProps {
 
 export const GUIDE_SECTIONS = [
     { id: 1, title: 'LED vs. Projector', component: Section1_Comparison },
-    { id: 2, title: 'Market Intelligence', component: Section2_MarketIntelligence },
-    { id: 3, title: 'Sector-Specific Considerations', component: Section3_Considerations },
-    { id: 4, title: 'Technical Specifications', component: Section4_TechSpecs },
+    { id: 2, title: 'Sizing & Placement Guide', component: Section2_Sizing },
+    { id: 3, title: 'Market Intelligence', component: Section2_MarketIntelligence },
+    { id: 4, title: 'Sector-Specific Considerations', component: Section3_Considerations },
     { id: 5, title: 'Implementation Process', component: Section6_Process },
     { id: 6, title: 'Frequently Asked Questions', component: Section7_FAQ },
     { id: 7, title: 'Your Custom LED Summary', component: Section5_Summary },
@@ -36,6 +36,7 @@ export const GUIDE_SECTIONS = [
 const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) => {
     const mainContentRef = useRef<HTMLElement>(null);
     const [activeSection, setActiveSection] = useState(1);
+    const [animationDirection, setAnimationDirection] = useState<'next' | 'prev'>('next');
     const [completedSections, setCompletedSections] = useState<Set<number>>(new Set([1]));
     const [userData, setUserData] = useState(result.userData);
     const [showProgressiveForm, setShowProgressiveForm] = useState(false);
@@ -65,10 +66,17 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
 
 
     const handleSectionChange = (sectionId: number) => {
+        if (sectionId === activeSection) return;
+
         if (sectionId > 0 && sectionId <= GUIDE_SECTIONS.length) {
              if ((sectionId > 1) && !isProfileComplete) {
                 setShowProgressiveForm(true);
             } else {
+                if (sectionId > activeSection) {
+                    setAnimationDirection('next');
+                } else {
+                    setAnimationDirection('prev');
+                }
                 setActiveSection(sectionId);
                 setCompletedSections(prev => new Set(prev).add(sectionId));
             }
@@ -88,8 +96,8 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
     };
     
     const isLastSection = activeSection === GUIDE_SECTIONS.length;
-
     const currentResult = { ...result, userData };
+    const ActiveComponent = GUIDE_SECTIONS.find(s => s.id === activeSection)?.component;
 
     return (
         <div className="animate-fade-in buyer-guide-container">
@@ -144,14 +152,10 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
                         completedSections={completedSections}
                     />
                 </aside>
-                <main ref={mainContentRef} className="flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col">
-                   <div className="flex-grow">
+                <main ref={mainContentRef} className="flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col overflow-hidden">
+                   <div key={activeSection} className={`flex-grow flex flex-col ${animationDirection === 'next' ? 'animate-slide-in-from-right' : 'animate-slide-in-from-left'}`}>
                         <Suspense fallback={<div className="flex justify-center items-center h-64"><Spinner /></div>}>
-                           {GUIDE_SECTIONS.map(section => (
-                                section.id === activeSection && (
-                                    <section.component key={section.id} sector={sector} result={currentResult} />
-                                )
-                           ))}
+                           {ActiveComponent && <ActiveComponent sector={sector} result={currentResult} />}
                         </Suspense>
                    </div>
                    {!isLastSection && (

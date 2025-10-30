@@ -67,6 +67,7 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const sessionUserId = useRef<string>(HubSpot.getSessionUserId());
     const [theme, toggleTheme] = useTheme();
+    const quizCompletionData = useRef<{ answers: { [key: number]: Answer }, userData: Partial<UserData> } | null>(null);
 
 
     useEffect(() => {
@@ -96,8 +97,7 @@ const App: React.FC = () => {
 
     }, []);
 
-    const generatePersonalizedInsights = useCallback(async (finalScore: number, finalAnswers: { [key: number]: Answer }, finalSector: Sector): Promise<GeminiInsights | null> => {
-        setError(null);
+    const generatePersonalizedInsights = useCallback(async (finalScore: number, finalAnswers: { [key: number]: Answer }, finalSector: Sector): Promise<GeminiInsights> => {
         try {
             if (!process.env.API_KEY) {
                 throw new Error("API key is not configured.");
@@ -160,8 +160,7 @@ const App: React.FC = () => {
 
         } catch (e) {
             console.error("Error generating insights:", e);
-            setError("Failed to generate personalized insights.");
-            return null;
+            throw new Error("Our AI expert is a bit busy. Please try again in a moment.");
         }
     }, []);
     
@@ -236,7 +235,11 @@ The Team at Thy Kingdom Come Productions
         console.log("---------------------------------");
     };
 
-    const handleQuizComplete = async (finalAnswers: { [key: number]: Answer }, finalUserData: Partial<UserData>) => {
+    const processQuizCompletion = async () => {
+        if (!quizCompletionData.current || !sector) return;
+        const { answers: finalAnswers, userData: finalUserData } = quizCompletionData.current;
+
+        setError(null); // Reset error on each attempt
         setSubmissionStatus('Analyzing your results...');
         await new Promise(res => setTimeout(res, 1000));
         
@@ -245,9 +248,13 @@ The Team at Thy Kingdom Come Productions
         const maxScore = 20;
 
         let insights: GeminiInsights | null = null;
-        if (sector) {
-            setSubmissionStatus('Consulting our AI expert...');
+        try {
+            setSubmissionStatus('Our AI expert is crafting your personalized insights...');
             insights = await generatePersonalizedInsights(totalScore, finalAnswers, sector);
+        } catch(e: any) {
+            setError(e.message || "An unknown error occurred while generating insights.");
+            // Stop processing, the UI will show the retry button.
+            return;
         }
         
         setSubmissionStatus('Tailoring your recommendations...');
@@ -290,27 +297,25 @@ The Team at Thy Kingdom Come Productions
 
         setQuizResult(result);
         
-        if (sector) {
-            const urlParams = new URLSearchParams(window.location.search);
-            HubSpot.upsertContact({
-                ...finalUserData,
-                session_user_id: sessionUserId.current,
-                // Map answers to HubSpot custom properties
-                pain_scale_score: finalAnswers[0]?.points,
-                organization_size: finalAnswers[1]?.value,
-                timeline_urgency: finalAnswers[2]?.value,
-                compelling_event: finalAnswers[3]?.value,
-                commitment_level: commitment,
-                // System properties
-                sector: sector,
-                total_assessment_score: totalScore,
-                lead_temperature: leadStatus,
-                assessment_answers_json: JSON.stringify(finalAnswers),
-                lifecyclestage: 'lead',
-                source_url: window.location.href,
-                utm_campaign: urlParams.get('utm_campaign') || undefined,
-            });
-        }
+        const urlParams = new URLSearchParams(window.location.search);
+        HubSpot.upsertContact({
+            ...finalUserData,
+            session_user_id: sessionUserId.current,
+            // Map answers to HubSpot custom properties
+            pain_scale_score: finalAnswers[0]?.points,
+            organization_size: finalAnswers[1]?.value,
+            timeline_urgency: finalAnswers[2]?.value,
+            compelling_event: finalAnswers[3]?.value,
+            commitment_level: commitment,
+            // System properties
+            sector: sector,
+            total_assessment_score: totalScore,
+            lead_temperature: leadStatus,
+            assessment_answers_json: JSON.stringify(finalAnswers),
+            lifecyclestage: 'lead',
+            source_url: window.location.href,
+            utm_campaign: urlParams.get('utm_campaign') || undefined,
+        });
         
         if (commitment === 'exploring' || commitment === 'general_interest') {
             HubSpot.trackEvent('Buyer Guide Accessed', sessionUserId.current);
@@ -321,6 +326,11 @@ The Team at Thy Kingdom Come Productions
         setSubmissionStatus(null);
     };
 
+    const handleQuizComplete = async (finalAnswers: { [key: number]: Answer }, finalUserData: Partial<UserData>) => {
+        quizCompletionData.current = { answers: finalAnswers, userData: finalUserData };
+        await processQuizCompletion();
+    };
+
     const handleReset = () => {
         HubSpot.clearSessionUserId(); // Start a fresh session
         localStorage.removeItem('tkcp_quiz_state'); // Clear saved progress
@@ -329,6 +339,22 @@ The Team at Thy Kingdom Come Productions
 
     const renderContent = () => {
         if (submissionStatus) {
+            if (error) {
+                return (
+                    <div className="flex flex-col justify-center items-center h-[60vh] text-center">
+                        <div className="text-red-500 mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md">
+                            <h3 className="font-bold text-lg">Oops! Something went wrong.</h3>
+                            <p className="mt-1">{error}</p>
+                        </div>
+                        <button
+                            onClick={processQuizCompletion}
+                            className="px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 transition-colors"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                );
+            }
             return (
                 <div role="status" className="flex flex-col justify-center items-center h-[60vh] text-center">
                     <Spinner />
@@ -343,7 +369,7 @@ The Team at Thy Kingdom Come Productions
             case 'loading':
                 return <div className="flex justify-center items-center h-64"><Spinner /></div>;
             case 'landing':
-                return <Landing onSectorSelect={handleSectorSelect} />;
+                return <Landing onSectorSelect={handleSectorSelect} theme={theme} />;
             case 'quiz':
                  if (sector) {
                     return <Quiz sector={sector} onComplete={handleQuizComplete} />;

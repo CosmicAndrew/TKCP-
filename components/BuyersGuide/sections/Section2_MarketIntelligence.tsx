@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
@@ -17,29 +18,15 @@ const InsightCard: React.FC<{ icon: string; title: string; text: string }> = ({ 
     </div>
 );
 
-
 const Section2_MarketIntelligence: React.FC<SectionProps> = ({ sector }) => {
-    const marketInsights = {
-      church: [
-        "Average LED adoption rate in Texas churches has grown 25% year-over-year.",
-        "The most common projector complaints are bulb failures during service and poor visibility in daylight.",
-        "Churches typically see a full ROI within 3-4 years from maintenance savings and increased engagement."
-      ],
-      hospitality: [
-        "Venues with integrated LED walls command a 15-30% higher booking fee for corporate events.",
-        "Event planners in DFW now list 'high-quality AV' as a top 3 requirement when selecting a venue.",
-        "Eliminating AV rental costs can increase an event's profit margin by an average of 20%."
-      ]
-    };
-    
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">2. LED Market Intelligence Dashboard</h2>
+            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">3. LED Market Intelligence Dashboard</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">See how TKCP compares to other LED providers and market trends in your area.</p>
 
             <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700 market-intelligence">
                 <h3 className="text-xl font-display font-bold text-center text-church-primary dark:text-blue-300 mb-6">🎯 Why Organizations Choose TKCP</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 comparison-grid">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 comparison-grid">
                     <InsightCard 
                         icon="🏆"
                         title="Local Market Leader"
@@ -58,11 +45,19 @@ const Section2_MarketIntelligence: React.FC<SectionProps> = ({ sector }) => {
                 </div>
             </div>
 
-            <div className="mt-8">
-                 <h3 className="text-xl font-display font-bold text-gray-700 dark:text-gray-200">Key {sector === 'church' ? 'Ministry' : 'Business'} Insights</h3>
-                 <ul className="mt-4 space-y-2 list-disc list-inside text-gray-700 dark:text-gray-300">
-                    {marketInsights[sector].map((insight, index) => <li key={index}>{insight}</li>)}
-                 </ul>
+            <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h3 className="text-xl font-display font-bold text-center text-gray-800 dark:text-gray-100">Key Ministry Insights</h3>
+                 <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">Based on data from over 200+ church partnerships in Texas.</p>
+                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div className="text-center bg-white dark:bg-gray-800 p-4 rounded-lg">
+                        <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Avg. Annual Savings (vs Projectors)</p>
+                        <p className="text-3xl font-bold text-green-600">$8,250</p>
+                    </div>
+                     <div className="text-center bg-white dark:bg-gray-800 p-4 rounded-lg">
+                        <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Avg. Online Viewership Increase</p>
+                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">+40%</p>
+                    </div>
+                </div>
             </div>
 
             <CalendarCTA

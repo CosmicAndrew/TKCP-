@@ -117,73 +117,45 @@
         border-width: 0;
       }
 
-      /* 3D Model Styles */
-      .perspective-container {
-        perspective: 1000px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 350px;
+      /* Hero Background Styles */
+      .hero-bg-church-sanctuary {
+        background-color: #2B4C7E;
+        background-image:
+            radial-gradient(ellipse at 50% 20%, rgba(240, 220, 160, 0.4) 0%, transparent 50%),
+            linear-gradient(to top, rgba(43, 76, 126, 0.8) 0%, transparent 70%);
       }
-      .led-cube {
-        width: 300px;
-        height: 180px;
-        position: relative;
-        transform-style: preserve-3d;
-        transition: transform 0.1s ease-out;
-        cursor: grab;
-      }
-      .led-cube:active {
-        cursor: grabbing;
-      }
-      .led-cube-face {
-        position: absolute;
-        border: 1px solid #555;
-        background: rgba(10, 20, 40, 0.85);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: monospace;
-        backface-visibility: hidden; /* Improves rendering */
-      }
-      .led-cube-face.front  { 
-        width: 300px;
-        height: 180px;
-        transform: translateZ(20px); 
-        background-image: 
-          linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-        background-size: 10px 10px;
-      }
-      .led-cube-face.back   { 
-        width: 300px;
-        height: 180px;
-        transform: rotateY(180deg) translateZ(20px); 
-        background: #111;
-        content: 'REAR';
-      }
-      .led-cube-face.right  { 
-        width: 40px; 
-        height: 180px;
-        transform: rotateY(90deg) translateZ(150px); 
-      }
-      .led-cube-face.left   { 
-        width: 40px; 
-        height: 180px;
-        transform: rotateY(-90deg) translateZ(150px); 
-      }
-      .led-cube-face.top    { 
-        width: 300px;
-        height: 40px;
-        transform: rotateX(90deg) translateZ(90px); 
-      }
-      .led-cube-face.bottom { 
-        width: 300px;
-        height: 40px;
-        transform: rotateX(-90deg) translateZ(90px); 
+      .hero-bg-modern-venue {
+        background-color: #1B365D;
+        background-image:
+            linear-gradient(160deg, rgba(255, 107, 53, 0.2) 0%, transparent 50%),
+            linear-gradient(45deg, rgba(27, 54, 93, 1) 20%, transparent 100%);
       }
 
+      /* Button Sparkle Animation */
+      .sparkle-button:hover::before,
+      .sparkle-button:hover::after {
+        content: '';
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+        pointer-events: none;
+        box-shadow: 0 0 5px white, 0 0 10px #D4AF37, 0 0 15px #D4AF37;
+      }
+      .sparkle-button:hover::before {
+        width: 8px;
+        height: 8px;
+        top: 20%;
+        left: 15%;
+        animation: sparkle 0.6s ease-out forwards;
+      }
+      .sparkle-button:hover::after {
+        width: 10px;
+        height: 10px;
+        top: 70%;
+        left: 80%;
+        animation: sparkle 0.6s ease-out 0.2s forwards;
+      }
 
       /* Mobile-First Responsive Design Overhaul */
       @media (max-width: 768px) {
@@ -286,6 +258,10 @@
               'scale-in-subtle': 'scale-in-subtle 0.6s ease-out forwards',
               'pop-in': 'pop-in 0.3s ease-out forwards',
               'subtle-pulse': 'subtle-pulse 1.5s ease-in-out infinite',
+              'slide-in-from-right': 'slide-in-from-right 0.4s ease-out forwards',
+              'slide-in-from-left': 'slide-in-from-left 0.4s ease-out forwards',
+              'sparkle': 'sparkle 0.6s ease-in-out forwards',
+              'check-in-glow': 'check-in-glow 0.8s ease-out forwards',
             },
             keyframes: {
               'fade-in': {
@@ -325,6 +301,11 @@
                 '70%': { opacity: '1', transform: 'scale(0.9)' },
                 '100%': { opacity: '1', transform: 'scale(1)' },
               },
+              'check-in-glow': {
+                '0%': { transform: 'scale(0.5)', opacity: '0' },
+                '50%': { transform: 'scale(1.2)', opacity: '1', filter: 'drop-shadow(0 0 6px #2ecc71)' },
+                '100%': { transform: 'scale(1)', opacity: '1', filter: 'drop-shadow(0 0 0 #2ecc71)' },
+              },
               'slide-in-right': {
                 '0%': { transform: 'translateX(30px)', opacity: '0' },
                 '100%': { transform: 'translateX(0)', opacity: '1' },
@@ -349,6 +330,19 @@
               'subtle-pulse': {
                 '0%, 100%': { transform: 'scale(1)', opacity: '0.7' },
                 '50%': { transform: 'scale(1.05)', opacity: '1' },
+              },
+              'slide-in-from-right': {
+                '0%': { transform: 'translateX(50px)', opacity: '0' },
+                '100%': { transform: 'translateX(0)', opacity: '1' },
+              },
+              'slide-in-from-left': {
+                '0%': { transform: 'translateX(-50px)', opacity: '0' },
+                '100%': { transform: 'translateX(0)', opacity: '1' },
+              },
+              'sparkle': {
+                '0%': { transform: 'scale(0) rotate(0deg)', opacity: '0.5' },
+                '50%': { transform: 'scale(1.5)', opacity: '1' },
+                '100%': { transform: 'scale(0)', opacity: '0' },
               },
             }
           }

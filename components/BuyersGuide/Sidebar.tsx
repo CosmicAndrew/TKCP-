@@ -1,6 +1,6 @@
 import React from 'react';
 import { GUIDE_SECTIONS } from './index';
-import { IconCheckCircle, IconCompare, IconChurch, IconChecklist, IconPrint, IconSearch, IconShare, IconQuestionMarkCircle, IconCog } from '../common/Icon';
+import { IconCheckCircle, IconCompare, IconChurch, IconChecklist, IconPrint, IconSearch, IconShare, IconQuestionMarkCircle, IconRuler } from '../common/Icon';
 
 interface SidebarProps {
     activeSection: number;
@@ -10,9 +10,9 @@ interface SidebarProps {
 
 const SECTION_ICONS: { [key: number]: React.ReactNode } = {
     1: <IconCompare className="w-5 h-5" />,
-    2: <IconSearch className="w-5 h-5" />,
-    3: <IconChurch className="w-5 h-5" />,
-    4: <IconCog className="w-5 h-5" />,
+    2: <IconRuler className="w-5 h-5" />,
+    3: <IconSearch className="w-5 h-5" />,
+    4: <IconChurch className="w-5 h-5" />,
     5: <IconChecklist className="w-5 h-5" />,
     6: <IconQuestionMarkCircle className="w-5 h-5" />,
     7: <IconPrint className="w-5 h-5" />,
@@ -60,7 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection, comp
                                 </span>
                                 <span className="flex-grow">{section.title}</span>
                                 {completedSections.has(section.id) && (
-                                    <IconCheckCircle className="w-5 h-5 text-green-500 animate-bounce-in" />
+                                    <IconCheckCircle className="w-5 h-5 text-green-500 animate-check-in-glow" />
                                 )}
                             </button>
                         </li>

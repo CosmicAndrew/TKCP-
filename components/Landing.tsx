@@ -1,12 +1,13 @@
 import React from 'react';
-import { Sector } from '../types';
+import { Sector, Theme } from '../types';
 import { IconArrowRight } from './common/Icon';
 
 interface LandingProps {
     onSectorSelect: (sector: Sector) => void;
+    theme: Theme;
 }
 
-const Landing: React.FC<LandingProps> = ({ onSectorSelect }) => {
+const Landing: React.FC<LandingProps> = ({ onSectorSelect, theme }) => {
     
     const scrollToSelection = () => {
         document.getElementById('sector-selection')?.scrollIntoView({ behavior: 'smooth' });
@@ -16,7 +17,10 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect }) => {
         <div className="animate-fade-in space-y-16 md:space-y-24">
             {/* Hero Section */}
             <section className="text-center rounded-lg shadow-xl overflow-hidden min-h-[400px] md:min-h-[500px] flex items-center justify-center bg-church-primary relative">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(212,175,55,0.3)_0%,_transparent_60%)]"></div>
+                <div className="absolute inset-0 overflow-hidden">
+                    <div className={`absolute inset-0 hero-bg-church-sanctuary transition-opacity duration-1000 ease-in-out ${theme === 'light' ? 'opacity-100' : 'opacity-0'}`} />
+                    <div className={`absolute inset-0 hero-bg-modern-venue transition-opacity duration-1000 ease-in-out ${theme === 'dark' ? 'opacity-100' : 'opacity-0'}`} />
+                </div>
                 <div className="relative z-10 text-white p-8">
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold [text-shadow:_0_2px_4px_rgba(0,0,0,0.5)] animate-hero-text opacity-0">
                         See the difference LED makes?
@@ -24,7 +28,7 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect }) => {
                     <button 
                         onClick={scrollToSelection}
                         aria-label="Take the LED assessment to see if it's right for you"
-                        className="mt-8 px-8 py-3 bg-white text-church-primary font-bold rounded-md shadow-lg transition-transform hover:scale-105 animate-hero-cta opacity-0 animate-pulse-delayed"
+                        className="mt-8 px-8 py-3 bg-white text-church-primary font-bold rounded-md shadow-lg transition-transform hover:scale-105 animate-hero-cta opacity-0 animate-pulse-delayed relative overflow-hidden sparkle-button"
                     >
                         Take Assessment &rarr;
                     </button>

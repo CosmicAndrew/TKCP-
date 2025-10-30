@@ -70,7 +70,7 @@ const Section7_FAQ: React.FC<{ sector: Sector; result: Result; }> = ({ sector })
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">5. Frequently Asked Questions</h2>
+            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">7. Frequently Asked Questions</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">Get answers to the most common questions about LED technology and the TKCP process.</p>
             
             <div className="mt-8 border-t dark:border-gray-700">
