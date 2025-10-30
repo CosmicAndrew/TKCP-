@@ -1,6 +1,6 @@
 import React from 'react';
 import { GUIDE_SECTIONS } from './index';
-import { IconCheckCircle, IconCompare, IconChurch, IconChecklist, IconPrint, IconSearch, IconShare, IconQuestionMarkCircle } from '../common/Icon';
+import { IconCheckCircle, IconCompare, IconChurch, IconChecklist, IconPrint, IconSearch, IconShare, IconQuestionMarkCircle, IconCog } from '../common/Icon';
 
 interface SidebarProps {
     activeSection: number;
@@ -12,9 +12,10 @@ const SECTION_ICONS: { [key: number]: React.ReactNode } = {
     1: <IconCompare className="w-5 h-5" />,
     2: <IconSearch className="w-5 h-5" />,
     3: <IconChurch className="w-5 h-5" />,
-    4: <IconChecklist className="w-5 h-5" />,
-    5: <IconQuestionMarkCircle className="w-5 h-5" />,
-    6: <IconPrint className="w-5 h-5" />,
+    4: <IconCog className="w-5 h-5" />,
+    5: <IconChecklist className="w-5 h-5" />,
+    6: <IconQuestionMarkCircle className="w-5 h-5" />,
+    7: <IconPrint className="w-5 h-5" />,
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection, completedSections }) => {
@@ -39,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection, comp
     };
     
     return (
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg md:sticky md:top-8 print-hide">
+        <div className="hidden md:block bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg md:sticky md:top-8 print-hide">
             <h3 className="text-lg font-bold font-display text-gray-800 dark:text-gray-100 mb-4 px-2">Guide Sections</h3>
             <nav>
                 <ul>

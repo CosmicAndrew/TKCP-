@@ -11,6 +11,7 @@ import Feedback from '../common/Feedback';
 const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
 const Section2_MarketIntelligence = lazy(() => import('./sections/Section2_MarketIntelligence'));
 const Section3_Considerations = lazy(() => import('./sections/Section3_Considerations'));
+const Section4_TechSpecs = lazy(() => import('./sections/Section4_TechSpecs'));
 const Section6_Process = lazy(() => import('./sections/Section6_Process'));
 const Section7_FAQ = lazy(() => import('./sections/Section7_FAQ'));
 const Section5_Summary = lazy(() => import('./sections/Section5_Summary'));
@@ -22,15 +23,14 @@ interface BuyersGuideProps {
     onReset: () => void;
 }
 
-// NOTE: The component filenames (e.g., Section6_Process) do not match the section order (e.g., section 4).
-// This is due to a historical file structure. The order below is the correct one presented to the user.
 export const GUIDE_SECTIONS = [
     { id: 1, title: 'LED vs. Projector', component: Section1_Comparison },
     { id: 2, title: 'Market Intelligence', component: Section2_MarketIntelligence },
     { id: 3, title: 'Sector-Specific Considerations', component: Section3_Considerations },
-    { id: 4, title: 'Implementation Process', component: Section6_Process },
-    { id: 5, title: 'Frequently Asked Questions', component: Section7_FAQ },
-    { id: 6, title: 'Your Custom LED Summary', component: Section5_Summary },
+    { id: 4, title: 'Technical Specifications', component: Section4_TechSpecs },
+    { id: 5, title: 'Implementation Process', component: Section6_Process },
+    { id: 6, title: 'Frequently Asked Questions', component: Section7_FAQ },
+    { id: 7, title: 'Your Custom LED Summary', component: Section5_Summary },
 ];
 
 const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) => {
@@ -39,6 +39,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
     const [completedSections, setCompletedSections] = useState<Set<number>>(new Set([1]));
     const [userData, setUserData] = useState(result.userData);
     const [showProgressiveForm, setShowProgressiveForm] = useState(false);
+    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
     const isProfileComplete = !!userData.email;
 
@@ -104,6 +105,35 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
                 <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     Welcome, {userData.firstName || userData.fullName}! This guide is tailored to help you make the most informed decision for your {sector === 'church' ? 'House of Worship' : 'Venue'}.
                 </p>
+            </div>
+
+            {/* Mobile Navigation */}
+            <div className="md:hidden mb-4 relative print-hide">
+                <button
+                    onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+                    className="w-full flex justify-between items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow font-semibold text-gray-800 dark:text-gray-100"
+                    aria-haspopup="true"
+                    aria-expanded={isMobileNavOpen}
+                >
+                    <span>{GUIDE_SECTIONS.find(s => s.id === activeSection)?.title}</span>
+                    <svg className={`w-5 h-5 transition-transform ${isMobileNavOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                {isMobileNavOpen && (
+                    <nav className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-20 border dark:border-gray-700">
+                        <ul>
+                            {GUIDE_SECTIONS.map(section => (
+                                <li key={section.id}>
+                                    <button 
+                                        onClick={() => { handleSectionChange(section.id); setIsMobileNavOpen(false); }}
+                                        className={`w-full text-left p-3 rounded-md text-sm font-semibold ${activeSection === section.id ? 'bg-church-primary/10 text-church-primary dark:text-blue-300' : 'text-gray-600 dark:text-gray-300'}`}
+                                    >
+                                        {section.title}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                )}
             </div>
 
             <div className="flex flex-col md:flex-row gap-8">

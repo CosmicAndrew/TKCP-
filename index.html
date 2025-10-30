@@ -117,6 +117,73 @@
         border-width: 0;
       }
 
+      /* 3D Model Styles */
+      .perspective-container {
+        perspective: 1000px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 350px;
+      }
+      .led-cube {
+        width: 300px;
+        height: 180px;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.1s ease-out;
+        cursor: grab;
+      }
+      .led-cube:active {
+        cursor: grabbing;
+      }
+      .led-cube-face {
+        position: absolute;
+        border: 1px solid #555;
+        background: rgba(10, 20, 40, 0.85);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: monospace;
+        backface-visibility: hidden; /* Improves rendering */
+      }
+      .led-cube-face.front  { 
+        width: 300px;
+        height: 180px;
+        transform: translateZ(20px); 
+        background-image: 
+          linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 10px 10px;
+      }
+      .led-cube-face.back   { 
+        width: 300px;
+        height: 180px;
+        transform: rotateY(180deg) translateZ(20px); 
+        background: #111;
+        content: 'REAR';
+      }
+      .led-cube-face.right  { 
+        width: 40px; 
+        height: 180px;
+        transform: rotateY(90deg) translateZ(150px); 
+      }
+      .led-cube-face.left   { 
+        width: 40px; 
+        height: 180px;
+        transform: rotateY(-90deg) translateZ(150px); 
+      }
+      .led-cube-face.top    { 
+        width: 300px;
+        height: 40px;
+        transform: rotateX(90deg) translateZ(90px); 
+      }
+      .led-cube-face.bottom { 
+        width: 300px;
+        height: 40px;
+        transform: rotateX(-90deg) translateZ(90px); 
+      }
+
 
       /* Mobile-First Responsive Design Overhaul */
       @media (max-width: 768px) {
