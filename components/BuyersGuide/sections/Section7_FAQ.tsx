@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
@@ -43,7 +44,7 @@ const Section7_FAQ: React.FC<{ sector: Sector; result: Result; }> = ({ sector })
     const faqs = [
         {
             question: "How long does a typical installation take?",
-            answer: "Our certified in-house teams are incredibly efficient. A standard installation is typically completed within 2-3 days, compared to the industry average of 5-7 days. We handle everything to ensure minimal disruption to your operations."
+            answer: "Most of our church installations are completed in 1-2 days, and in many cases, we're in and out within a single day. We know your Sunday schedule is sacred, so we work around it—scheduling installations during weekdays or off-hours to ensure zero disruption to your worship services. Our efficient, certified teams handle everything from rigging to calibration, so you can focus on your ministry while we transform your space."
         },
         {
             question: "What kind of warranty is included?",
