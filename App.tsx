@@ -1,4 +1,7 @@
 
+
+
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Sector, LeadStatus, UserData, Answer, Result, GeminiInsights, Theme } from './types';
@@ -69,6 +72,26 @@ const App: React.FC = () => {
 
     useEffect(() => {
         trackMetaEvent('PageView');
+        
+        // Check for results data in URL hash first
+        if (window.location.hash.startsWith('#results=')) {
+            try {
+                const encodedData = window.location.hash.substring(9); // remove #results=
+                const decodedData = atob(encodedData);
+                const resultData: Result = JSON.parse(decodedData);
+                
+                setQuizResult(resultData);
+                setSector(resultData.sector);
+                setStep('confirmation');
+                // Clean the hash to avoid re-triggering and clean up URL
+                history.replaceState(null, document.title, window.location.pathname + window.location.search);
+                return;
+            } catch (e) {
+                console.error("Failed to parse result data from URL hash", e);
+                // Fallback to normal flow if parsing fails
+                history.replaceState(null, document.title, window.location.pathname + window.location.search);
+            }
+        }
         
         // Auto-detect sector from URL parameters to allow direct links to quiz
         const urlParams = new URLSearchParams(window.location.search);
@@ -170,60 +193,60 @@ const App: React.FC = () => {
         setStep('quiz');
     };
 
-    const sendFollowUpEmail = (result: Result, sector: Sector) => {
-        const { userData, score, maxScore, leadStatus, geminiInsights, answers } = result;
+    const sendFollowUpEmail = (result: Result) => {
+        const { userData, score, maxScore, leadStatus, geminiInsights, sector } = result;
         if (!userData.email) {
             console.log("No email provided, skipping follow-up email.");
             return;
         }
 
-        const findAnswerText = (questionIndex: number, answerValue: string | undefined) => {
-            if (answerValue === undefined) return 'N/A';
-            const question = ASSESSMENT_QUESTIONS[questionIndex];
-            const option = question.options.find(o => o.value === answerValue);
-            return option ? option.text[sector] : 'N/A';
-        };
+        // Generate results link
+        const resultDataString = JSON.stringify(result);
+        const encodedResult = btoa(resultDataString);
+        const resultsUrl = `${window.location.origin}${window.location.pathname}#results=${encodedResult}`;
 
-        const answerSummary = ASSESSMENT_QUESTIONS.map((q, index) => {
-            const answer = answers[index];
-            if (!answer) return null;
-            return `
-- Question: ${q.text(sector)}
-- Your Answer: ${findAnswerText(index, answer.value)}
-`;
-        }).filter(Boolean).join('');
+        // Generate pre-filled booking link
+        const bookingUrl = new URL('https://meetings.hubspot.com/jasmineford');
+        if(userData.firstName) bookingUrl.searchParams.append('firstname', userData.firstName);
+        if(userData.lastName) bookingUrl.searchParams.append('lastname', userData.lastName);
+        bookingUrl.searchParams.append('email', userData.email);
+        bookingUrl.searchParams.append('utm_source', 'assessment_email');
+        bookingUrl.searchParams.append('utm_medium', 'email');
+        bookingUrl.searchParams.append('utm_campaign', 'q4_led_screens_followup');
+
+        const leadStatusText = leadStatus.charAt(0).toUpperCase() + leadStatus.slice(1);
 
         const emailBody = `
-Hi ${userData.firstName || userData.fullName || 'there'},
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+            <h2 style="color: #2B4C7E;">Your LED Screen Assessment Results - ${leadStatusText} Lead</h2>
+            <p>Hi ${userData.firstName || 'there'},</p>
+            <p>Thank you for completing the LED Assessment with Thy Kingdom Come Productions! Here is a summary of your results and personalized next steps.</p>
+            
+            <div style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="margin-top: 0;">Your Score: ${score}/${maxScore} (${leadStatusText})</h3>
+                <p><strong>Top AI Insights for You:</strong></p>
+                <ul style="padding-left: 20px;">
+                    ${geminiInsights?.actionable_steps.slice(0, 2).map(step => `<li>${step}</li>`).join('') || ''}
+                </ul>
+            </div>
 
-Thank you for completing the LED Assessment with Thy Kingdom Come Productions! We've analyzed your responses and generated some personalized insights to help you on your journey to visual excellence.
+            <p>For a detailed breakdown and your complete set of recommendations, please view your full results page:</p>
+            <a href="${resultsUrl}" style="display: inline-block; background-color: #D4AF37; color: #000; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">View Full Results</a>
 
-**Your Assessment Summary:**
-- Score: ${score}/${maxScore}
-- Your Profile: ${leadStatus.charAt(0).toUpperCase() + leadStatus.slice(1)} Lead
-
-**Personalized Insights from our AI Expert:**
-${geminiInsights?.summary || "No insights available."}
-
-**Actionable Next Steps:**
-${geminiInsights?.actionable_steps.map(step => `- ${step}`).join('\n') || "No steps available."}
-
----
-
-**A Recap of Your Answers:**
-${answerSummary}
-
----
-
-We're excited about the possibility of partnering with you. A member of our team will be in touch shortly. If you'd like to jump ahead, feel free to book a priority consultation directly on our calendar.
-
-Best regards,
-The Team at Thy Kingdom Come Productions
-`;
+            <p style="margin-top: 25px;">Ready to discuss your LED screen solution and see how we can bring your vision to life?</p>
+            <a href="${bookingUrl.toString()}" style="display: inline-block; background-color: #2B4C7E; color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Schedule Your Free Consultation</a>
+            
+            <hr style="margin-top: 30px; border: 0; border-top: 1px solid #ddd;" />
+            <p style="font-size: 12px; color: #777;">
+                Join 500+ churches who upgraded to LED. <br />
+                Thy Kingdom Come Productions | (469) 840-9808
+            </p>
+        </div>
+        `;
 
         const email = {
             to: userData.email,
-            subject: "Your Personalized LED Assessment Results from TKCP",
+            subject: `Your LED Screen Assessment Results - ${leadStatusText} Lead`,
             body: emailBody.trim(),
         };
 
@@ -240,7 +263,7 @@ The Team at Thy Kingdom Come Productions
         setSubmissionStatus('Analyzing your results...');
         await new Promise(res => setTimeout(res, 1000));
         
-        // FIX: Explicitly type the 'answer' parameter in the reduce function to 'Answer' to prevent it from being inferred as 'unknown', which resolves downstream type errors.
+        // FIX: Explicitly typed the 'answer' parameter in the reduce function to ensure type safety.
         const totalScore = Object.values(finalAnswers).reduce((sum, answer: Answer) => sum + answer.points, 0);
         const leadStatus = calculateLeadTemperature(totalScore);
         const maxScore = 20;
@@ -264,12 +287,11 @@ The Team at Thy Kingdom Come Productions
             score: totalScore, 
             answers: finalAnswers,
             maxScore,
+            sector,
             geminiInsights: insights ?? undefined
         };
-
-        if (sector) {
-            sendFollowUpEmail(result, sector);
-        }
+        
+        sendFollowUpEmail(result);
 
         const commitment = finalAnswers[ASSESSMENT_QUESTIONS.length - 1]?.value;
 
@@ -300,7 +322,8 @@ The Team at Thy Kingdom Come Productions
             ...finalUserData,
             session_user_id: sessionUserId.current,
             // Map answers to HubSpot custom properties
-            pain_scale_score: finalAnswers[0]?.points,
+            // FIX: Correctly cast to `Answer | undefined` to handle cases where the answer may not exist, ensuring type safety.
+            pain_scale_score: (finalAnswers[0] as Answer | undefined)?.points,
             organization_size: finalAnswers[1]?.value,
             timeline_urgency: finalAnswers[2]?.value,
             compelling_event: finalAnswers[3]?.value,
@@ -332,7 +355,7 @@ The Team at Thy Kingdom Come Productions
     const handleReset = () => {
         HubSpot.clearSessionUserId(); // Start a fresh session
         localStorage.removeItem('tkcp_quiz_state'); // Clear saved progress
-        window.location.search = ''; // Clears params and re-triggers detection
+        window.location.href = window.location.pathname; // Clears params and hash, re-triggers detection
     };
 
     const renderContent = () => {

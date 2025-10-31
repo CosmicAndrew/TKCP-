@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Question, Answer, Sector, PathDetail } from '../types';
-import { IconProjectorDim, IconLEDBright } from './common/Icon';
+import { IconProjectorDim, IconLEDBright, IconCheckCircle } from './common/Icon';
 
 interface QuestionCardProps {
     question: Question;
@@ -73,28 +73,36 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
                 <div className="mt-auto">
                     <h4 className="text-xl font-display font-bold text-gray-700 dark:text-gray-200 mb-4 text-center">How committed are you to this transformation?</h4>
                     <div className="space-y-3 max-w-lg mx-auto">
-                        {question.options.map((option, index) => (
-                             <button
-                                key={option.value}
-                                onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
-                                aria-pressed={selectedAnswer === option.value}
-                                className={`assessment-question-option w-full text-left p-4 border rounded-lg text-lg transition-all duration-200 flex items-center transform hover:-translate-y-1
-                                ${selectedAnswer === option.value
-                                    ? (sector === Sector.Church ? 'border-church-primary dark:border-church-accent ring-2 ring-church-primary/50 bg-church-primary/10 dark:bg-church-primary/20 animate-pop-in shadow-lg' : 'border-hospitality-primary dark:border-hospitality-accent ring-2 ring-hospitality-primary/50 bg-hospitality-primary/10 dark:bg-hospitality-primary/20 animate-pop-in shadow-lg')
-                                    : 'border-gray-300 hover:border-gray-400 bg-white dark:bg-gray-700 dark:border-gray-600 dark:hover:border-gray-500'
-                                }`}
-                            >
-                                <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center
-                                  ${selectedAnswer === option.value 
-                                    ? (sector === Sector.Church ? 'border-church-primary dark:border-church-accent' : 'border-hospitality-primary dark:border-hospitality-accent')
-                                    : 'border-gray-400 dark:border-gray-500'
-                                  }`}>
-                                  {selectedAnswer === option.value && <span className={`w-3 h-3 rounded-full 
-                                    ${sector === Sector.Church ? 'bg-church-primary' : 'bg-hospitality-primary'}`}></span>}
-                                </span>
-                                <span className="dark:text-gray-200">{option.text[sector]}</span>
-                            </button>
-                        ))}
+                        {question.options.map((option, index) => {
+                            const isSelected = selectedAnswer === option.value;
+                            const isAnswered = selectedAnswer !== undefined;
+                            return (
+                                <button
+                                    key={option.value}
+                                    onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
+                                    aria-pressed={isSelected}
+                                    className={`assessment-question-option w-full text-left p-4 border rounded-lg text-lg transition-all duration-300 flex items-center justify-between
+                                        ${isAnswered && !isSelected ? 'opacity-60 scale-95' : 'hover:-translate-y-1'}
+                                        ${isSelected
+                                            ? (sector === Sector.Church ? 'border-church-primary dark:border-church-accent ring-2 ring-church-primary/50 bg-church-primary/10 dark:bg-church-primary/20 animate-pop-in shadow-lg' : 'border-hospitality-primary dark:border-hospitality-accent ring-2 ring-hospitality-primary/50 bg-hospitality-primary/10 dark:bg-hospitality-primary/20 animate-pop-in shadow-lg')
+                                            : 'border-gray-300 hover:border-gray-400 bg-white dark:bg-gray-700 dark:border-gray-600 dark:hover:border-gray-500'
+                                        }`}
+                                >
+                                    <div className="flex items-center">
+                                        <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center
+                                        ${isSelected 
+                                            ? (sector === Sector.Church ? 'border-church-primary dark:border-church-accent' : 'border-hospitality-primary dark:border-hospitality-accent')
+                                            : 'border-gray-400 dark:border-gray-500'
+                                        }`}>
+                                        {isSelected && <span className={`w-3 h-3 rounded-full 
+                                            ${sector === Sector.Church ? 'bg-church-primary' : 'bg-hospitality-primary'}`}></span>}
+                                        </span>
+                                        <span className="dark:text-gray-200">{option.text[sector]}</span>
+                                    </div>
+                                    {isSelected && <IconCheckCircle className="w-6 h-6 text-green-500 animate-check-in-glow" />}
+                                </button>
+                            )
+                        })}
                     </div>
                 </div>
             </div>
@@ -110,28 +118,36 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
             </div>
 
             <div className="mt-8 space-y-4 flex-grow">
-                {question.options.map((option, index) => (
-                    <button
-                        key={option.value}
-                        onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
-                        aria-pressed={selectedAnswer === option.value}
-                        className={`assessment-question-option w-full text-left p-4 border-2 rounded-lg text-lg transition-all duration-200 flex items-center transform hover:-translate-y-1
-                            ${selectedAnswer === option.value
-                                ? (sector === Sector.Church ? 'bg-church-accent/20 dark:bg-church-accent/30 border-church-accent animate-pop-in shadow-lg' : 'bg-hospitality-accent/20 dark:bg-hospitality-accent/30 border-hospitality-accent animate-pop-in shadow-lg')
-                                : 'border-gray-200 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'
-                            }`}
-                    >
-                        <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center
-                          ${selectedAnswer === option.value 
-                            ? (sector === Sector.Church ? 'border-church-accent' : 'border-hospitality-accent')
-                            : 'border-gray-400 dark:border-gray-500'
-                          }`}>
-                          {selectedAnswer === option.value && <span className={`w-3 h-3 rounded-full 
-                            ${sector === Sector.Church ? 'bg-church-accent' : 'bg-hospitality-accent'}`}></span>}
-                        </span>
-                        <span className="dark:text-gray-200">{option.text[sector]}</span>
-                    </button>
-                ))}
+                {question.options.map((option, index) => {
+                     const isSelected = selectedAnswer === option.value;
+                     const isAnswered = selectedAnswer !== undefined;
+                     return (
+                        <button
+                            key={option.value}
+                            onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
+                            aria-pressed={isSelected}
+                            className={`assessment-question-option w-full text-left p-4 border-2 rounded-lg text-lg transition-all duration-300 flex items-center justify-between
+                                ${isAnswered && !isSelected ? 'opacity-60 scale-95' : 'hover:-translate-y-1'}
+                                ${isSelected
+                                    ? (sector === Sector.Church ? 'bg-church-accent/20 dark:bg-church-accent/30 border-church-accent animate-pop-in shadow-lg' : 'bg-hospitality-accent/20 dark:bg-hospitality-accent/30 border-hospitality-accent animate-pop-in shadow-lg')
+                                    : 'border-gray-200 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'
+                                }`}
+                        >
+                            <div className="flex items-center">
+                                <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center
+                                ${isSelected 
+                                    ? (sector === Sector.Church ? 'border-church-accent' : 'border-hospitality-accent')
+                                    : 'border-gray-400 dark:border-gray-500'
+                                }`}>
+                                {isSelected && <span className={`w-3 h-3 rounded-full 
+                                    ${sector === Sector.Church ? 'bg-church-accent' : 'bg-hospitality-accent'}`}></span>}
+                                </span>
+                                <span className="dark:text-gray-200">{option.text[sector]}</span>
+                            </div>
+                            {isSelected && <IconCheckCircle className="w-6 h-6 text-green-500 animate-check-in-glow" />}
+                        </button>
+                    )
+                })}
             </div>
         </div>
     );

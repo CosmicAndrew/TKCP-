@@ -17,7 +17,7 @@ export const TKCP_CONFIG = {
 export const HUBSPOT_CONFIG = {
     portalId: 'YOUR_PORTAL_ID', // Replace with actual Portal ID
     meetingLinks: {
-        priority: 'https://meetings.hubspot.com/tkcp/priority',
+        priority: 'https://meetings.hubspot.com/jasmineford',
         discovery: 'https://meetings.hubspot.com/tkcp/discovery',
         planning: 'https://meetings.hubspot.com/tkcp/followup'
     }

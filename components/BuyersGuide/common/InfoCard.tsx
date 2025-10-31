@@ -8,12 +8,9 @@ interface InfoCardProps {
     color: 'blue' | 'yellow';
 }
 
-// FIX: The original error message was misleading. The actual issue was a violation of the Rules of Hooks,
-// where this custom hook was called conditionally. The hook is updated to accept a `start` parameter
-// to control the animation, and the `animate` function is moved inside `useEffect` to prevent stale closures.
+
 const useCountUp = (endValue: number, duration = 1500, isDecimal = false, start: boolean) => {
     const [count, setCount] = useState(0);
-    // FIX: Provide an initial value to `useRef` to satisfy the hook's signature, resolving the "Expected 1 arguments, but got 0" error.
     const frameRef = useRef<number | undefined>(undefined);
 
     useEffect(() => {
@@ -23,16 +20,18 @@ const useCountUp = (endValue: number, duration = 1500, isDecimal = false, start:
         }
 
         let animationFrameId: number;
-        frameRef.current = undefined;
+        let startTime: number | undefined = undefined;
 
         const animate = (timestamp: number) => {
-            if (frameRef.current === undefined) {
-                frameRef.current = timestamp;
+            if (startTime === undefined) {
+                startTime = timestamp;
             }
-            const progress = timestamp - frameRef.current;
+            const progress = timestamp - startTime;
             const percentage = Math.min(progress / duration, 1);
-            const easedValue = percentage * (1 - Math.cos(percentage * Math.PI)) / 2; // Ease-in-out
-            const newCount = easedValue * endValue;
+            // Ease-out cubic easing function
+            const easedPercentage = 1 - Math.pow(1 - percentage, 3);
+            
+            const newCount = easedPercentage * endValue;
             setCount(newCount);
 
             if (progress < duration) {

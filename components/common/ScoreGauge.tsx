@@ -1,6 +1,37 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sector } from '../../types';
+
+// Count-up hook for animating numbers
+const useCountUp = (endValue: number, duration = 1500) => {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            setCount(endValue);
+            return;
+        }
+
+        const frameRate = 1000 / 60;
+        const totalFrames = Math.round(duration / frameRate);
+        let frame = 0;
+        const counter = setInterval(() => {
+            frame++;
+            const progress = frame / totalFrames;
+            // Ease-out cubic function for a smooth slowdown
+            const easedProgress = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.round(endValue * easedProgress));
+
+            if (frame === totalFrames) {
+                clearInterval(counter);
+            }
+        }, frameRate);
+
+        return () => clearInterval(counter);
+    }, [endValue, duration]);
+
+    return count;
+};
 
 interface ScoreGaugeProps {
   score: number;
@@ -9,8 +40,8 @@ interface ScoreGaugeProps {
 }
 
 const ScoreGauge: React.FC<ScoreGaugeProps> = ({ score, maxScore, sector }) => {
+  const animatedScore = useCountUp(score);
   const percentage = (score / maxScore) * 100;
-  const rotation = -90 + (percentage * 1.8);
   const strokeColor = sector === Sector.Church ? '#D4AF37' : '#FF6B35';
   const primaryTextColor = sector === Sector.Church ? 'text-church-primary dark:text-blue-300' : 'text-hospitality-primary dark:text-orange-300';
 
@@ -45,10 +76,11 @@ const ScoreGauge: React.FC<ScoreGaugeProps> = ({ score, maxScore, sector }) => {
           strokeWidth="12"
           strokeDasharray={`${(percentage * 339.29) / 100} 339.29`}
           className="transition-all duration-1000 ease-out"
+          style={{ transitionProperty: 'stroke-dasharray' }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={`text-5xl font-bold ${primaryTextColor}`}>{score}</span>
+        <span className={`text-5xl font-bold ${primaryTextColor}`}>{animatedScore}</span>
         <span className="text-lg font-semibold text-gray-500 dark:text-gray-400">/ {maxScore}</span>
         <span className="text-sm uppercase tracking-wider text-gray-400 dark:text-gray-500">Score</span>
       </div>

@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Sector, UserData, Answer, LeadStatus } from '../types';
 import { ASSESSMENT_QUESTIONS, calculateLeadTemperature } from '../constants';
@@ -85,6 +84,11 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
             answerSound.current.play().catch(error => console.error("Audio playback failed:", error));
         }
 
+        // Haptic feedback for mobile
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+
         const newAnswers = { ...answers, [questionIndex]: answer };
         setAnswers(newAnswers);
 
@@ -102,7 +106,7 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
         if (!finalAnswer) return; // Should not happen if button is enabled
         
         // Calculate score and lead status here to pass to the form component
-        // FIX: Explicitly type the 'answer' parameter as 'Answer' to ensure its 'points' property is accessible as a number.
+        // FIX: Explicitly typed the 'answer' parameter in the reduce function to ensure type safety.
         const totalScore = Object.values(answers).reduce((sum, answer: Answer) => sum + answer.points, 0);
         const leadStatus = calculateLeadTemperature(totalScore);
         setLeadStatusForForm(leadStatus);
@@ -138,6 +142,7 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
 
     const currentQuestion = ASSESSMENT_QUESTIONS[currentQuestionIndex];
     const isLastQuestion = currentQuestionIndex === ASSESSMENT_QUESTIONS.length - 1;
+    const isAnswerSelected = !!answers[currentQuestionIndex];
 
     const renderFinalStep = () => {
         if (postQuizStep === 'contact' && leadStatusForForm) {
@@ -191,8 +196,8 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
                                 {isLastQuestion ? (
                                     <button
                                         onClick={handleSubmit}
-                                        disabled={!answers[currentQuestionIndex]}
-                                        className="px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        disabled={!isAnswerSelected}
+                                        className={`px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isAnswerSelected ? 'animate-pulse-warm' : ''}`}
                                         aria-label="Finish Assessment"
                                     >
                                         Finish Assessment &rarr;
@@ -200,8 +205,8 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
                                 ) : (
                                     <button
                                         onClick={handleNext}
-                                        disabled={!answers[currentQuestionIndex]}
-                                        className="px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        disabled={!isAnswerSelected}
+                                        className={`px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isAnswerSelected ? 'animate-pulse-warm' : ''}`}
                                         aria-label="Next Question"
                                     >
                                         Next &rarr;

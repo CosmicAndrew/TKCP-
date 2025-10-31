@@ -77,5 +77,6 @@ export interface Result {
     score: number;
     answers: { [key: number]: Answer };
     maxScore: number;
+    sector: Sector;
     geminiInsights?: GeminiInsights;
 }
