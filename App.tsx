@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Sector, LeadStatus, UserData, Answer, Result, GeminiInsights, Theme } from './types';
@@ -30,15 +31,11 @@ const trackGA4Event = (eventName: string, params: object = {}) => {
 
 // --- Dark Mode Hook ---
 const useTheme = (): [Theme, () => void] => {
-    const [theme, setTheme] = useState<Theme>('light');
-
-    useEffect(() => {
+    const [theme, setTheme] = useState<Theme>(() => {
         const storedTheme = localStorage.getItem('theme') as Theme | null;
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        const initialTheme = storedTheme || (systemPrefersDark ? 'dark' : 'light');
-        setTheme(initialTheme);
-    }, []);
+        return storedTheme || (systemPrefersDark ? 'dark' : 'light');
+    });
 
     useEffect(() => {
         const root = window.document.documentElement;
@@ -243,7 +240,8 @@ The Team at Thy Kingdom Come Productions
         setSubmissionStatus('Analyzing your results...');
         await new Promise(res => setTimeout(res, 1000));
         
-        const totalScore = Object.values(finalAnswers).reduce((sum, answer) => sum + answer.points, 0);
+        // FIX: Explicitly type the 'answer' parameter in the reduce function to 'Answer' to prevent it from being inferred as 'unknown', which resolves downstream type errors.
+        const totalScore = Object.values(finalAnswers).reduce((sum, answer: Answer) => sum + answer.points, 0);
         const leadStatus = calculateLeadTemperature(totalScore);
         const maxScore = 20;
 

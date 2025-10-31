@@ -6,6 +6,7 @@ import { IconBookOpen, IconRefresh } from '../common/Icon';
 import ProgressiveForm from './common/ProgressiveForm';
 import Spinner from '../common/Spinner';
 import Feedback from '../common/Feedback';
+import Confetti from '../common/Confetti';
 
 // Lazy load sections for performance
 const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
@@ -43,6 +44,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
     const isProfileComplete = !!userData.email;
+    const isLastSection = activeSection === GUIDE_SECTIONS.length;
 
      useEffect(() => {
         HubSpot.trackEvent(`Viewed Guide Section ${activeSection}`, HubSpot.getSessionUserId());
@@ -51,11 +53,11 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
             setShowProgressiveForm(true);
         }
         
-        if (activeSection === GUIDE_SECTIONS.length) {
+        if (isLastSection) {
             HubSpot.trackEvent('Finished Buyer\'s Guide', HubSpot.getSessionUserId());
         }
 
-    }, [activeSection, isProfileComplete]);
+    }, [activeSection, isProfileComplete, isLastSection]);
     
     // Effect for smooth scrolling
     useEffect(() => {
@@ -95,7 +97,6 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
         setCompletedSections(prev => new Set(prev).add(activeSection));
     };
     
-    const isLastSection = activeSection === GUIDE_SECTIONS.length;
     const currentResult = { ...result, userData };
     const ActiveComponent = GUIDE_SECTIONS.find(s => s.id === activeSection)?.component;
 
@@ -152,7 +153,8 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
                         completedSections={completedSections}
                     />
                 </aside>
-                <main ref={mainContentRef} className="flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col overflow-hidden">
+                <main ref={mainContentRef} className="relative flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col overflow-hidden">
+                   {isLastSection && <Confetti intensity="light" container="parent" />}
                    <div key={activeSection} className={`flex-grow flex flex-col ${animationDirection === 'next' ? 'animate-slide-in-from-right' : 'animate-slide-in-from-left'}`}>
                         <Suspense fallback={<div className="flex justify-center items-center h-64"><Spinner /></div>}>
                            {ActiveComponent && <ActiveComponent sector={sector} result={currentResult} />}

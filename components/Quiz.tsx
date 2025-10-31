@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Sector, UserData, Answer, LeadStatus } from '../types';
 import { ASSESSMENT_QUESTIONS, calculateLeadTemperature } from '../constants';
@@ -22,14 +24,16 @@ const trackMetaEvent = (eventName: string, params: object = {}) => {
 
 const QUIZ_STATE_KEY = 'tkcp_quiz_state';
 
-const getInitialState = () => {
+// FIX: Added an explicit return type to ensure that the state retrieved from localStorage is correctly typed.
+// This prevents the 'answers' object from being inferred as 'any' or 'unknown', which was causing type errors downstream.
+const getInitialState = (): { currentQuestionIndex: number; answers: { [key: number]: Answer } } => {
     try {
         const savedState = localStorage.getItem(QUIZ_STATE_KEY);
         if (savedState) {
-            const { currentQuestionIndex, answers } = JSON.parse(savedState);
+            const parsed = JSON.parse(savedState);
             // Basic validation
-            if (typeof currentQuestionIndex === 'number' && typeof answers === 'object' && answers !== null) {
-                return { currentQuestionIndex, answers };
+            if (parsed && typeof parsed.currentQuestionIndex === 'number' && typeof parsed.answers === 'object' && parsed.answers !== null) {
+                return { currentQuestionIndex: parsed.currentQuestionIndex, answers: parsed.answers };
             }
         }
     } catch (error) {
@@ -98,7 +102,8 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
         if (!finalAnswer) return; // Should not happen if button is enabled
         
         // Calculate score and lead status here to pass to the form component
-        const totalScore = Object.values(answers).reduce((sum, answer) => sum + answer.points, 0);
+        // FIX: Explicitly type the 'answer' parameter as 'Answer' to ensure its 'points' property is accessible as a number.
+        const totalScore = Object.values(answers).reduce((sum, answer: Answer) => sum + answer.points, 0);
         const leadStatus = calculateLeadTemperature(totalScore);
         setLeadStatusForForm(leadStatus);
 

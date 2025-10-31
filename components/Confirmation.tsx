@@ -5,6 +5,7 @@ import * as HubSpot from '../services/hubspot';
 import { IconCalendar, IconPhone, IconRefresh, IconCheckCircle, IconShare } from './common/Icon';
 import ScoreGauge from './common/ScoreGauge';
 import Feedback from './common/Feedback';
+import Confetti from './common/Confetti';
 
 interface ConfirmationProps {
     result: Result;
@@ -14,24 +15,6 @@ interface ConfirmationProps {
 
 const trackMetaEvent = (eventName: string, params: object = {}) => {
     console.log(`[Meta Pixel Event]: ${eventName}`, params);
-};
-
-const ConfettiPiece: React.FC<{ style: React.CSSProperties }> = ({ style }) => (
-    <div className="absolute" style={{...style, width: '8px', height: `${6 + Math.random() * 10}px`}}></div>
-);
-
-const Confetti: React.FC = () => {
-    const pieces = Array.from({ length: 150 }).map((_, i) => { // More pieces for a bigger celebration
-        const style: React.CSSProperties = {
-            left: `${Math.random() * 100}%`,
-            // Longer, more varied fall duration and delay
-            animation: `confetti-fall ${2 + Math.random() * 3}s ease-out ${Math.random() * 2}s forwards`,
-            backgroundColor: ['#2B4C7E', '#D4AF37', '#1B365D', '#FF6B35'][Math.floor(Math.random() * 4)],
-        };
-        return <ConfettiPiece key={i} style={style} />;
-    });
-    // Use 'fixed' to cover the entire viewport and 'pointer-events-none' to ensure it doesn't interfere with clicks.
-    return <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none" aria-hidden="true">{pieces}</div>;
 };
 
 const Confirmation: React.FC<ConfirmationProps> = ({ result, onReset, sector }) => {
