@@ -1,12 +1,8 @@
-import React from 'react';
-// @ts-ignore
-import { jsPDF } from 'jspdf';
-// @ts-ignore
-import html2canvas from 'html2canvas';
+import React, { useState } from 'react';
 import { Result, Sector } from '../../../types';
 import { ASSESSMENT_QUESTIONS, TKCP_CONFIG } from '../../../constants';
 import * as HubSpot from '../../../services/hubspot';
-import { IconPrint, IconCheckCircle } from '../../common/Icon';
+import { IconPrint, IconCheckCircle, IconSpinner } from '../../common/Icon';
 import ScoreGauge from '../../common/ScoreGauge';
 
 
@@ -23,6 +19,7 @@ const trackMetaEvent = (eventName: string, params: object = {}) => {
 
 const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
     const { answers, score, maxScore, userData, leadStatus, geminiInsights } = result;
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const findAnswerText = (questionIndex: number, answerValue: string | undefined) => {
         if (answerValue === undefined) return 'N/A';
@@ -37,19 +34,29 @@ const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
     const budgetStatus = findAnswerText(3, answers[3]?.value);
     const date = new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    const handleGeneratePdf = () => {
+    const handleGeneratePdf = async () => {
         trackMetaEvent('Download', { content_type: 'buyers_guide_summary' });
         HubSpot.trackEvent('Generated PDF Summary', HubSpot.getSessionUserId());
         const input = document.getElementById('printable-summary');
         if (input) {
-            html2canvas(input, { scale: 2 }).then(canvas => {
+            setIsGenerating(true);
+            try {
+                const { jsPDF } = await import('jspdf');
+                const html2canvas = (await import('html2canvas')).default;
+                
+                const canvas = await html2canvas(input, { scale: 2 });
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                 pdf.save(`TKCP_LED_Summary_${userData.lastName || 'Client'}.pdf`);
-            });
+            } catch (error) {
+                console.error("PDF Generation failed:", error);
+                alert("Sorry, there was an error generating the PDF. Please try again.");
+            } finally {
+                setIsGenerating(false);
+            }
         }
     };
 
@@ -123,11 +130,21 @@ const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
             </div>
             
             <button
-                className="print-btn mt-8 w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-700 text-white font-semibold rounded-md hover:bg-gray-800 transition-colors"
+                className="print-btn mt-8 w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-700 text-white font-semibold rounded-md hover:bg-gray-800 transition-colors disabled:bg-gray-500 disabled:cursor-wait"
                 onClick={handleGeneratePdf}
+                disabled={isGenerating}
             >
-                <IconPrint className="w-5 h-5" />
-                Download PDF Summary
+                {isGenerating ? (
+                    <>
+                        <IconSpinner className="mr-2" />
+                        <span>Generating PDF...</span>
+                    </>
+                ) : (
+                    <>
+                        <IconPrint className="w-5 h-5" />
+                        <span>Download PDF Summary</span>
+                    </>
+                )}
             </button>
         </div>
     );
