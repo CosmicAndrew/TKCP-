@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Sector, UserData, Answer, LeadStatus } from '../types';
 import { ASSESSMENT_QUESTIONS, calculateLeadTemperature } from '../constants';
@@ -107,7 +108,8 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
         
         // Calculate score and lead status here to pass to the form component
         // FIX: Explicitly typed the 'answer' parameter in the reduce function to ensure type safety.
-        const totalScore = Object.values(answers).reduce((sum, answer: Answer) => sum + answer.points, 0);
+        // FIX: Cast the result of Object.values to Answer[] to ensure correct type inference for `answer` in the reduce function.
+        const totalScore = (Object.values(answers) as Answer[]).reduce((sum, answer) => sum + answer.points, 0);
         const leadStatus = calculateLeadTemperature(totalScore);
         setLeadStatusForForm(leadStatus);
 

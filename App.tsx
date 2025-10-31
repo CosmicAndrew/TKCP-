@@ -32,6 +32,35 @@ const trackGA4Event = (eventName: string, params: object = {}) => {
     // window.gtag('event', eventName, params);
 }
 
+// --- Meta Tag Updater ---
+const updateMetaTags = (title: string, description: string) => {
+    document.title = title;
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+        metaDescription.setAttribute('content', description);
+    }
+
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+        ogTitle.setAttribute('content', title);
+    }
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogDescription) {
+        ogDescription.setAttribute('content', description);
+    }
+
+    const twitterTitle = document.querySelector('meta[property="twitter:title"]');
+    if (twitterTitle) {
+        twitterTitle.setAttribute('content', title);
+    }
+    const twitterDescription = document.querySelector('meta[property="twitter:description"]');
+    if (twitterDescription) {
+        twitterDescription.setAttribute('content', description);
+    }
+};
+
+
 // --- Dark Mode Hook ---
 const useTheme = (): [Theme, () => void] => {
     const [theme, setTheme] = useState<Theme>(() => {
@@ -116,6 +145,28 @@ const App: React.FC = () => {
         }
 
     }, []);
+
+     // --- Dynamic Meta Tag Updates ---
+    useEffect(() => {
+        let title = 'Is an LED Screen Right for You? | TKCP Assessment';
+        let description = 'Take our quick, free assessment to discover if an LED wall is the right investment for your church or venue. Get personalized recommendations from Thy Kingdom Come Productions.';
+
+        if (step === 'quiz' && sector) {
+            if (sector === Sector.Church) {
+                title = 'LED Screen Assessment for Churches | TKCP';
+                description = 'Discover if an LED wall is the right investment for your house of worship. Answer a few questions to see how you can enhance your ministry\'s visual experience.';
+            } else {
+                title = 'LED Screen Assessment for Venues & Businesses | TKCP';
+                description = 'Find out how an integrated LED screen can boost revenue and elevate events at your venue. Take the free TKCP assessment today.';
+            }
+        } else if ((step === 'confirmation' || step === 'buyersGuide') && quizResult) {
+            const leadStatusText = quizResult.leadStatus.charAt(0).toUpperCase() + quizResult.leadStatus.slice(1);
+            title = `Your Assessment Results: ${leadStatusText} Lead | TKCP`;
+            description = `Congratulations, ${quizResult.userData.firstName || 'friend'}! View your personalized LED screen assessment results and see your custom-tailored next steps.`;
+        }
+
+        updateMetaTags(title, description);
+    }, [step, sector, quizResult]);
 
     const generatePersonalizedInsights = useCallback(async (finalScore: number, finalAnswers: { [key: number]: Answer }, finalSector: Sector): Promise<GeminiInsights> => {
         try {
@@ -264,7 +315,8 @@ const App: React.FC = () => {
         await new Promise(res => setTimeout(res, 1000));
         
         // FIX: Explicitly typed the 'answer' parameter in the reduce function to ensure type safety.
-        const totalScore = Object.values(finalAnswers).reduce((sum, answer: Answer) => sum + answer.points, 0);
+        // FIX: Cast the result of Object.values to Answer[] to ensure correct type inference for `answer` in the reduce function.
+        const totalScore = (Object.values(finalAnswers) as Answer[]).reduce((sum, answer) => sum + answer.points, 0);
         const leadStatus = calculateLeadTemperature(totalScore);
         const maxScore = 20;
 
@@ -323,7 +375,8 @@ const App: React.FC = () => {
             session_user_id: sessionUserId.current,
             // Map answers to HubSpot custom properties
             // FIX: Correctly cast to `Answer | undefined` to handle cases where the answer may not exist, ensuring type safety.
-            pain_scale_score: (finalAnswers[0] as Answer | undefined)?.points,
+            // FIX: Removed unnecessary and problematic type assertion. Optional chaining is sufficient for type safety.
+            pain_scale_score: finalAnswers[0]?.points,
             organization_size: finalAnswers[1]?.value,
             timeline_urgency: finalAnswers[2]?.value,
             compelling_event: finalAnswers[3]?.value,
