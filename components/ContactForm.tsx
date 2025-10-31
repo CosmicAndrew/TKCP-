@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserData, Sector, LeadStatus } from '../types';
-import { US_STATES } from '../../constants';
+import { US_STATES } from '../constants';
 import { IconArrowRight, IconUser, IconMail, IconPhone, IconLocation } from './common/Icon';
 
 interface ContactFormProps {
