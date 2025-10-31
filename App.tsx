@@ -30,15 +30,11 @@ const trackGA4Event = (eventName: string, params: object = {}) => {
 
 // --- Dark Mode Hook ---
 const useTheme = (): [Theme, () => void] => {
-    const [theme, setTheme] = useState<Theme>('light');
-
-    useEffect(() => {
+    const [theme, setTheme] = useState<Theme>(() => {
         const storedTheme = localStorage.getItem('theme') as Theme | null;
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        const initialTheme = storedTheme || (systemPrefersDark ? 'dark' : 'light');
-        setTheme(initialTheme);
-    }, []);
+        return storedTheme || (systemPrefersDark ? 'dark' : 'light');
+    });
 
     useEffect(() => {
         const root = window.document.documentElement;
