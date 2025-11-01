@@ -228,15 +228,9 @@ const App: React.FC = () => {
 
         } catch (e) {
             console.error("Error generating Gemini insights:", e);
-            // Fallback to default insights for a graceful user experience
-            return {
-                summary: "Thank you for completing the assessment! Your responses indicate a strong potential to benefit from the reliability and visual impact of modern LED technology.",
-                actionable_steps: [
-                    "Schedule a free consultation to discuss your specific needs and receive a custom quote.",
-                    "Review our case studies to see how similar organizations have transformed their spaces.",
-                    "Download your results summary to share with your team and review key decision points."
-                ]
-            };
+            // Re-throw a user-friendly error to be caught by the calling function.
+            // This prevents silently failing and showing generic, potentially misleading, results.
+            throw new Error("Our AI expert is a bit busy at the moment. Please retry.");
         }
     }, []);
     
