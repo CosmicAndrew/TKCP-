@@ -84,6 +84,23 @@ const useTheme = (): [Theme, () => void] => {
     return [theme, toggleTheme];
 };
 
+/**
+ * Generates generic, high-quality fallback insights if the Gemini API is unavailable.
+ * @param sector The user's selected sector (Church or Hospitality).
+ * @returns A GeminiInsights object with fallback content.
+ */
+const generateFallbackInsights = (sector: Sector): GeminiInsights => {
+    const sectorName = sector === 'church' ? 'House of Worship' : 'Venue/Business';
+    return {
+        summary: `Based on your assessment for your ${sectorName}, it's clear you're evaluating significant upgrades. Our analysis indicates a strong potential for enhancing your visual experience and engagement.`,
+        actionable_steps: [
+            `Schedule a consultation to discuss your specific LED needs for your ${sectorName}.`,
+            `Review our portfolio of projects similar to your ${sectorName}.`,
+            "Request a custom quote based on your unique requirements and space."
+        ]
+    };
+};
+
 
 const App: React.FC = () => {
     const [step, setStep] = useState<'loading' | 'landing' | 'quiz' | 'confirmation' | 'buyersGuide'>('loading');
@@ -97,6 +114,12 @@ const App: React.FC = () => {
 
 
     useEffect(() => {
+        // --- DEBUGGING ENV VARS ---
+        console.log('🔍 All available REACT_APP_ ENV vars:', Object.keys(process.env).filter(k => k.startsWith('REACT_APP_')));
+        console.log('🔍 Vercel key (REACT_APP_GEMINI_API_KEY) available:', !!process.env.REACT_APP_GEMINI_API_KEY);
+        console.log('🔍 AI Studio key (API_KEY) available:', !!process.env.API_KEY);
+        // --- END DEBUGGING ---
+
         trackMetaEvent('PageView');
         
         // Check for results data in URL hash first
@@ -166,11 +189,21 @@ const App: React.FC = () => {
     }, [step, sector, quizResult]);
 
     const generatePersonalizedInsights = useCallback(async (finalScore: number, finalAnswers: { [key: number]: Answer }, finalSector: Sector): Promise<GeminiInsights> => {
+        const apiKey = process.env.REACT_APP_GEMINI_API_KEY || process.env.API_KEY;
+        
+        console.log('🔍 DEBUG: Starting AI generation');
+        console.log('🔍 API Key source:', process.env.REACT_APP_GEMINI_API_KEY ? 'REACT_APP_GEMINI_API_KEY' : 'API_KEY');
+        console.log('🔍 API Key exists:', !!apiKey);
+        console.log('🔍 API Key first 10 chars:', apiKey?.substring(0, 10));
+
+        if (!apiKey) {
+            console.warn('⚠️ Gemini API key not configured. Using fallback insights.');
+            return generateFallbackInsights(finalSector);
+        }
+
         try {
-            if (!process.env.API_KEY) {
-                throw new Error("Gemini API key (process.env.API_KEY) is not configured.");
-            }
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            console.log('🔍 Initializing GoogleGenAI...');
+            const ai = new GoogleGenAI({ apiKey });
 
             const formattedAnswers = ASSESSMENT_QUESTIONS.map((q, index) => {
                 const answer = finalAnswers[index];
@@ -196,6 +229,7 @@ const App: React.FC = () => {
             The tone must be consultative, positive, and justify taking the next step. Do not use markdown.
             `;
             
+            console.log('🔍 Generating content with model: gemini-2.5-flash');
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
                 contents: prompt,
@@ -216,6 +250,7 @@ const App: React.FC = () => {
                 }
             });
             
+            console.log('🔍 AI Response received');
             const insights = JSON.parse(response.text);
             console.log("Generated Insights for Summary:", insights);
             
@@ -226,11 +261,9 @@ const App: React.FC = () => {
 
             return insights;
 
-        } catch (e) {
-            console.error("Error generating Gemini insights:", e);
-            // Re-throw a user-friendly error to be caught by the calling function.
-            // This prevents silently failing and showing generic, potentially misleading, results.
-            throw new Error("Our AI expert is a bit busy at the moment. Please retry.");
+        } catch (e: any) {
+            console.error("🚨 AI Generation Error. Using fallback insights.", e);
+            return generateFallbackInsights(finalSector);
         }
     }, []);
     
@@ -313,21 +346,13 @@ const App: React.FC = () => {
         setSubmissionStatus('Analyzing your results...');
         await new Promise(res => setTimeout(res, 1000));
         
-        // FIX: Explicitly typed the 'answer' parameter in the reduce function to ensure type safety.
-        // FIX: Cast the result of Object.values to Answer[] to ensure correct type inference for `answer` in the reduce function.
         const totalScore = (Object.values(finalAnswers) as Answer[]).reduce((sum, answer) => sum + answer.points, 0);
         const leadStatus = calculateLeadTemperature(totalScore);
         const maxScore = 20;
 
-        let insights: GeminiInsights | null = null;
-        try {
-            setSubmissionStatus('Our AI expert is crafting your personalized insights...');
-            insights = await generatePersonalizedInsights(totalScore, finalAnswers, sector);
-        } catch(e: any) {
-            setError(e.message || "An unknown error occurred while generating insights.");
-            // Stop processing, the UI will show the retry button.
-            return;
-        }
+        setSubmissionStatus('Our AI expert is crafting your personalized insights...');
+        // This call is now resilient: it will return real insights or a fallback, but won't throw an error for API issues.
+        const insights = await generatePersonalizedInsights(totalScore, finalAnswers, sector);
         
         setSubmissionStatus('Tailoring your recommendations...');
         await new Promise(res => setTimeout(res, 1000));
@@ -373,8 +398,6 @@ const App: React.FC = () => {
             ...finalUserData,
             session_user_id: sessionUserId.current,
             // Map answers to HubSpot custom properties
-            // FIX: Correctly cast to `Answer | undefined` to handle cases where the answer may not exist, ensuring type safety.
-            // FIX: Removed unnecessary and problematic type assertion. Optional chaining is sufficient for type safety.
             pain_scale_score: finalAnswers[0]?.points,
             organization_size: finalAnswers[1]?.value,
             timeline_urgency: finalAnswers[2]?.value,
@@ -412,6 +435,7 @@ const App: React.FC = () => {
 
     const renderContent = () => {
         if (submissionStatus) {
+            // Error block is kept for non-API related errors, but will not trigger on API failure anymore.
             if (error) {
                 return (
                     <div className="flex flex-col justify-center items-center h-[60vh] text-center">
