@@ -15,11 +15,11 @@ export const TKCP_CONFIG = {
 };
 
 export const HUBSPOT_CONFIG = {
-    portalId: 'YOUR_PORTAL_ID', // Replace with actual Portal ID
+    portalId: '22563653', // TKCP's actual Portal ID
     meetingLinks: {
-        priority: 'https://meetings.hubspot.com/jasmineford',
-        discovery: 'https://meetings.hubspot.com/tkcp/discovery',
-        planning: 'https://meetings.hubspot.com/tkcp/followup'
+        priority: 'https://meetings.hubspot.com/led-solution-consultation/led-video-consult',
+        discovery: 'https://meetings.hubspot.com/led-solution-consultation/led-video-consult',
+        planning: 'https://meetings.hubspot.com/led-solution-consultation/led-video-consult'
     }
 };
 
