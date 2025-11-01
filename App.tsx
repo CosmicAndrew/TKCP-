@@ -1,7 +1,4 @@
 
-
-
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Sector, LeadStatus, UserData, Answer, Result, GeminiInsights, Theme } from './types';
@@ -171,7 +168,7 @@ const App: React.FC = () => {
     const generatePersonalizedInsights = useCallback(async (finalScore: number, finalAnswers: { [key: number]: Answer }, finalSector: Sector): Promise<GeminiInsights> => {
         try {
             if (!process.env.API_KEY) {
-                throw new Error("API key is not configured.");
+                throw new Error("Gemini API key (process.env.API_KEY) is not configured.");
             }
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -230,8 +227,16 @@ const App: React.FC = () => {
             return insights;
 
         } catch (e) {
-            console.error("Error generating insights:", e);
-            throw new Error("Our AI expert is a bit busy. Please try again in a moment.");
+            console.error("Error generating Gemini insights:", e);
+            // Fallback to default insights for a graceful user experience
+            return {
+                summary: "Thank you for completing the assessment! Your responses indicate a strong potential to benefit from the reliability and visual impact of modern LED technology.",
+                actionable_steps: [
+                    "Schedule a free consultation to discuss your specific needs and receive a custom quote.",
+                    "Review our case studies to see how similar organizations have transformed their spaces.",
+                    "Download your results summary to share with your team and review key decision points."
+                ]
+            };
         }
     }, []);
     

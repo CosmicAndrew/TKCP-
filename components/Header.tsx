@@ -10,17 +10,31 @@ interface HeaderProps {
 
 const ThemeToggleButton: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
     const [isMounted, setIsMounted] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
+
     useEffect(() => { setIsMounted(true) }, []);
+
+    const handleToggleClick = () => {
+        if (isAnimating) return;
+        toggleTheme();
+        setIsAnimating(true);
+    };
 
     if (!isMounted) return <div className="w-10 h-10" />;
 
     return (
         <button
-            onClick={toggleTheme}
+            onClick={handleToggleClick}
             className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-church-primary"
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            disabled={isAnimating}
         >
-            {theme === 'light' ? <IconMoon className="w-6 h-6" /> : <IconSun className="w-6 h-6" />}
+            <div
+                className={isAnimating ? 'animate-theme-toggle-spin' : ''}
+                onAnimationEnd={() => setIsAnimating(false)}
+            >
+                {theme === 'light' ? <IconMoon className="w-6 h-6" /> : <IconSun className="w-6 h-6" />}
+            </div>
         </button>
     );
 };

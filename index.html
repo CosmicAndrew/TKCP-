@@ -266,6 +266,7 @@
               'sparkle': 'sparkle 0.6s ease-in-out forwards',
               'check-in-glow': 'check-in-glow 0.8s ease-out forwards',
               'shimmer-bg': 'shimmer-bg 10s ease-in-out infinite',
+              'theme-toggle-spin': 'theme-toggle-spin 0.5s ease-in-out',
             },
             keyframes: {
               'fade-in': {
@@ -359,6 +360,11 @@
               'shimmer-bg': {
                 '0%': { 'background-position': '-200% 0' },
                 '100%': { 'background-position': '200% 0' },
+              },
+              'theme-toggle-spin': {
+                '0%': { transform: 'rotate(0deg) scale(1)' },
+                '50%': { transform: 'rotate(180deg) scale(1.2)' },
+                '100%': { transform: 'rotate(360deg) scale(1)' },
               }
             }
           }

@@ -20,6 +20,7 @@ const trackMetaEvent = (eventName: string, params: object = {}) => {
 const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
     const { answers, score, maxScore, userData, leadStatus, geminiInsights } = result;
     const [isGenerating, setIsGenerating] = useState(false);
+    const [loadingText, setLoadingText] = useState('');
 
     const findAnswerText = (questionIndex: number, answerValue: string | undefined) => {
         if (answerValue === undefined) return 'N/A';
@@ -41,15 +42,21 @@ const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
         if (input) {
             setIsGenerating(true);
             try {
+                setLoadingText('Loading libraries...');
                 const { jsPDF } = await import('jspdf');
                 const html2canvas = (await import('html2canvas')).default;
                 
+                setLoadingText('Processing document...');
                 const canvas = await html2canvas(input, { scale: 2 });
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                
+                setLoadingText('Saving file...');
+                await new Promise(res => setTimeout(res, 500)); // Brief delay for UX
+
                 pdf.save(`TKCP_LED_Summary_${userData.lastName || 'Client'}.pdf`);
             } catch (error) {
                 console.error("PDF Generation failed:", error);
@@ -137,7 +144,7 @@ const Section5_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 {isGenerating ? (
                     <>
                         <IconSpinner className="mr-2" />
-                        <span>Generating PDF...</span>
+                        <span>{loadingText}</span>
                     </>
                 ) : (
                     <>
