@@ -250,9 +250,44 @@ const App: React.FC = () => {
                 }
             });
             
-            console.log('🔍 AI Response received');
-            const insights = JSON.parse(response.text);
-            console.log("Generated Insights for Summary:", insights);
+            console.log('🔍 AI Response received. Attempting to parse...');
+            let rawText = response.text.trim();
+
+            // Attempt to clean up markdown code block fences if they exist
+            if (rawText.startsWith('```json')) {
+                rawText = rawText.substring(7, rawText.length - 3).trim();
+            } else if (rawText.startsWith('```')) {
+                rawText = rawText.substring(3, rawText.length - 3).trim();
+            }
+
+            let insights: GeminiInsights;
+
+            try {
+                const parsedJson = JSON.parse(rawText);
+
+                // Validate the structure of the parsed JSON
+                if (
+                    parsedJson &&
+                    typeof parsedJson.summary === 'string' && parsedJson.summary.length > 0 &&
+                    Array.isArray(parsedJson.actionable_steps) &&
+                    parsedJson.actionable_steps.length > 0 &&
+                    parsedJson.actionable_steps.every((step: any) => typeof step === 'string')
+                ) {
+                    insights = parsedJson;
+                    console.log("✅ Generated and validated insights:", insights);
+                } else {
+                    console.error("🚨 AI Response validation failed. Parsed JSON does not match expected schema:", parsedJson);
+                    throw new Error("Parsed JSON does not match expected GeminiInsights schema.");
+                }
+
+            } catch (parsingError) {
+                console.error("🚨 Failed to parse or validate AI response.", {
+                    rawText: rawText,
+                    error: parsingError
+                });
+                // The outer catch will handle this and use the fallback.
+                throw parsingError; 
+            }
             
             HubSpot.upsertContact({
                 session_user_id: sessionUserId.current,

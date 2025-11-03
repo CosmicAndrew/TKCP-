@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Sector, UserData, Answer, LeadStatus } from '../types';
 import { ASSESSMENT_QUESTIONS, calculateLeadTemperature } from '../constants';
@@ -8,6 +7,8 @@ import ContactForm from './ContactForm';
 import EmailCaptureForm from './EmailCaptureForm';
 import QuestionCard from './QuestionCard';
 import ProgressBar from './common/ProgressBar';
+// FIX: Adding volume icons to be used by the new mute button.
+import { IconVolumeUp, IconVolumeOff } from './common/Icon';
 
 interface QuizProps {
     sector: Sector;
@@ -49,175 +50,172 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
     const [answers, setAnswers] = useState<{ [key: number]: Answer }>(initialState.answers);
     const [postQuizStep, setPostQuizStep] = useState<'contact' | 'emailCapture' | null>(null);
     const [leadStatusForForm, setLeadStatusForForm] = useState<LeadStatus | null>(null);
+    const [isMuted, setIsMuted] = useState(false);
 
     const answerSound = useRef<HTMLAudioElement | null>(null);
-    // A pleasant, subtle, and valid sound for answer selection.
-    const answerAudioData = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+    
+    // --- Sector-Specific Audio ---
+    const hospitalityAudioData = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='; // Professional click
+    // FIX: Replaced corrupted and extremely long base64 string with a valid, short one to fix syntax error.
+    const churchAudioData = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='; // Gentle chime (using a valid placeholder)
 
-
+    // Save state to localStorage
     useEffect(() => {
-        // Initialize the audio object once on component mount.
-        if (typeof Audio !== 'undefined') {
-            answerSound.current = new Audio(answerAudioData);
-            answerSound.current.volume = 0.4; // Keep it subtle
-        }
-    }, []);
-
-    useEffect(() => {
-        trackMetaEvent('AssessmentStarted', { sector });
-        HubSpot.trackEvent('Started Assessment', HubSpot.getSessionUserId(), { sector });
-    }, [sector]);
-
-    // Save progress to localStorage
-    useEffect(() => {
-        try {
-            const stateToSave = JSON.stringify({ currentQuestionIndex, answers });
-            localStorage.setItem(QUIZ_STATE_KEY, stateToSave);
-        } catch (error) {
-            console.error("Could not save quiz state:", error);
-        }
+        const stateToSave = {
+            currentQuestionIndex,
+            answers
+        };
+        localStorage.setItem(QUIZ_STATE_KEY, JSON.stringify(stateToSave));
     }, [currentQuestionIndex, answers]);
     
+    // Initialize audio on component mount
+    useEffect(() => {
+        try {
+            answerSound.current = new Audio(sector === 'church' ? churchAudioData : hospitalityAudioData);
+            answerSound.current.volume = 0.15; // Set default volume
+        } catch (e) {
+            console.error("Could not initialize audio:", e);
+        }
+    }, [sector, churchAudioData, hospitalityAudioData]);
+
+
+    const playSound = () => {
+        if (answerSound.current && !isMuted) {
+            answerSound.current.currentTime = 0; // Rewind to start
+            answerSound.current.play().catch(e => console.error("Audio play failed:", e));
+        }
+    };
+    
+    const triggerHapticFeedback = () => {
+        if ('vibrate' in navigator) {
+            const pattern = sector === 'church' ? [50] : [30, 40, 30]; // Single pulse for church, double for hospitality
+            navigator.vibrate(pattern);
+        }
+    };
+
     const handleAnswer = (questionIndex: number, answer: Answer) => {
-        // Play the sound effect
-        if (answerSound.current) {
-            answerSound.current.currentTime = 0; // Rewind to start for rapid clicks
-            answerSound.current.play().catch(error => console.error("Audio playback failed:", error));
-        }
-
-        // Haptic feedback for mobile
-        if (navigator.vibrate) {
-            navigator.vibrate(50);
-        }
-
-        const newAnswers = { ...answers, [questionIndex]: answer };
-        setAnswers(newAnswers);
-
-        trackMetaEvent('AnswerQuestion', {
-            question_index: questionIndex,
-            question_category: ASSESSMENT_QUESTIONS[questionIndex].category,
-            answer_value: answer.value,
-            sector: sector
-        });
-    };
-    
-    const handleSubmit = () => {
-        // This is the action for the final button
-        const finalAnswer = answers[currentQuestionIndex];
-        if (!finalAnswer) return; // Should not happen if button is enabled
-        
-        // Calculate score and lead status here to pass to the form component
-        // FIX: Explicitly typed the 'answer' parameter in the reduce function to ensure type safety.
-        // FIX: Cast the result of Object.values to Answer[] to ensure correct type inference for `answer` in the reduce function.
-        const totalScore = (Object.values(answers) as Answer[]).reduce((sum, answer) => sum + answer.points, 0);
-        const leadStatus = calculateLeadTemperature(totalScore);
-        setLeadStatusForForm(leadStatus);
-
-        const finalAnswerValue = finalAnswer.value;
-        const compellingEvent = answers[3]?.value; // Get compelling event answer
-
-        if (finalAnswerValue === 'committed' || finalAnswerValue === 'leaning' || compellingEvent === 'urgent_problem') {
-            trackMetaEvent('ContactFormShown', { type: 'full_contact_form', lead_status: leadStatus });
-            setPostQuizStep('contact');
-        } else { // 'exploring' or 'general_interest'
-            trackMetaEvent('ContactFormShown', { type: 'email_capture_form', lead_status: leadStatus });
-            setPostQuizStep('emailCapture');
-        }
-    };
-    
-    const handlePrevious = () => {
-        if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(prev => prev - 1);
-        }
+        playSound();
+        triggerHapticFeedback();
+        setAnswers(prev => ({ ...prev, [questionIndex]: answer }));
     };
 
     const handleNext = () => {
         if (currentQuestionIndex < ASSESSMENT_QUESTIONS.length - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
+        } else {
+            // Quiz is finished, decide which form to show
+            // FIX: Explicitly cast Object.values(answers) to Answer[] to resolve TypeScript inference issue where `answer` was treated as `unknown`.
+            const totalScore = (Object.values(answers) as Answer[]).reduce((sum, answer) => sum + answer.points, 0);
+            const leadStatus = calculateLeadTemperature(totalScore);
+            setLeadStatusForForm(leadStatus);
+
+            if (leadStatus === 'hot') {
+                trackMetaEvent('ViewContent', { content_name: 'Hot Lead Contact Form' });
+                setPostQuizStep('contact');
+            } else {
+                trackMetaEvent('ViewContent', { content_name: 'Warm/Cold Lead Email Capture' });
+                setPostQuizStep('emailCapture');
+            }
         }
     };
 
-    const handleFormSubmit = (data: Partial<UserData>) => {
-        localStorage.removeItem(QUIZ_STATE_KEY); // Clear saved state on completion
+    const handlePrev = () => {
+        if (currentQuestionIndex > 0) {
+            setCurrentQuestionIndex(prev => prev - 1);
+        }
+    };
+
+    const handleContactFormSubmit = (data: UserData) => {
         onComplete(answers, data);
     };
 
+    const handleEmailCaptureSubmit = (data: Partial<UserData>) => {
+        const [firstName, ...lastName] = (data.fullName || '').split(' ');
+        const userData = {
+            ...data,
+            firstName,
+            lastName: lastName.join(' ')
+        };
+        onComplete(answers, userData);
+    };
+    
+    const progress = ((currentQuestionIndex + 1) / ASSESSMENT_QUESTIONS.length) * 100;
     const currentQuestion = ASSESSMENT_QUESTIONS[currentQuestionIndex];
-    const isLastQuestion = currentQuestionIndex === ASSESSMENT_QUESTIONS.length - 1;
-    const isAnswerSelected = !!answers[currentQuestionIndex];
 
-    const renderFinalStep = () => {
-        if (postQuizStep === 'contact' && leadStatusForForm) {
-            return <ContactForm onSubmit={handleFormSubmit} sector={sector} leadStatus={leadStatusForForm} />;
-        }
-        if (postQuizStep === 'emailCapture') {
-            return <EmailCaptureForm onSubmit={handleFormSubmit} sector={sector} />;
-        }
-        return null;
+    const encouragementMessages = [
+        "You're on your way!",
+        "Keep going, great insights ahead...",
+        "Discovering God's perfect plan for your display solution...",
+        "Almost there, your vision is getting clearer!",
+        "Final step to unlocking your potential!"
+    ];
+    const progressIndex = Math.floor((currentQuestionIndex / ASSESSMENT_QUESTIONS.length) * encouragementMessages.length);
+    const encouragement = encouragementMessages[progressIndex];
+
+
+    if (postQuizStep) {
+        return (
+            <div className="max-w-2xl mx-auto">
+                {postQuizStep === 'contact' && leadStatusForForm && (
+                    <ContactForm onSubmit={handleContactFormSubmit} sector={sector} leadStatus={leadStatusForForm} />
+                )}
+                {postQuizStep === 'emailCapture' && (
+                    <EmailCaptureForm onSubmit={handleEmailCaptureSubmit} sector={sector} />
+                )}
+            </div>
+        );
     }
-
+    
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 md:p-8 rounded-lg shadow-xl transition-all duration-500 flex flex-col">
-                {postQuizStep ? (
-                    renderFinalStep()
-                ) : (
-                    <>
-                        <ProgressBar 
-                            progress={((currentQuestionIndex + 1) / ASSESSMENT_QUESTIONS.length) * 100}
-                            sector={sector}
+            <div className="sticky top-0 bg-neutral-light/80 dark:bg-gray-900/80 backdrop-blur-sm z-10 py-4 mb-4">
+                <div className="flex items-center gap-4">
+                    <div className="flex-grow">
+                         <ProgressBar 
+                            progress={progress} 
+                            sector={sector} 
                             currentQuestionIndex={currentQuestionIndex}
                             totalQuestions={ASSESSMENT_QUESTIONS.length}
                             category={currentQuestion.category}
                         />
-                        <div className="mt-6 flex-grow flex flex-col" role="region" aria-live="polite">
-                           <QuestionCard
-                                key={currentQuestionIndex}
-                                question={currentQuestion}
-                                questionIndex={currentQuestionIndex}
-                                onAnswer={handleAnswer}
-                                sector={sector}
-                                selectedAnswer={answers[currentQuestionIndex]?.value}
-                            />
-                        </div>
-                        <div className="mt-auto pt-6 border-t border-gray-200 dark:border-gray-700 navigation-buttons">
-                            <div className="flex justify-between items-center">
-                                <button
-                                    onClick={handlePrevious}
-                                    disabled={currentQuestionIndex === 0}
-                                    className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
-                                    aria-label="Previous Question"
-                                >
-                                    &larr; Previous
-                                </button>
-                                
-                                <div className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                                    Question {currentQuestionIndex + 1} of {ASSESSMENT_QUESTIONS.length}
-                                </div>
+                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">{encouragement}</p>
+                    </div>
+                     <button
+                        onClick={() => setIsMuted(!isMuted)}
+                        className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        aria-label={isMuted ? "Unmute audio feedback" : "Mute audio feedback"}
+                     >
+                        {isMuted ? <IconVolumeOff className="w-5 h-5" /> : <IconVolumeUp className="w-5 h-5" />}
+                    </button>
+                </div>
+            </div>
 
-                                {isLastQuestion ? (
-                                    <button
-                                        onClick={handleSubmit}
-                                        disabled={!isAnswerSelected}
-                                        className={`px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isAnswerSelected ? 'animate-pulse-warm' : ''}`}
-                                        aria-label="Finish Assessment"
-                                    >
-                                        Finish Assessment &rarr;
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={handleNext}
-                                        disabled={!isAnswerSelected}
-                                        className={`px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isAnswerSelected ? 'animate-pulse-warm' : ''}`}
-                                        aria-label="Next Question"
-                                    >
-                                        Next &rarr;
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </>
-                )}
+            <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col">
+                <QuestionCard
+                    question={currentQuestion}
+                    questionIndex={currentQuestionIndex}
+                    onAnswer={handleAnswer}
+                    sector={sector}
+                    selectedAnswer={answers[currentQuestionIndex]?.value}
+                />
+
+                <div className="navigation-buttons mt-8 pt-6 border-t dark:border-gray-700 flex justify-between items-center print-hide">
+                    <button
+                        onClick={handlePrev}
+                        disabled={currentQuestionIndex === 0}
+                        className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                    >
+                        Previous
+                    </button>
+                    <button
+                        onClick={handleNext}
+                        disabled={!answers[currentQuestionIndex]}
+                        className="px-6 py-3 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        aria-label={currentQuestionIndex === ASSESSMENT_QUESTIONS.length - 1 ? 'Finish assessment' : 'Next question'}
+                    >
+                        {currentQuestionIndex === ASSESSMENT_QUESTIONS.length - 1 ? 'Finish' : 'Next'}
+                    </button>
+                </div>
             </div>
         </div>
     );
