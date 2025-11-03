@@ -122,15 +122,33 @@
       /* Hero Background Styles */
       .hero-bg-church-sanctuary {
         background-color: #2B4C7E;
+        /* Layered: Gradients -> Image -> Color Fallback */
         background-image:
-            radial-gradient(ellipse at 50% 20%, rgba(240, 220, 160, 0.4) 0%, transparent 50%),
-            linear-gradient(to top, rgba(43, 76, 126, 0.8) 0%, transparent 70%);
+            radial-gradient(ellipse at 50% 30%, rgba(240, 220, 160, 0.2) 0%, transparent 60%), /* Subtle glow from top */
+            linear-gradient(to top, rgba(43, 76, 126, 0.95) 0%, transparent 70%), /* Dark vignette from bottom */
+            url('https://images.unsplash.com/photo-1583894220179-9a610f54b62a?q=80&w=2070&auto=format&fit=crop');
+        background-size: 150% 150%; /* Zoom in for panning effect */
+        background-position: center;
+        background-attachment: fixed; /* Parallax effect */
+        animation: slow-pan 45s ease-in-out infinite alternate;
       }
       .hero-bg-modern-venue {
         background-color: #1B365D;
+        /* Layered: Gradients -> Image -> Color Fallback */
         background-image:
-            linear-gradient(160deg, rgba(255, 107, 53, 0.2) 0%, transparent 50%),
-            linear-gradient(45deg, rgba(27, 54, 93, 1) 20%, transparent 100%);
+            linear-gradient(160deg, rgba(255, 107, 53, 0.1) 0%, transparent 50%), /* Subtle color accent */
+            linear-gradient(to top, rgba(27, 54, 93, 0.95) 0%, transparent 70%), /* Dark vignette from bottom */
+            url('https://images.unsplash.com/photo-1511795409834-ef04bbd51725?q=80&w=2070&auto=format&fit=crop');
+        background-size: 150% 150%;
+        background-position: center;
+        background-attachment: fixed; /* Parallax effect */
+        animation: slow-pan 45s ease-in-out infinite alternate;
+      }
+
+      /* Keyframe for the hero background pan animation */
+      @keyframes slow-pan {
+        from { background-position: 50% 0%; }
+        to { background-position: 50% 100%; }
       }
 
       /* Button Sparkle Animation */

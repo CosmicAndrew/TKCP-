@@ -121,7 +121,7 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
 
     const handlePrev = () => {
         if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(prev => prev - 1);
+            setCurrentQuestionIndex(prev => prev + 1);
         }
     };
 
@@ -162,6 +162,23 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
                 {postQuizStep === 'emailCapture' && (
                     <EmailCaptureForm onSubmit={handleEmailCaptureSubmit} sector={sector} />
                 )}
+            </div>
+        );
+    }
+
+    if (!currentQuestion) {
+        return (
+            <div className="max-w-4xl mx-auto p-8 text-center bg-white dark:bg-gray-800 rounded-lg shadow-xl">
+                <h3 className="text-2xl font-display font-bold text-red-600 dark:text-red-400">An Error Occurred</h3>
+                <p className="mt-4 text-gray-700 dark:text-gray-300">
+                    We've encountered an issue with the assessment. Your progress has been saved.
+                </p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="mt-6 px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 transition-colors"
+                >
+                    Refresh Page
+                </button>
             </div>
         );
     }
