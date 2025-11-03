@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, Suspense, lazy, useRef } from 'react';
 import { Result, Sector, UserData } from '../../types';
 import * as HubSpot from '../../services/hubspot';
@@ -11,11 +12,11 @@ import Confetti from '../common/Confetti';
 // Lazy load sections for performance
 const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
 const Section2_Sizing = lazy(() => import('./sections/Section2_Sizing'));
-const Section2_MarketIntelligence = lazy(() => import('./sections/Section2_MarketIntelligence'));
-const Section3_Considerations = lazy(() => import('./sections/Section3_Considerations'));
-const Section6_Process = lazy(() => import('./sections/Section6_Process'));
-const Section7_FAQ = lazy(() => import('./sections/Section7_FAQ'));
-const Section5_Summary = lazy(() => import('./sections/Section5_Summary'));
+const Section3_MarketIntelligence = lazy(() => import('./sections/Section3_MarketIntelligence'));
+const Section4_Considerations = lazy(() => import('./sections/Section4_Considerations'));
+const Section5_Process = lazy(() => import('./sections/Section5_Process'));
+const Section6_FAQ = lazy(() => import('./sections/Section6_FAQ'));
+const Section7_Summary = lazy(() => import('./sections/Section7_Summary'));
 
 
 interface BuyersGuideProps {
@@ -26,12 +27,12 @@ interface BuyersGuideProps {
 
 export const GUIDE_SECTIONS = [
     { id: 1, title: 'LED vs. Projector', component: Section1_Comparison },
-    { id: 2, title: 'Sizing & Placement Guide', component: Section2_Sizing },
-    { id: 3, title: 'Market Intelligence', component: Section2_MarketIntelligence },
-    { id: 4, title: 'Sector-Specific Considerations', component: Section3_Considerations },
-    { id: 5, title: 'Implementation Process', component: Section6_Process },
-    { id: 6, title: 'Frequently Asked Questions', component: Section7_FAQ },
-    { id: 7, title: 'Your Custom LED Summary', component: Section5_Summary },
+    { id: 2, title: 'Sizing & Placement', component: Section2_Sizing },
+    { id: 3, title: 'Market Intelligence', component: Section3_MarketIntelligence },
+    { id: 4, title: 'Sector-Specific Considerations', component: Section4_Considerations },
+    { id: 5, title: 'Implementation Process', component: Section5_Process },
+    { id: 6, title: 'Frequently Asked Questions', component: Section6_FAQ },
+    { id: 7, title: 'Your Custom Summary', component: Section7_Summary },
 ];
 
 const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) => {

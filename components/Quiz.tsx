@@ -121,7 +121,7 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
 
     const handlePrev = () => {
         if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(prev => prev + 1);
+            setCurrentQuestionIndex(prev => prev - 1);
         }
     };
 

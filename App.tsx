@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Sector, LeadStatus, UserData, Answer, Result, GeminiInsights, Theme } from './types';
-import { ASSESSMENT_QUESTIONS, calculateLeadTemperature } from './constants';
+import { ASSESSMENT_QUESTIONS, calculateLeadTemperature, HUBSPOT_CONFIG } from './constants';
 import * as HubSpot from './services/hubspot';
 import Header from './components/Header';
 import Landing from './components/Landing';
@@ -115,8 +115,6 @@ const App: React.FC = () => {
 
     useEffect(() => {
         // --- DEBUGGING ENV VARS ---
-        console.log('🔍 All available REACT_APP_ ENV vars:', Object.keys(process.env).filter(k => k.startsWith('REACT_APP_')));
-        console.log('🔍 Vercel key (REACT_APP_GEMINI_API_KEY) available:', !!process.env.REACT_APP_GEMINI_API_KEY);
         console.log('🔍 AI Studio key (API_KEY) available:', !!process.env.API_KEY);
         // --- END DEBUGGING ---
 
@@ -189,12 +187,11 @@ const App: React.FC = () => {
     }, [step, sector, quizResult]);
 
     const generatePersonalizedInsights = useCallback(async (finalScore: number, finalAnswers: { [key: number]: Answer }, finalSector: Sector): Promise<GeminiInsights> => {
-        const apiKey = process.env.REACT_APP_GEMINI_API_KEY || process.env.API_KEY;
+        const apiKey = process.env.API_KEY;
         
         console.log('🔍 DEBUG: Starting AI generation');
-        console.log('🔍 API Key source:', process.env.REACT_APP_GEMINI_API_KEY ? 'REACT_APP_GEMINI_API_KEY' : 'API_KEY');
+        console.log('🔍 API Key source: API_KEY');
         console.log('🔍 API Key exists:', !!apiKey);
-        console.log('🔍 API Key first 10 chars:', apiKey?.substring(0, 10));
 
         if (!apiKey) {
             console.warn('⚠️ Gemini API key not configured. Using fallback insights.');
@@ -324,7 +321,7 @@ const App: React.FC = () => {
         const resultsUrl = `${window.location.origin}${window.location.pathname}#results=${encodedResult}`;
 
         // Generate pre-filled booking link
-        const bookingUrl = new URL('https://meetings.hubspot.com/jasmineford');
+        const bookingUrl = new URL(HUBSPOT_CONFIG.meetingLinks.priority);
         if(userData.firstName) bookingUrl.searchParams.append('firstname', userData.firstName);
         if(userData.lastName) bookingUrl.searchParams.append('lastname', userData.lastName);
         bookingUrl.searchParams.append('email', userData.email);
@@ -448,7 +445,7 @@ const App: React.FC = () => {
             utm_campaign: urlParams.get('utm_campaign') || undefined,
         });
         
-        if (commitment === 'exploring' || commitment === 'general_interest') {
+        if (commitment === 'exploring') {
             HubSpot.trackEvent('Buyer Guide Accessed', sessionUserId.current);
             setStep('buyersGuide');
         } else {
