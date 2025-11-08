@@ -9,7 +9,7 @@ import Spinner from '../common/Spinner';
 import Feedback from '../common/Feedback';
 import Confetti from '../common/Confetti';
 
-// Lazy load sections for performance
+// Lazy load sections for performance - CORRECTED and EXPANDED
 const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
 const Section2_Sizing = lazy(() => import('./sections/Section2_Sizing'));
 const Section3_MarketIntelligence = lazy(() => import('./sections/Section3_MarketIntelligence'));

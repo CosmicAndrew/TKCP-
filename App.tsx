@@ -461,8 +461,8 @@ const App: React.FC = () => {
             // Optionally, set an internal state here to retry or notify admins, but don't block the UI.
         }
         
-        if (commitment === 'exploring') {
-            HubSpot.trackEvent('Buyer Guide Accessed', sessionUserId.current);
+        if (commitment === 'exploring' || commitment === 'leaning') {
+            HubSpot.trackEvent('Buyer Guide Accessed', sessionUserId.current, { commitment_level: commitment });
             setStep('buyersGuide');
         } else {
             setStep('confirmation');

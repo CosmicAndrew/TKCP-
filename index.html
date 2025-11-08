@@ -63,8 +63,11 @@
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Preconnect to critical domains for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://storage.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
       @media print {
@@ -233,7 +236,6 @@
           width: 100%;
           padding: 16px;
           font-size: 18px;
-          touch-action: manipulation; /* Prevents double-tap zoom */
         }
         .progressive-form input, .contact-form input, .email-capture-form input {
           min-height: 48px; /* iOS touch target minimum */
@@ -271,6 +273,10 @@
         .sidebar-nav-button {
           padding: 16px; /* Larger tap target */
           font-size: 16px; /* More readable */
+        }
+        /* Improve mobile button responsiveness */
+        button {
+          touch-action: manipulation;
         }
       }
 

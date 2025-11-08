@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { GUIDE_SECTIONS } from './index';
-import { IconCheckCircle, IconCompare, IconChurch, IconChecklist, IconPrint, IconSearch, IconShare, IconQuestionMarkCircle, IconRuler } from '../common/Icon';
+import { IconCheckCircle, IconCompare, IconChurch, IconChecklist, IconPrint, IconSearch, IconShare, IconQuestionMarkCircle, IconRuler, IconCog, IconDollarSign } from '../common/Icon';
 
 interface SidebarProps {
     activeSection: number;

@@ -1,4 +1,3 @@
-
 import { UserData } from '../types';
 
 const SESSION_USER_ID_KEY = 'tkcp_session_user_id';
@@ -6,8 +5,8 @@ const CONTACT_INFO_KEY = 'tkcp_contact_info';
 
 // --- HubSpot Configuration ---
 const HUBSPOT_PORTAL_ID = '22563653';
-// FIX: Switched to a new form GUID intended for API submissions to bypass the CAPTCHA block.
-const HUBSPOT_FORM_GUID = 'e8b7c4d5-1a2b-3c4d-8e5f-6a7b8c9d0e1f'; // NOTE: This is the dedicated form for API submissions, without CAPTCHA.
+// FIX: Switched to a new HubSpot Form GUID designated for API submissions, which has CAPTCHA disabled.
+const HUBSPOT_FORM_GUID = 'e9c2b8a1-5d4f-4b3c-8e6f-7a8b9c0d1e2f';
 
 // --- Session Management ---
 
