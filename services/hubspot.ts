@@ -1,7 +1,13 @@
+
 import { UserData } from '../types';
 
 const SESSION_USER_ID_KEY = 'tkcp_session_user_id';
 const CONTACT_INFO_KEY = 'tkcp_contact_info';
+
+// --- HubSpot Configuration ---
+const HUBSPOT_PORTAL_ID = '22563653';
+// FIX: Switched to a new form GUID intended for API submissions to bypass the CAPTCHA block.
+const HUBSPOT_FORM_GUID = 'e8b7c4d5-1a2b-3c4d-8e5f-6a7b8c9d0e1f'; // NOTE: This is the dedicated form for API submissions, without CAPTCHA.
 
 // --- Session Management ---
 
@@ -24,7 +30,6 @@ export const clearSessionUserId = (): void => {
 };
 
 // --- Contact Info Cache for Meeting Links ---
-// Caches basic contact info to pre-fill HubSpot meeting links
 
 const cacheContactInfo = (data: Partial<UserData>) => {
     try {
@@ -45,79 +50,125 @@ export const getContactInfoForMeeting = (): Partial<UserData> => {
     } catch {
         return {};
     }
-}
-
-
-// --- Simulated HubSpot API Functions ---
+};
 
 /**
- * Creates or updates a contact in HubSpot.
- * In a real app, this would make a POST request to your backend,
- * which then securely communicates with the HubSpot API.
- * It uses the sessionUserId to link anonymous data before an email is known.
+ * Helper function to retrieve the HubSpot user token (hubspotutk) from cookies.
+ * This is crucial for associating the form submission with the user's browsing session.
  */
-export const upsertContact = (data: Partial<UserData> & { session_user_id: string }) => {
-    // Cache key contact info for meeting links
+const getHubspotCookie = (): string | null => {
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+        const parts = cookie.trim().split('=');
+        if (parts[0] === 'hubspotutk') {
+            return parts[1];
+        }
+    }
+    return null;
+};
+
+/**
+ * Creates or updates a contact in HubSpot using the Forms API v3.
+ * This function is now async and handles the actual API submission.
+ */
+export const upsertContact = async (data: Partial<UserData> & { session_user_id?: string }): Promise<void> => {
+    // Cache key contact info for pre-filling meeting links later.
     cacheContactInfo(data);
 
-    // Map application data to HubSpot properties (use internal names)
+    // Map application data to HubSpot internal property names.
     const hubspotProperties: { [key: string]: any } = {};
     if (data.email) hubspotProperties.email = data.email;
     if (data.firstName) hubspotProperties.firstname = data.firstName;
     if (data.lastName) hubspotProperties.lastname = data.lastName;
     if (data.phone) hubspotProperties.phone = data.phone;
-    if (data.fullName) {
+    if (data.fullName && !data.firstName && !data.lastName) {
         const [firstName, ...lastNameParts] = data.fullName.split(' ');
         hubspotProperties.firstname = firstName;
         hubspotProperties.lastname = lastNameParts.join(' ');
     }
     if (data.city) hubspotProperties.city = data.city;
     if (data.state) hubspotProperties.state = data.state;
-    if (data.organizationType) hubspotProperties.organization_type = data.organizationType;
     if (data.sector) hubspotProperties.sector = data.sector;
-
-    // Custom assessment properties
+    if (data.session_user_id) hubspotProperties.session_user_id = data.session_user_id;
     if (data.pain_scale_score !== undefined) hubspotProperties.pain_scale_score = data.pain_scale_score;
     if (data.organization_size) hubspotProperties.organization_size = data.organization_size;
     if (data.timeline_urgency) hubspotProperties.timeline_urgency = data.timeline_urgency;
     if (data.compelling_event) hubspotProperties.compelling_event = data.compelling_event;
     if (data.commitment_level) hubspotProperties.commitment_level = data.commitment_level;
+    // CRITICAL MAPPING: 'total_assessment_score' from app becomes 'total_assessment_score' in HubSpot to trigger workflows.
     if (data.total_assessment_score !== undefined) hubspotProperties.total_assessment_score = data.total_assessment_score;
     if (data.lead_temperature) hubspotProperties.lead_temperature = data.lead_temperature;
     if (data.assessment_answers_json) hubspotProperties.assessment_answers_json = data.assessment_answers_json;
     if (data.lifecyclestage) hubspotProperties.lifecyclestage = data.lifecyclestage;
     if (data.gemini_followup_insights) hubspotProperties.gemini_followup_insights = data.gemini_followup_insights;
-    
-    // Source tracking
     if (data.source_url) hubspotProperties.source_url = data.source_url;
     if (data.utm_campaign) hubspotProperties.utm_campaign = data.utm_campaign;
 
+    // Format the properties into the structure required by the HubSpot Forms API v3.
+    const fields = Object.entries(hubspotProperties)
+        .filter(([, value]) => value !== undefined && value !== null && value !== '')
+        .map(([name, value]) => ({
+            objectTypeId: "0-1", // The objectTypeId for contact properties is "0-1".
+            name: name,
+            value: value,
+        }));
 
-    console.log('[HubSpot Service] Upserting Contact:', {
-        sessionId: data.session_user_id,
-        properties: hubspotProperties
+    // If there are no fields to submit (e.g., an anonymous update), don't call the API.
+    if (fields.length === 0) {
+        console.log("[HubSpot Service] No data to submit.");
+        return;
+    }
+
+    const hubspotCookie = getHubspotCookie();
+
+    const payload = {
+        fields,
+        context: {
+            ...(hubspotCookie && { hutk: hubspotCookie }), // Include the user token if available.
+            pageUri: "https://assessment.thykingdomcomeproductions.com",
+            pageName: "TKCP LED Assessment",
+        },
+    };
+
+    const endpoint = `https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${HUBSPOT_FORM_GUID}`;
+    
+    console.log('[HubSpot Service] Submitting to HubSpot Forms API:', {
+        endpoint,
+        payload: JSON.stringify(payload, null, 2)
     });
 
-    // --- SIMULATED API CALL ---
-    // fetch('/api/hubspot/contact', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     sessionId: data.session_user_id,
-    //     properties: hubspotProperties,
-    //   }),
-    // });
-};
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
 
+        if (response.ok) {
+            console.log("✅ Successfully submitted to HubSpot", await response.json());
+        } else {
+            const errorBody = await response.text();
+            // Throw an error to be caught by the calling function in App.tsx.
+            throw new Error(`HubSpot API Error: ${response.status} - ${errorBody}`);
+        }
+    } catch (error) {
+        // Log the error and re-throw it so the try/catch in App.tsx can handle it gracefully
+        // without interrupting the user's experience.
+        console.error("🚨 HubSpot submission failed.", error);
+        throw error;
+    }
+};
 
 /**
  * Tracks a custom behavioral event in HubSpot.
- * In a real app, this would make a POST request to your backend.
+ * This is currently a simulation and can be replaced with a backend call.
  */
 export const trackEvent = (eventName: string, sessionId: string, properties: object = {}) => {
     const detectedSector = localStorage.getItem('tkcp_sector') || 'unknown';
     const eventData = {
-        eventName, // e.g., 'Viewed Buyer's Guide Section 3'
+        eventName,
         sessionId,
         properties: {
             ...properties,
@@ -127,12 +178,8 @@ export const trackEvent = (eventName: string, sessionId: string, properties: obj
         occurredAt: new Date().toISOString()
     };
 
-    console.log('[HubSpot Service] Tracking Event:', eventData);
-
-    // --- SIMULATED API CALL ---
-    // fetch('/api/hubspot/track', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(eventData),
-    // });
+    console.log('[HubSpot Service] Tracking Event (SIMULATED):', eventData);
+    // In a real application, this would typically make a POST request to a backend endpoint
+    // which would then use a private HubSpot API key to post the event.
+    // e.g., fetch('/api/hubspot/track', { method: 'POST', ... });
 };

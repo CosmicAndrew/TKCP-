@@ -33,7 +33,7 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
     const painLevel = findAnswerText(0, answers[0]?.value);
     const orgSize = findAnswerText(1, answers[1]?.value);
     const timeline = findAnswerText(2, answers[2]?.value);
-    const budgetStatus = findAnswerText(3, answers[3]?.value);
+    const compellingEvent = findAnswerText(3, answers[3]?.value);
     const date = new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
     const handleGeneratePdf = async () => {
@@ -92,7 +92,7 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                                 <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Organization Size:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{orgSize}</td></tr>
                                 <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Current Pain Level:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{painLevel}</td></tr>
                                 <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Project Timeline:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{timeline}</td></tr>
-                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Budget Status:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{budgetStatus}</td></tr>
+                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Primary Driver:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{compellingEvent}</td></tr>
                                 <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Lead Score:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{score}/{maxScore} ({leadStatus.charAt(0).toUpperCase() + leadStatus.slice(1)})</td></tr>
                             </tbody>
                         </table>

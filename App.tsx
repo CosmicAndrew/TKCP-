@@ -226,9 +226,9 @@ const App: React.FC = () => {
             The tone must be consultative, positive, and justify taking the next step. Do not use markdown.
             `;
             
-            console.log('🔍 Generating content with model: gemini-2.5-flash');
+            console.log('🔍 Generating content with model: gemini-2.5-pro');
             const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash",
+                model: "gemini-2.5-pro",
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",
@@ -243,7 +243,8 @@ const App: React.FC = () => {
                             }
                         },
                         required: ["summary", "actionable_steps"]
-                    }
+                    },
+                    thinkingConfig: { thinkingBudget: 32768 }
                 }
             });
             
@@ -286,15 +287,22 @@ const App: React.FC = () => {
                 throw parsingError; 
             }
             
-            HubSpot.upsertContact({
-                session_user_id: sessionUserId.current,
-                gemini_followup_insights: JSON.stringify(insights, null, 2),
-            });
+            // This is an async update. We don't want to block the UI, but we'll try to send the data.
+            // The main upsertContact call later will contain the complete, final data anyway.
+            try {
+                await HubSpot.upsertContact({
+                    session_user_id: sessionUserId.current,
+                    gemini_followup_insights: JSON.stringify(insights, null, 2),
+                });
+            } catch (e) {
+                console.error("Partial HubSpot update with AI insights failed, but continuing.", e);
+            }
 
             return insights;
 
         } catch (e: any) {
             console.error("🚨 AI Generation Error. Using fallback insights.", e);
+            setError(`We had trouble generating AI insights, but your results are ready! Error: ${e.message}`);
             return generateFallbackInsights(finalSector);
         }
     }, []);
@@ -376,18 +384,17 @@ const App: React.FC = () => {
 
         setError(null); // Reset error on each attempt
         setSubmissionStatus('Analyzing your results...');
-        await new Promise(res => setTimeout(res, 1000));
+        await new Promise(res => setTimeout(res, 500)); // Short delay for UX
         
         const totalScore = (Object.values(finalAnswers) as Answer[]).reduce((sum, answer) => sum + answer.points, 0);
         const leadStatus = calculateLeadTemperature(totalScore);
         const maxScore = 20;
 
         setSubmissionStatus('Our AI expert is crafting your personalized insights...');
-        // This call is now resilient: it will return real insights or a fallback, but won't throw an error for API issues.
         const insights = await generatePersonalizedInsights(totalScore, finalAnswers, sector);
         
-        setSubmissionStatus('Tailoring your recommendations...');
-        await new Promise(res => setTimeout(res, 1000));
+        setSubmissionStatus('Saving your assessment...');
+        await new Promise(res => setTimeout(res, 500)); // Short delay for UX
 
         const result: Result = { 
             userData: finalUserData, 
@@ -426,24 +433,33 @@ const App: React.FC = () => {
         setQuizResult(result);
         
         const urlParams = new URLSearchParams(window.location.search);
-        HubSpot.upsertContact({
-            ...finalUserData,
-            session_user_id: sessionUserId.current,
-            // Map answers to HubSpot custom properties
-            pain_scale_score: finalAnswers[0]?.points,
-            organization_size: finalAnswers[1]?.value,
-            timeline_urgency: finalAnswers[2]?.value,
-            compelling_event: finalAnswers[3]?.value,
-            commitment_level: commitment,
-            // System properties
-            sector: sector,
-            total_assessment_score: totalScore,
-            lead_temperature: leadStatus,
-            assessment_answers_json: JSON.stringify(finalAnswers),
-            lifecyclestage: 'lead',
-            source_url: window.location.href,
-            utm_campaign: urlParams.get('utm_campaign') || undefined,
-        });
+        
+        // Await the HubSpot submission within a try/catch block.
+        // This ensures that if the API call fails, the user still sees their results.
+        try {
+            await HubSpot.upsertContact({
+                ...finalUserData,
+                session_user_id: sessionUserId.current,
+                // Map answers to HubSpot custom properties
+                pain_scale_score: finalAnswers[0]?.points,
+                organization_size: finalAnswers[1]?.value,
+                timeline_urgency: finalAnswers[2]?.value,
+                compelling_event: finalAnswers[3]?.value,
+                commitment_level: commitment,
+                // System properties
+                sector: sector,
+                total_assessment_score: totalScore, // This will be mapped to total_assessment_score in the service
+                lead_temperature: leadStatus,
+                assessment_answers_json: JSON.stringify(finalAnswers),
+                lifecyclestage: 'lead',
+                source_url: window.location.href,
+                utm_campaign: urlParams.get('utm_campaign') || undefined,
+            });
+            console.log("✅ HubSpot contact submission process completed.");
+        } catch (hubspotError) {
+            console.error("🚨 HubSpot submission failed, but the user flow will continue gracefully.", hubspotError);
+            // Optionally, set an internal state here to retry or notify admins, but don't block the UI.
+        }
         
         if (commitment === 'exploring') {
             HubSpot.trackEvent('Buyer Guide Accessed', sessionUserId.current);
@@ -467,7 +483,6 @@ const App: React.FC = () => {
 
     const renderContent = () => {
         if (submissionStatus) {
-            // Error block is kept for non-API related errors, but will not trigger on API failure anymore.
             if (error) {
                 return (
                     <div className="flex flex-col justify-center items-center h-[60vh] text-center">
