@@ -5,8 +5,8 @@ const CONTACT_INFO_KEY = 'tkcp_contact_info';
 
 // --- HubSpot Configuration ---
 const HUBSPOT_PORTAL_ID = '22563653';
-// FIX: Switched to a new HubSpot Form GUID designated for API submissions, which has CAPTCHA disabled.
-const HUBSPOT_FORM_GUID = 'e9c2b8a1-5d4f-4b3c-8e6f-7a8b9c0d1e2f';
+// The Form GUID for the 'TKCP LED Assessment' form in HubSpot. This resolves the 404 error.
+const HUBSPOT_FORM_GUID = 'bdc88559-269e-48a3-8395-515272a25b74';
 
 // --- Session Management ---
 
