@@ -42,19 +42,53 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
         const input = document.getElementById('printable-summary');
         if (input) {
             setIsGenerating(true);
+            document.body.classList.add('pdf-generating');
             try {
                 setLoadingText('Loading libraries...');
-                const { jsPDF } = await import('jspdf');
+                const { jsPDF, GState } = await import('jspdf');
                 const html2canvas = (await import('html2canvas')).default;
                 
+                setLoadingText('Preparing document...');
+                 // To ensure consistent output, temporarily switch to light mode for the capture
+                const wasDarkMode = document.documentElement.classList.contains('dark');
+                if (wasDarkMode) {
+                    document.documentElement.classList.remove('dark');
+                    await new Promise(resolve => setTimeout(resolve, 50)); // Give DOM a moment to update
+                }
+
                 setLoadingText('Processing document...');
-                const canvas = await html2canvas(input, { scale: 2 });
+                const canvas = await html2canvas(input, { 
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                if (wasDarkMode) {
+                    document.documentElement.classList.add('dark');
+                }
+
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                 
+                setLoadingText('Adding watermark...');
+                // FIX: Correctly get page count from jspdf instance. The `getNumberOfPages` method does not exist on the `internal` object.
+                const pageCount = pdf.internal.pages.length;
+                const logo = TKCP_CONFIG.logoBase64;
+                const logoWidth = 100;
+                const logoHeight = 30; // Aspect ratio of logo is 200:60
+
+                for (let i = 1; i <= pageCount; i++) {
+                    pdf.setPage(i);
+                    pdf.setGState(new GState({ opacity: 0.08 }));
+                    const x = (pdf.internal.pageSize.getWidth() - logoWidth) / 2;
+                    const y = (pdf.internal.pageSize.getHeight() - logoHeight) / 2;
+                    pdf.addImage(logo, undefined, x, y, logoWidth, logoHeight);
+                    pdf.setGState(new GState({ opacity: 1 }));
+                }
+
                 setLoadingText('Saving file...');
                 await new Promise(res => setTimeout(res, 500)); // Brief delay for UX
 
@@ -64,6 +98,7 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 alert("Sorry, there was an error generating the PDF. Please try again.");
             } finally {
                 setIsGenerating(false);
+                document.body.classList.remove('pdf-generating');
             }
         }
     };
