@@ -23,7 +23,7 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect, theme }) => {
                 </div>
                 <div className="relative z-10 text-white p-8">
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold [text-shadow:_0_2px_4px_rgba(0,0,0,0.5)] animate-hero-text opacity-0">
-                        See the difference LED Makes.
+                        See the difference LED Makes
                     </h1>
                     <button 
                         onClick={scrollToSelection}
