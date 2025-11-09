@@ -16,6 +16,34 @@ const trackMetaEvent = (eventName: string, params: object = {}) => {
     console.log(`[Meta Pixel Event]: ${eventName}`, params);
 };
 
+/**
+ * Converts an SVG data URL to a PNG data URL by drawing it onto a canvas.
+ * This is necessary because jsPDF may not support SVG rendering without plugins.
+ * @param svgDataUrl The data URL of the SVG image.
+ * @returns A Promise that resolves with the PNG data URL.
+ */
+const svgToPngDataURL = (svgDataUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            } else {
+                reject(new Error('Could not get 2d context from canvas for SVG conversion.'));
+            }
+        };
+        img.onerror = () => {
+            reject(new Error('Failed to load SVG image for conversion.'));
+        };
+        img.src = svgDataUrl;
+    });
+};
+
 
 const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
     const { answers, score, maxScore, userData, leadStatus, geminiInsights } = result;
@@ -73,8 +101,8 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                 
                 setLoadingText('Adding watermark...');
+                const pngLogoDataUrl = await svgToPngDataURL(TKCP_CONFIG.logoBase64);
                 const pageCount = pdf.internal.getNumberOfPages();
-                const logo = TKCP_CONFIG.logoBase64;
                 const logoWidth = 100;
                 const logoHeight = 30; // Aspect ratio of logo is 200:60
 
@@ -85,7 +113,7 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     pdf.setGState(new GState({ opacity: 0.08 }));
                     const x = (pdf.internal.pageSize.getWidth() - logoWidth) / 2;
                     const y = (pdf.internal.pageSize.getHeight() - logoHeight) / 2;
-                    pdf.addImage(logo, 'SVG', x, y, logoWidth, logoHeight);
+                    pdf.addImage(pngLogoDataUrl, 'PNG', x, y, logoWidth, logoHeight);
                     pdf.setGState(new GState({ opacity: 1 }));
                 }
 

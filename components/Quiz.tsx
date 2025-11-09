@@ -34,11 +34,15 @@ const getInitialState = (): { currentQuestionIndex: number; answers: { [key: num
             const parsed = JSON.parse(savedState);
             // Basic validation
             if (parsed && typeof parsed.currentQuestionIndex === 'number' && typeof parsed.answers === 'object' && parsed.answers !== null) {
-                return { currentQuestionIndex: parsed.currentQuestionIndex, answers: parsed.answers };
+                // Add validation to prevent out-of-bounds errors if questions change between app versions.
+                // If the saved index is invalid, the quiz will gracefully reset.
+                if (parsed.currentQuestionIndex >= 0 && parsed.currentQuestionIndex < ASSESSMENT_QUESTIONS.length) {
+                    return { currentQuestionIndex: parsed.currentQuestionIndex, answers: parsed.answers };
+                }
             }
         }
     } catch (error) {
-        console.error("Could not parse saved quiz state:", error);
+        console.error("Could not parse or validate saved quiz state:", error);
     }
     return { currentQuestionIndex: 0, answers: {} };
 }
