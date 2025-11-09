@@ -4,6 +4,7 @@ import { HUBSPOT_CONFIG, TKCP_CONFIG } from '../constants';
 import * as HubSpot from '../services/hubspot';
 import { IconCalendar, IconPhone, IconRefresh, IconShare, IconLightbulb, IconTarget, IconTrendingUp } from './common/Icon';
 import ScoreGauge from './common/ScoreGauge';
+import CategoryScoreBreakdown from './common/CategoryScoreBreakdown';
 import Feedback from './common/Feedback';
 import Confetti from './common/Confetti';
 import ShareModal from './common/ShareModal';
@@ -75,9 +76,12 @@ const Confirmation: React.FC<ConfirmationProps> = ({ result, onReset, sector }) 
                         Your results are in. We're sending a copy to <strong>{userData.email || "your email"}</strong>.
                     </p>
 
-                    <div className="flex justify-center my-8">
-                        <div className={leadStatusStyles[leadStatus] || ''}>
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-8 my-8">
+                        <div className={`mx-auto md:mx-0 ${leadStatusStyles[leadStatus] || ''}`}>
                             <ScoreGauge score={score} maxScore={maxScore} sector={sector} />
+                        </div>
+                        <div className="w-full md:max-w-sm">
+                            <CategoryScoreBreakdown result={result} />
                         </div>
                     </div>
 

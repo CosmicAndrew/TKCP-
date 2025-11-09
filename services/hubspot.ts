@@ -6,7 +6,7 @@ const CONTACT_INFO_KEY = 'tkcp_contact_info';
 // --- HubSpot Configuration ---
 const HUBSPOT_PORTAL_ID = '22563653';
 // The Form GUID for the 'TKCP LED Assessment' form in HubSpot. This resolves the 404 error.
-const HUBSPOT_FORM_GUID = 'bdc88559-269e-48a3-8395-515272a25b74';
+const HUBSPOT_FORM_GUID = 'f0cf68b1-496b-401a-8d26-816713d10c95';
 
 // --- Session Management ---
 
@@ -136,16 +136,6 @@ export const upsertContact = async (data: Partial<UserData> & { session_user_id?
         payload: JSON.stringify(payload, null, 2)
     });
     
-    // --- FIX for 404 Error ---
-    // The provided HUBSPOT_FORM_GUID is invalid, causing a 404 error.
-    // This simulation replaces the failing API call with a successful promise.
-    // In a production environment, replace the placeholder HUBSPOT_FORM_GUID with a valid one from your HubSpot portal.
-    console.log("✅ [SIMULATED] Successfully submitted to HubSpot. A valid Form GUID is required for production.");
-    return Promise.resolve();
-    // --- END FIX ---
-    
-    /* 
-    // Original failing code:
     try {
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -156,19 +146,16 @@ export const upsertContact = async (data: Partial<UserData> & { session_user_id?
         });
 
         if (response.ok) {
-            console.log("✅ Successfully submitted to HubSpot", await response.json());
+            const result = await response.json();
+            console.log("✅ Successfully submitted to HubSpot", result);
         } else {
             const errorBody = await response.text();
-            // Throw an error to be caught by the calling function in App.tsx.
             throw new Error(`HubSpot API Error: ${response.status} - ${errorBody}`);
         }
     } catch (error) {
-        // Log the error and re-throw it so the try/catch in App.tsx can handle it gracefully
-        // without interrupting the user's experience.
         console.error("🚨 HubSpot submission failed.", error);
         throw error;
     }
-    */
 };
 
 /**
