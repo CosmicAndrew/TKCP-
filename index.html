@@ -70,6 +70,33 @@
     <link rel="preconnect" href="https://storage.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
+      /* Styles for PDF generation via html2canvas */
+      body.pdf-generating {
+        /* Prevent background flicker during generation */
+        background-color: white !important;
+      }
+      .pdf-generating #printable-summary {
+        /* Override dark mode for a consistent light-themed PDF */
+        background-color: white !important;
+      }
+      .pdf-generating .summary-layout-container {
+        /* This is the key to forcing a two-column layout in the PDF */
+        display: flex !important;
+        gap: 2rem !important;
+      }
+      .pdf-generating .dark-mode-text-override {
+        /* Force text colors to be dark and readable on a light background */
+        color: #1f2937 !important; /* dark:text-gray-800 */
+      }
+      .pdf-generating .dark-mode-bg-override {
+        /* Force background colors to be light */
+        background-color: #f9fafb !important; /* dark:bg-gray-50 */
+      }
+       .pdf-generating .dark-mode-border-override {
+        /* Force border colors to be light */
+        border-color: #e5e7eb !important; /* dark:border-gray-200 */
+      }
+
       @media print {
         body * {
           visibility: hidden;
