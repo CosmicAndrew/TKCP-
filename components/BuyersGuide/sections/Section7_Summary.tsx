@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Result, Sector } from '../../../types';
 import { ASSESSMENT_QUESTIONS, TKCP_CONFIG } from '../../../constants';
@@ -93,13 +94,35 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 if (wasDarkMode) {
                     document.documentElement.classList.add('dark');
                 }
-
+                
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
+            
+                // Refactored multi-page PDF generation logic
+                const imgProps = pdf.getImageProperties(imgData);
                 const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                const pdfPageHeight = pdf.internal.pageSize.getHeight();
                 
+                const imgWidth = pdfWidth;
+                const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+                
+                let heightLeft = imgHeight;
+                let position = 0;
+                let page = 1;
+                
+                // Add the first page
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pdfPageHeight;
+
+                // Add new pages if content is taller than one page
+                while (heightLeft > 0) {
+                    position = -page * pdfPageHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pdfPageHeight;
+                    page++;
+                }
+
                 setLoadingText('Adding watermark...');
                 const pngLogoDataUrl = await svgToPngDataURL(TKCP_CONFIG.logoBase64);
                 const pageCount = pdf.internal.getNumberOfPages();
