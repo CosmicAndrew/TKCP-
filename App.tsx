@@ -1,4 +1,5 @@
 
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Sector, LeadStatus, UserData, Answer, Result, GeminiInsights, Theme } from './types';
@@ -12,6 +13,21 @@ import BuyersGuide from './components/BuyersGuide';
 import Footer from './components/Footer';
 import Spinner from './components/common/Spinner';
 import CookieConsentBanner from './components/common/CookieConsentBanner';
+
+// --- UTF-8 Safe Base64 Encoding/Decoding ---
+const utf8ToBase64 = (str: string): string => {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+            return String.fromCharCode(parseInt(p1, 16));
+        }
+    ));
+};
+
+const base64ToUtf8 = (str: string): string => {
+    return decodeURIComponent(atob(str).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+};
 
 // --- Conversion Tracking Functions ---
 
@@ -124,7 +140,7 @@ const App: React.FC = () => {
         if (window.location.hash.startsWith('#results=')) {
             try {
                 const encodedData = window.location.hash.substring(9); // remove #results=
-                const decodedData = atob(encodedData);
+                const decodedData = base64ToUtf8(encodedData);
                 const resultData: Result = JSON.parse(decodedData);
                 
                 setQuizResult(resultData);
@@ -287,17 +303,7 @@ const App: React.FC = () => {
                 throw parsingError; 
             }
             
-            // This is an async update. We don't want to block the UI, but we'll try to send the data.
-            // The main upsertContact call later will contain the complete, final data anyway.
-            try {
-                await HubSpot.upsertContact({
-                    session_user_id: sessionUserId.current,
-                    gemini_followup_insights: JSON.stringify(insights, null, 2),
-                });
-            } catch (e) {
-                console.error("Partial HubSpot update with AI insights failed, but continuing.", e);
-            }
-
+            // FIX: Removed the premature HubSpot API call. Insights will be sent with the main contact data.
             return insights;
 
         } catch (e: any) {
@@ -325,7 +331,7 @@ const App: React.FC = () => {
 
         // Generate results link
         const resultDataString = JSON.stringify(result);
-        const encodedResult = btoa(resultDataString);
+        const encodedResult = utf8ToBase64(resultDataString);
         const resultsUrl = `${window.location.origin}${window.location.pathname}#results=${encodedResult}`;
 
         // Generate pre-filled booking link
@@ -434,31 +440,38 @@ const App: React.FC = () => {
         
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Await the HubSpot submission within a try/catch block.
-        // This ensures that if the API call fails, the user still sees their results.
-        try {
-            await HubSpot.upsertContact({
-                ...finalUserData,
-                session_user_id: sessionUserId.current,
-                // Map answers to HubSpot custom properties
-                pain_scale_score: finalAnswers[0]?.points,
-                organization_size: finalAnswers[1]?.value,
-                timeline_urgency: finalAnswers[2]?.value,
-                compelling_event: finalAnswers[3]?.value,
-                commitment_level: commitment,
-                // System properties
-                sector: sector,
-                total_assessment_score: totalScore, // This will be mapped to total_assessment_score in the service
-                lead_temperature: leadStatus,
-                assessment_answers_json: JSON.stringify(finalAnswers),
-                lifecyclestage: 'lead',
-                source_url: window.location.href,
-                utm_campaign: urlParams.get('utm_campaign') || undefined,
-            });
-            console.log("✅ HubSpot contact submission process completed.");
-        } catch (hubspotError) {
-            console.error("🚨 HubSpot submission failed, but the user flow will continue gracefully.", hubspotError);
-            // Optionally, set an internal state here to retry or notify admins, but don't block the UI.
+        // FIX: Only call HubSpot if we have an email address.
+        // This happens for 'hot' leads via ContactForm.
+        // For 'warm'/'cold' leads, the submission will happen later in the Buyer's Guide.
+        if (finalUserData.email) {
+            try {
+                await HubSpot.upsertContact({
+                    ...finalUserData,
+                    session_user_id: sessionUserId.current,
+                    // Map answers to HubSpot custom properties
+                    pain_scale_score: finalAnswers[0]?.points,
+                    organization_size: finalAnswers[1]?.value,
+                    timeline_urgency: finalAnswers[2]?.value,
+                    compelling_event: finalAnswers[3]?.value,
+                    commitment_level: commitment,
+                    // System properties
+                    sector: sector,
+                    total_assessment_score: totalScore, // This will be mapped to total_assessment_score in the service
+                    lead_temperature: leadStatus,
+                    assessment_answers_json: JSON.stringify(finalAnswers),
+                    // Add the generated AI insights to the main HubSpot submission.
+                    gemini_followup_insights: JSON.stringify(insights, null, 2),
+                    lifecyclestage: 'lead',
+                    source_url: window.location.href,
+                    utm_campaign: urlParams.get('utm_campaign') || undefined,
+                });
+                console.log("✅ HubSpot contact submission process completed.");
+            } catch (hubspotError) {
+                console.error("🚨 HubSpot submission failed, but the user flow will continue gracefully.", hubspotError);
+                // Optionally, set an internal state here to retry or notify admins, but don't block the UI.
+            }
+        } else {
+             console.log("[App] Skipping HubSpot submission for now. Contact info will be collected in the Buyer's Guide.");
         }
         
         if (commitment === 'exploring' || commitment === 'leaning') {

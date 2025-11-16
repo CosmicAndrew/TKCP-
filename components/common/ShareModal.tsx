@@ -8,6 +8,15 @@ interface ShareModalProps {
     result: Result;
 }
 
+// --- UTF-8 Safe Base64 Encoding ---
+const utf8ToBase64 = (str: string): string => {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+            return String.fromCharCode(parseInt(p1, 16));
+        }
+    ));
+};
+
 const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
     const [shareUrl, setShareUrl] = useState('');
     const [copyStatus, setCopyStatus] = useState('Copy');
@@ -15,7 +24,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
     useEffect(() => {
         if (isOpen) {
             const resultDataString = JSON.stringify(result);
-            const encodedResult = btoa(resultDataString);
+            const encodedResult = utf8ToBase64(resultDataString);
             const url = `${window.location.origin}${window.location.pathname}#results=${encodedResult}`;
             setShareUrl(url);
             setCopyStatus('Copy'); // Reset status when modal opens

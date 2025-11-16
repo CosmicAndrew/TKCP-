@@ -61,7 +61,10 @@
       }
     }
     </script>
-
+    <script>
+      // Suppress Tailwind CDN warning in production
+      tailwind = { config: {}, disableSuppressWarning: false };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Preconnect to critical domains for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

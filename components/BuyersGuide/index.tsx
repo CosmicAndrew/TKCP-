@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, Suspense, lazy, useRef } from 'react';
 import { Result, Sector, UserData } from '../../types';
 import * as HubSpot from '../../services/hubspot';
@@ -86,14 +87,41 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
         }
     };
     
-    const handleProgressiveFormSubmit = (data: Partial<UserData>) => {
+    const handleProgressiveFormSubmit = async (data: Partial<UserData>) => {
         const updatedUserData = { ...userData, ...data };
         setUserData(updatedUserData);
-        HubSpot.upsertContact({
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // FIX: Construct the complete data payload for the first HubSpot submission for this user.
+        const fullSubmissionData: Partial<UserData> & { session_user_id?: string } = {
+            ...updatedUserData,
             session_user_id: HubSpot.getSessionUserId(),
-            ...data
-        });
-        HubSpot.trackEvent('Progressive Form Submitted', HubSpot.getSessionUserId());
+            sector: result.sector,
+            total_assessment_score: result.score,
+            lead_temperature: result.leadStatus,
+            assessment_answers_json: JSON.stringify(result.answers),
+            gemini_followup_insights: result.geminiInsights ? JSON.stringify(result.geminiInsights, null, 2) : undefined,
+            lifecyclestage: 'lead',
+            source_url: window.location.href,
+            utm_campaign: urlParams.get('utm_campaign') || undefined,
+            
+            // Map individual answers to custom properties
+            pain_scale_score: result.answers[0]?.points,
+            organization_size: result.answers[1]?.value,
+            timeline_urgency: result.answers[2]?.value,
+            compelling_event: result.answers[3]?.value,
+            commitment_level: result.answers[4]?.value,
+        };
+
+        try {
+            await HubSpot.upsertContact(fullSubmissionData);
+            HubSpot.trackEvent('Progressive Form Submitted', HubSpot.getSessionUserId());
+        } catch (error) {
+            console.error("HubSpot submission from Buyer's Guide failed, continuing flow.", error);
+            // Optionally add UI feedback for the user about the submission failure.
+        }
+
         setShowProgressiveForm(false);
         setCompletedSections(prev => new Set(prev).add(activeSection));
     };

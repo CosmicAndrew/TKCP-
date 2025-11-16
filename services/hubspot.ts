@@ -1,3 +1,4 @@
+
 import { UserData } from '../types';
 
 const SESSION_USER_ID_KEY = 'tkcp_session_user_id';
@@ -71,6 +72,15 @@ const getHubspotCookie = (): string | null => {
  * This function is now async and handles the actual API submission.
  */
 export const upsertContact = async (data: Partial<UserData> & { session_user_id?: string }): Promise<void> => {
+    // FIX: Add defensive checks to ensure required data is present before making an API call.
+    if (!data.email) {
+        console.error('[HubSpot Service] CRITICAL: An attempt was made to submit a contact without an email address. This indicates a logic error in the application flow where `upsertContact` was called prematurely. Submission has been blocked.', data);
+        throw new Error('Email is required for HubSpot submission. A call was made to upsertContact without an email.');
+    }
+    if (!data.firstName || !data.lastName) {
+        console.warn('[HubSpot Service] Warning: `firstname` or `lastname` is missing. HubSpot might reject this if the fields are required on the form.', data);
+    }
+
     // Cache key contact info for pre-filling meeting links later.
     cacheContactInfo(data);
 
@@ -131,10 +141,9 @@ export const upsertContact = async (data: Partial<UserData> & { session_user_id?
 
     const endpoint = `https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${HUBSPOT_FORM_GUID}`;
     
-    console.log('[HubSpot Service] Submitting to HubSpot Forms API:', {
-        endpoint,
-        payload: JSON.stringify(payload, null, 2)
-    });
+    console.log('[HubSpot Service] Submitting contact to HubSpot Forms API...');
+    console.log('Endpoint:', endpoint);
+    console.log('Payload:', JSON.stringify(payload, null, 2));
     
     try {
         const response = await fetch(endpoint, {
@@ -147,9 +156,30 @@ export const upsertContact = async (data: Partial<UserData> & { session_user_id?
 
         if (response.ok) {
             const result = await response.json();
-            console.log("✅ Successfully submitted to HubSpot", result);
+            console.log("✅ Successfully submitted contact to HubSpot");
+            console.log("HubSpot Response:", result);
+            return;
         } else {
             const errorBody = await response.text();
+            
+            // Attempt to parse the error body to check for specific HubSpot error types.
+            try {
+                const errorJson = JSON.parse(errorBody);
+                const isBlockedEmail = errorJson.errors?.some((e: { errorType?: string }) => e.errorType === 'BLOCKED_EMAIL');
+
+                if (isBlockedEmail) {
+                    console.warn(`[HubSpot] BLOCKED_EMAIL: The address '${data.email}' is blocked. This is a HubSpot configuration issue, not a code error. The user flow will continue gracefully.`);
+                    // Do not throw an error for blocked emails, allowing the app to proceed.
+                    return;
+                }
+            } catch (jsonParseError) {
+                // If parsing fails, it's not a structured HubSpot error we can inspect.
+                // The generic error will be thrown below.
+                console.error("❌ HubSpot API Error - Could not parse error response as JSON:", errorBody);
+            }
+
+            // For all other errors, throw the exception to be caught by the calling function.
+            console.error(`❌ HubSpot API Error ${response.status}:`, errorBody);
             throw new Error(`HubSpot API Error: ${response.status} - ${errorBody}`);
         }
     } catch (error) {
