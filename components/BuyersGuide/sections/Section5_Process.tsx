@@ -8,7 +8,7 @@ interface SectionProps {
   result: Result;
 }
 
-const Section4_Installation: React.FC<SectionProps> = ({ sector }) => {
+const Section5_Process: React.FC<SectionProps> = ({ sector }) => {
     const steps = [
         { name: "Discovery Call", description: "We listen to your vision, goals, and challenges." },
         { name: "Site Assessment", description: "Our engineers map out a technical plan for a perfect fit." },
@@ -19,7 +19,7 @@ const Section4_Installation: React.FC<SectionProps> = ({ sector }) => {
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">4. The TKCP Implementation Process</h2>
+            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">5. The TKCP Implementation Process</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">Our partnership approach ensures a smooth, successful project from start to finish.</p>
             
              <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700">
@@ -55,4 +55,4 @@ const Section4_Installation: React.FC<SectionProps> = ({ sector }) => {
     );
 };
 
-export default Section4_Installation;
+export default Section5_Process;

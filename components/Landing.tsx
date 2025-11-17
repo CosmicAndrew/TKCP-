@@ -115,7 +115,7 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect, theme }) => {
             {/* Social Proof / Testimonials Section */}
             <section className="animate-fade-in-up" style={{ animationDelay: '700ms' }}>
                  <h2 className="text-3xl md:text-4xl font-display font-bold text-center text-gray-800 dark:text-gray-100">
-                    Trusted by 200+ Churches nationwide
+                    Trusted by 200+ Churches in DFW
                 </h2>
                 <div className="mt-8 max-w-3xl mx-auto text-center p-8 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-inner relative overflow-hidden">
                     {testimonials.map((testimonial, index) => (
