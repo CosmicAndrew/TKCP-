@@ -132,21 +132,23 @@ const Section4_Considerations: React.FC<SectionProps> = ({ sector }) => {
 
             {/* Success Story */}
             <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-xl font-bold font-display text-gray-800 dark:text-gray-100 text-center">Success Story</h3>
-                <div className="mt-4 flex flex-col md:flex-row items-center gap-6 bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border-l-4 border-church-accent">
-                    <div
-                        className="w-full md:w-1/3 h-48 bg-cover bg-center rounded-lg shadow-md flex-shrink-0"
-                        style={{ backgroundImage: `url(${testimonial.imageUrl})` }}
-                        role="img"
-                        aria-label={testimonial.imageAlt}
-                    ></div>
-                    <blockquote className="flex-1 text-gray-700 dark:text-gray-300">
-                        <p className="italic">"{testimonial.quote}"</p>
-                        <cite className="block text-right mt-2 not-italic font-semibold text-gray-600 dark:text-gray-400">
+                <h3 className="text-xl font-bold font-display text-gray-800 dark:text-gray-100 text-center mb-4">Success Story</h3>
+                <div
+                    className="relative min-h-[300px] bg-cover bg-center rounded-lg shadow-lg flex items-center justify-center text-center overflow-hidden"
+                    style={{ backgroundImage: `url(${testimonial.imageUrl})` }}
+                    role="img"
+                    aria-label={testimonial.imageAlt}
+                >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+                    <blockquote className="relative z-10 p-8 text-white max-w-2xl">
+                        <p className="text-lg md:text-xl italic [text-shadow:_0_1px_3px_rgba(0,0,0,0.5)]">
+                            "{testimonial.quote}"
+                        </p>
+                        <cite className="block text-right mt-4 not-italic font-semibold text-gray-200 [text-shadow:_0_1px_2px_rgba(0,0,0,0.5)]">
                             — {testimonial.author}, <br/> {testimonial.org}
                         </cite>
                         <div className="text-right mt-4 not-italic">
-                            <a href={testimonial.link.href} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
+                            <a href={testimonial.link.href} target="_blank" rel="noopener noreferrer" className="font-semibold text-church-accent hover:text-yellow-300 transition-colors underline">
                                 {testimonial.link.text}
                             </a>
                         </div>
