@@ -22,6 +22,8 @@ interface BuyersGuideProps {
     sector: Sector;
     onReset: () => void;
     onBackToResults: () => void;
+    onGuideComplete: () => void;
+    guideEntrypoint: 'quiz' | 'results';
 }
 
 export const GUIDE_SECTIONS = [
@@ -35,7 +37,7 @@ export const GUIDE_SECTIONS = [
 ];
 
 
-const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBackToResults }) => {
+const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBackToResults, onGuideComplete, guideEntrypoint }) => {
     const mainContentRef = useRef<HTMLElement>(null);
     const [activeSection, setActiveSection] = useState(1);
     const [animationDirection, setAnimationDirection] = useState<'next' | 'prev'>('next');
@@ -136,25 +138,34 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
             )}
             
             <div className="text-center mb-8 relative">
-                <button 
-                    onClick={onBackToResults}
-                    className="absolute top-0 left-0 text-sm text-gray-600 dark:text-gray-400 hover:text-church-primary dark:hover:text-church-accent font-semibold flex items-center transition-colors print-hide"
-                    aria-label="Back to your assessment results"
-                >
-                    <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                    Back to Your Results
-                </button>
+                 {guideEntrypoint === 'results' && (
+                    <button 
+                        onClick={onBackToResults}
+                        className="absolute top-0 left-0 text-sm text-gray-600 dark:text-gray-400 hover:text-church-primary dark:hover:text-church-accent font-semibold flex items-center transition-colors print-hide"
+                        aria-label="Back to your assessment results"
+                    >
+                        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                        Back to Your Results
+                    </button>
+                )}
                 <IconBookOpen className="w-12 h-12 mx-auto text-church-primary dark:text-church-accent" />
                 
-                {result.leadStatus === 'cold' ? (
-                    <>
-                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Welcome, {userData.firstName || 'Friend'}! Let's Explore LED Solutions.</h2>
+                {guideEntrypoint === 'quiz' && result.leadStatus === 'warm' ? (
+                     <>
+                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your LED Video Wall Education Starts Here</h2>
                         <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                            Based on your assessment, you're in the perfect stage to learn more. This guide will walk you through everything you need to know to make a confident decision.
+                           Your score: <strong>{result.score}/{result.maxScore}</strong> — You're close to being ready! This guide will help you make a confident decision.
+                        </p>
+                    </>
+                ) : guideEntrypoint === 'quiz' && result.leadStatus === 'cold' ? (
+                    <>
+                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Welcome to Your LED Display Journey</h2>
+                        <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                            Your score: <strong>{result.score}/{result.maxScore}</strong> — Perfect timing to learn! This guide covers everything you need to know.
                         </p>
                     </>
                 ) : (
-                    <>
+                     <>
                         <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your Interactive LED Buyer's Guide</h2>
                         <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                             Welcome, {userData.firstName || userData.fullName || 'friend'}! This guide is tailored to help you make the most informed decision for your {sector === 'church' ? 'House of Worship' : 'Venue'}.
@@ -207,15 +218,22 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                            {ActiveComponent && <ActiveComponent sector={sector} result={currentResult} />}
                         </Suspense>
                    </div>
-                   {!isLastSection && (
-                       <div className="mt-8 pt-6 border-t dark:border-gray-700 flex justify-between items-center print-hide">
-                            <button 
-                                onClick={() => handleSectionChange(activeSection - 1)} 
-                                disabled={activeSection === 1}
-                                className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                    <div className="mt-8 pt-6 border-t dark:border-gray-700 flex justify-between items-center print-hide">
+                        <button 
+                            onClick={() => handleSectionChange(activeSection - 1)} 
+                            disabled={activeSection === 1}
+                            className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                        >
+                            Previous
+                        </button>
+                        {isLastSection && guideEntrypoint === 'quiz' ? (
+                             <button 
+                                onClick={onGuideComplete} 
+                                className="px-6 py-2 bg-church-accent text-gray-900 font-semibold rounded-md hover:bg-yellow-400 transition-colors animate-pulse-delayed"
                             >
-                                Previous
+                                View Your Personalized Results &rarr;
                             </button>
+                        ) : !isLastSection ? (
                             <button 
                                 onClick={() => handleSectionChange(activeSection + 1)} 
                                 disabled={isLastSection}
@@ -223,8 +241,8 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                             >
                                 Next Section
                             </button>
-                        </div>
-                    )}
+                        ) : null}
+                    </div>
                 </main>
             </div>
              <div className="mt-12 text-center">

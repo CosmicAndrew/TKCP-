@@ -98,6 +98,7 @@ const App: React.FC = () => {
     const sessionUserId = useRef<string>(HubSpot.getSessionUserId());
     const [theme, toggleTheme] = useTheme();
     const quizCompletionData = useRef<{ answers: { [key: number]: Answer }, userData: Partial<UserData> } | null>(null);
+    const [guideEntrypoint, setGuideEntrypoint] = useState<'quiz' | 'results'>('quiz');
 
 
     useEffect(() => {
@@ -107,7 +108,44 @@ const App: React.FC = () => {
 
         trackMetaEvent('PageView');
         
-        // Check for results data in URL hash first
+        const urlParams = new URLSearchParams(window.location.search);
+        const resultsParam = urlParams.get('results');
+
+        // PRIORITY 1: Check for results data in URL query parameter
+        if (resultsParam) {
+            try {
+                const decodedData = base64ToUtf8(resultsParam);
+                const resultData: Result = JSON.parse(decodedData);
+                
+                setQuizResult(resultData);
+                setSector(resultData.sector);
+                
+                // Route to correct page based on stored result
+                if (resultData.leadStatus === 'hot') {
+                    setStep('hotResult');
+                } else if (resultData.leadStatus === 'warm') {
+                    setStep('warmResult');
+                } else {
+                    setStep('coldResult');
+                }
+
+                // Clean the 'results' query param from the URL to avoid re-processing
+                urlParams.delete('results');
+                const newSearch = urlParams.toString();
+                const newUrl = `${window.location.pathname}${newSearch ? `?${newSearch}` : ''}`;
+                history.replaceState(null, document.title, newUrl);
+                return; // Stop further processing
+            } catch (e) {
+                console.error("Failed to parse result data from URL query param", e);
+                // Fallback to normal flow if parsing fails, after cleaning the URL
+                urlParams.delete('results');
+                const newSearch = urlParams.toString();
+                const newUrl = `${window.location.pathname}${newSearch ? `?${newSearch}` : ''}`;
+                history.replaceState(null, document.title, newUrl);
+            }
+        }
+        
+        // PRIORITY 2: Check for results data in URL hash (legacy support)
         if (window.location.hash.startsWith('#results=')) {
             try {
                 const encodedData = window.location.hash.substring(9); // remove #results=
@@ -136,8 +174,7 @@ const App: React.FC = () => {
             }
         }
         
-        // Auto-detect sector from URL parameters to allow direct links to quiz
-        const urlParams = new URLSearchParams(window.location.search);
+        // PRIORITY 3: Auto-detect sector from URL parameters to allow direct links to quiz
         const sectorParam = (urlParams.get('sector') || urlParams.get('org') || '').toLowerCase();
         const utmCampaign = (urlParams.get('utm_campaign') || '').toLowerCase();
 
@@ -310,7 +347,7 @@ const App: React.FC = () => {
 
         const resultDataString = JSON.stringify(result);
         const encodedResult = utf8ToBase64(resultDataString);
-        const resultsUrl = `${window.location.origin}${window.location.pathname}#results=${encodedResult}`;
+        const resultsUrl = `${window.location.origin}${window.location.pathname}?results=${encodedResult}`;
 
         const bookingUrl = new URL(HUBSPOT_CONFIG.meetingLinks.priority);
         if(userData.firstName) bookingUrl.searchParams.append('firstname', userData.firstName);
@@ -442,13 +479,15 @@ const App: React.FC = () => {
              console.log("[App] Skipping HubSpot submission for now. Contact info will be collected in the Buyer's Guide.");
         }
         
+        setGuideEntrypoint('quiz'); // Reset entrypoint on new submission
+
         // --- UPDATED ROUTING LOGIC ---
         if (leadStatus === 'hot') {
             HubSpot.trackEvent('Hot Lead Results Page Viewed', sessionUserId.current, { lead_status: leadStatus });
             setStep('hotResult');
         } else if (leadStatus === 'warm') {
-            HubSpot.trackEvent('Warm Lead Results Page Viewed', sessionUserId.current, { lead_status: leadStatus });
-            setStep('warmResult');
+            HubSpot.trackEvent('Warm Lead Directed to Buyer Guide', sessionUserId.current, { lead_status: leadStatus });
+            setStep('buyersGuide');
         } else { // cold
             HubSpot.trackEvent('Cold Lead Directed to Buyer Guide', sessionUserId.current, { lead_status: leadStatus });
             setStep('buyersGuide');
@@ -469,8 +508,31 @@ const App: React.FC = () => {
 
     const handleNavigateToGuide = () => {
         HubSpot.trackEvent('Buyer Guide Accessed from Results', sessionUserId.current, { lead_status: quizResult?.leadStatus });
+        setGuideEntrypoint('results');
         setStep('buyersGuide');
     }
+
+    const handleGuideComplete = () => {
+        if (quizResult) {
+            setGuideEntrypoint('results'); // Mark that they've seen the guide and are now heading to results
+            switch (quizResult.leadStatus) {
+                case 'warm':
+                    setStep('warmResult');
+                    break;
+                case 'cold':
+                    setStep('coldResult');
+                    break;
+                default:
+                    // If a hot lead somehow goes through the guide, send them to their results
+                    setStep('hotResult');
+                    break;
+            }
+        } else {
+            // Fallback if state is lost
+            handleReset();
+        }
+    };
+
 
     const handleBackToResults = () => {
         if (quizResult) {
@@ -532,7 +594,7 @@ const App: React.FC = () => {
                  return <div className="flex justify-center items-center h-64"><Spinner /></div>;
             case 'buyersGuide':
                 if (quizResult && sector) {
-                    return <BuyersGuide result={quizResult} sector={sector} onReset={handleReset} onBackToResults={handleBackToResults} />;
+                    return <BuyersGuide result={quizResult} sector={sector} onReset={handleReset} onBackToResults={handleBackToResults} onGuideComplete={handleGuideComplete} guideEntrypoint={guideEntrypoint} />;
                 }
                 return <div className="flex justify-center items-center h-64"><Spinner /></div>;
             default:

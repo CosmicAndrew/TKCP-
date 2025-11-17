@@ -27,13 +27,13 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
 
     useEffect(() => {
         if (isOpen) {
-            // Robust URL creation for warm/cold leads
+            // Use a robust query parameter for warm/cold lead result sharing
             if (result.leadStatus !== 'hot') {
                 const resultDataString = JSON.stringify(result);
                 const encodedResult = utf8ToBase64(resultDataString);
-                const currentUrl = new URL(window.location.href);
-                currentUrl.hash = `results=${encodedResult}`;
-                setShareUrl(currentUrl.href);
+                const url = new URL(window.location.origin + window.location.pathname);
+                url.searchParams.set('results', encodedResult);
+                setShareUrl(url.href);
             }
             setCopyStatus('Copy'); // Reset status when modal opens
         }
