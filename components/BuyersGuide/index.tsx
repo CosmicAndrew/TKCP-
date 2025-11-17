@@ -151,22 +151,22 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                 
                 {guideEntrypoint === 'quiz' && result.leadStatus === 'warm' ? (
                      <>
-                        <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your LED Video Wall Education Starts Here</h2>
-                        <p className="mt-2 text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your LED Video Wall Education Starts Here</h2>
+                        <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                            Your score: <strong>{result.score}/{result.maxScore}</strong> — You're close to being ready! This guide will help you make a confident decision.
                         </p>
                     </>
                 ) : guideEntrypoint === 'quiz' && result.leadStatus === 'cold' ? (
                     <>
-                        <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Welcome to Your LED Display Journey</h2>
-                        <p className="mt-2 text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Welcome to Your LED Display Journey</h2>
+                        <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                             Your score: <strong>{result.score}/{result.maxScore}</strong> — Perfect timing to learn! This guide covers everything you need to know.
                         </p>
                     </>
                 ) : (
                      <>
-                        <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your Interactive LED Buyer's Guide</h2>
-                        <p className="mt-2 text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your Interactive LED Buyer's Guide</h2>
+                        <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                             Welcome, {userData.firstName || userData.fullName || 'friend'}! This guide is tailored to help you make the most informed decision for your {sector === 'church' ? 'House of Worship' : 'Venue'}.
                         </p>
                     </>
@@ -221,14 +221,14 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                         <button 
                             onClick={() => handleSectionChange(activeSection - 1)} 
                             disabled={activeSection === 1}
-                            className="px-4 py-2 text-sm md:px-6 md:text-base bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                            className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
                         >
                             Previous
                         </button>
                         {isLastSection && guideEntrypoint === 'quiz' ? (
                              <button 
                                 onClick={onGuideComplete} 
-                                className="px-4 py-2 text-sm md:px-6 md:text-base bg-church-accent text-gray-900 font-semibold rounded-md hover:bg-yellow-400 transition-colors animate-pulse-delayed"
+                                className="px-6 py-2 bg-church-accent text-gray-900 font-semibold rounded-md hover:bg-yellow-400 transition-colors animate-pulse-delayed"
                             >
                                 View Your Personalized Results &rarr;
                             </button>
@@ -236,7 +236,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                             <button 
                                 onClick={() => handleSectionChange(activeSection + 1)} 
                                 disabled={isLastSection}
-                                className="px-4 py-2 text-sm md:px-6 md:text-base bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 Next Section
                             </button>

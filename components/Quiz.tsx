@@ -209,14 +209,14 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
                     <button
                         onClick={handlePrev}
                         disabled={currentQuestionIndex === 0}
-                        className="px-4 py-2 md:px-6 md:py-3 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                        className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
                     >
                         Previous
                     </button>
                     <button
                         onClick={handleNext}
                         disabled={!answers[currentQuestionIndex]}
-                        className="px-4 py-2 md:px-6 md:py-3 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="px-6 py-3 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         aria-label={currentQuestionIndex === ASSESSMENT_QUESTIONS.length - 1 ? 'Finish assessment' : 'Next question'}
                     >
                         {currentQuestionIndex === ASSESSMENT_QUESTIONS.length - 1 ? 'Finish' : 'Next'}

@@ -3,12 +3,6 @@ import React from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
 
-const KeywordLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="text-church-primary dark:text-church-accent underline hover:text-opacity-80 transition-colors duration-300">
-        {children}
-    </a>
-);
-
 interface SectionProps {
   sector: Sector;
   result: Result;
@@ -19,18 +13,17 @@ const Section4_Considerations: React.FC<SectionProps> = ({ sector }) => {
         church: {
             title: "Church-Specific Considerations",
             points: [
-                "Enhancing Worship: Display lyrics, sermon notes, and scripture with perfect clarity for your congregation.",
-                "Announcements & Giving: Use dynamic visuals for events and giving campaigns to boost engagement.",
-                "Livestream Quality: Achieve a professional, flicker-free broadcast look for your online ministry.",
+                "Enhancing Worship: How LED creates immersive, distraction-free environments for your congregation.",
+                "Livestream Quality: Achieving a professional, flicker-free broadcast look for your online ministry.",
                 "Volunteer-Friendly Tech: Simple control systems (like ProPresenter) that anyone can learn in minutes.",
+                "Environmental Projection: Transforming your entire stage into a dynamic canvas for storytelling."
             ],
         },
         hospitality: {
             title: "Venue & Business Use Cases",
             points: [
                 "Generating Revenue: Commanding premium prices for events with high-impact visuals and sponsorship opportunities.",
-                // FIX: The KeywordLink component was missing its children prop. Provided "LED walls" as the child content.
-                <>Competitive Advantage: Why modern venues are choosing integrated <KeywordLink href='https://thykingdomcomeproductions.com/church-led-walls/'>LED walls</KeywordLink> over temporary projection setups.</>,
+                "Competitive Advantage: Why modern venues are choosing integrated LED over temporary projection setups.",
                 "Ultimate Flexibility: Reconfigure digital canvases for conferences, concerts, and galas on the fly.",
                 "Architectural Integration: Seamlessly blending technology with your venue's aesthetic."
             ],
@@ -41,16 +34,16 @@ const Section4_Considerations: React.FC<SectionProps> = ({ sector }) => {
     
     const caseStudies = {
         church: {
-            quote: "Installed 3 LED video walls in our 3,500-seat sanctuary. Experience was fantastic—we recommend them to anyone.",
-            source: "— Brenden Burge, Church Client",
-            imageUrl: "https://thykingdomcomeproductions.com/wp-content/uploads/2022/10/CF-Main-Wide-scaled.jpg",
-            imageAlt: "A vibrant church service with three large TKCP LED screens showing lyrics, enhancing the worship experience."
+            quote: "We have three new beautiful LED screens and all with one purpose, to get the message out and I know that the church, the congregation, the people are going to be so blessed with the work that's being done.",
+            source: "— Senior Pastor Arthur Reyes, Calvary Chapel Downey",
+            imageUrl: "https://placehold.co/600x400/2B4C7E/FFFFFF/png?text=Worship+Experience",
+            imageAlt: "A vibrant church service with an LED screen showing lyrics, enhancing the worship experience."
         },
         hospitality: {
             quote: "Since installing the LED wall, we've attracted higher-end corporate clients and increased our premium event bookings by 60% in the first year. The wall is our biggest selling point and has generated significant new revenue for us.",
             source: "— A. Davis, Venue Director, The Grand Hall",
-            imageUrl: "https://thykingdomcomeproductions.com/wp-content/uploads/2022/11/Power-of-a-Dream-2-scaled.jpg",
-            imageAlt: "A corporate event in a grand hall, with a large TKCP LED screen displaying the company's logo."
+            imageUrl: "https://placehold.co/600x400/1B365D/FFFFFF/png?text=Corporate+Event",
+            imageAlt: "A corporate event in a grand hall, with a large LED screen displaying the company's logo."
         }
     };
     const relevantCaseStudy = caseStudies[sector];
@@ -58,15 +51,14 @@ const Section4_Considerations: React.FC<SectionProps> = ({ sector }) => {
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100">4. {relevantContent.title}</h2>
-            {/* FIX: The KeywordLink component was missing its children prop. Provided "LED video walls" as the child content. */}
-            <p className="mt-2 text-gray-600 dark:text-gray-300">Discover how a <KeywordLink href="https://thykingdomcomeproductions.com/">LED video walls</KeywordLink> transformation directly impacts your organization's goals.</p>
+            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">4. {relevantContent.title}</h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">Discover how an LED transformation directly impacts your organization's goals.</p>
 
             <div className="mt-8 space-y-8">
                  <div className="p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700">
                     <h3 className="font-bold font-display text-lg text-gray-800 dark:text-gray-100">Key Impact Areas</h3>
                     <ul className="mt-4 space-y-4 list-disc list-inside text-gray-700 dark:text-gray-300">
-                        {relevantContent.points.map((point, index) => <li key={index}>{typeof point === 'string' ? point : <>{point}</>}</li>)}
+                        {relevantContent.points.map((point, index) => <li key={index}>{point}</li>)}
                     </ul>
                 </div>
             </div>

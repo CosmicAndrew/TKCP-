@@ -46,10 +46,10 @@ const ColdLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
             <div className="max-w-4xl mx-auto animate-fade-in">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 md:p-10">
                     <div className="text-5xl mb-4 animate-bounce-in">🧭</div>
-                    <h1 className="text-2xl md:text-4xl font-display font-bold text-gray-800 dark:text-gray-100">
+                    <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-800 dark:text-gray-100">
                         Start Your <a href="https://thykingdomcomeproductions.com/led-panels/" target="_blank" rel="noopener noreferrer" className={linkClass}>LED Display</a> Journey
                     </h1>
-                    <p className="mt-4 text-base md:text-lg text-gray-600 dark:text-gray-300">
+                    <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
                         Welcome, {userData.firstName || 'Friend'}! Your score of <strong>{score}/{maxScore}</strong> shows you're in the research phase. We've prepared resources to guide you.
                     </p>
 
@@ -85,7 +85,7 @@ const ColdLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
                         <div className="mt-6 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4">
                             <button 
                                 onClick={onNavigateToGuide}
-                                className="inline-flex items-center justify-center px-6 py-3 text-base md:px-8 md:py-3 md:text-lg font-bold text-white rounded-md bg-church-primary hover:opacity-90 transition-colors shadow-lg hover:shadow-xl"
+                                className="inline-flex items-center justify-center px-8 py-3 font-bold text-white rounded-md bg-church-primary hover:opacity-90 transition-colors text-lg shadow-lg hover:shadow-xl"
                             >
                                 <IconBookOpen className="w-6 h-6" />
                                 <span className="ml-2">📖 Explore Complete Buyer's Guide</span>

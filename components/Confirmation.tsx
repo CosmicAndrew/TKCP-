@@ -60,10 +60,10 @@ const HotLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onN
 
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 md:p-10 relative z-10">
                     <div className="text-5xl mb-4 animate-bounce-in">🎉</div>
-                    <h1 className="text-2xl md:text-4xl font-display font-bold text-gray-800 dark:text-gray-100">
+                    <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-800 dark:text-gray-100">
                         You're Ready for Professional <a href="https://thykingdomcomeproductions.com" target="_blank" rel="noopener noreferrer" className={linkClass}>LED Video Walls</a>
                     </h1>
-                    <p className="mt-4 text-base md:text-lg text-gray-600 dark:text-gray-300">
+                    <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
                         Congratulations, {userData.firstName || 'Friend'}! Your assessment score of <strong>{score}/{maxScore}</strong> indicates you're a prime candidate for a transformative visual upgrade.
                     </p>
 
@@ -95,17 +95,17 @@ const HotLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onN
                         <div className="mt-6 flex flex-col sm:flex-row flex-wrap justify-center gap-4">
                             <button 
                                 onClick={handleBookMeeting} 
-                                className="flex items-center justify-center w-full sm:w-auto px-6 py-3 text-base md:px-8 md:py-4 md:text-lg font-bold text-white rounded-md bg-church-primary hover:opacity-90 transition-all animate-pulse-glow-primary shadow-lg hover:shadow-xl"
+                                className="flex items-center justify-center w-full sm:w-auto px-8 py-4 font-bold text-white rounded-md bg-church-primary hover:opacity-90 transition-all text-lg animate-pulse-glow-primary shadow-lg hover:shadow-xl"
                             >
                                 <IconCalendar className="w-6 h-6" />
                                 <span className="ml-2">Schedule Priority Consultation</span>
                             </button>
-                            <a href={TKCP_CONFIG.phoneLink} className="flex items-center justify-center w-full sm:w-auto px-5 py-2 text-sm md:px-6 md:py-3 md:text-base font-bold text-gray-900 rounded-md bg-church-accent hover:bg-yellow-400 transition-colors shadow-md hover:shadow-lg">
+                            <a href={TKCP_CONFIG.phoneLink} className="flex items-center justify-center w-full sm:w-auto px-6 py-3 font-bold text-gray-900 rounded-md bg-church-accent hover:bg-yellow-400 transition-colors text-base shadow-md hover:shadow-lg">
                                 <IconPhone className="w-5 h-5" />
                                 <span className="ml-2">Or Call Us: {TKCP_CONFIG.phone}</span>
                             </a>
                         </div>
-                        <div className="mt-6 flex justify-center items-center gap-x-6 text-xs font-semibold text-gray-600 dark:text-gray-400">
+                        <div className="mt-6 flex justify-center items-center gap-x-6 text-sm font-semibold text-gray-600 dark:text-gray-400">
                            <span>✓ 3-Day Installation</span>
                            <span>✓ 100,000+ Hour Lifespan</span>
                            <span>✓ 200+ Churches Served</span>

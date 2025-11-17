@@ -52,17 +52,16 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect, theme }) => {
                     <div className="absolute inset-0 bg-black/40"></div>
                 </div>
                 <div className="relative z-10 text-white p-8 max-w-3xl">
-                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold [text-shadow:_0_2px_4px_rgba(0,0,0,0.5)] animate-fade-in-up opacity-0" style={{ animationDelay: '0.5s' }}>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold [text-shadow:_0_2px_4px_rgba(0,0,0,0.5)] animate-hero-text opacity-0">
                         Is an LED Screen Right for Your Organization?
                     </h1>
-                    <p className="mt-4 text-base md:text-lg text-gray-200 [text-shadow:_0_1px_3px_rgba(0,0,0,0.5)] animate-fade-in-up opacity-0" style={{ animationDelay: '0.7s' }}>
+                    <p className="mt-4 text-lg md:text-xl text-gray-200 [text-shadow:_0_1px_3px_rgba(0,0,0,0.5)] animate-fade-in-up opacity-0" style={{ animationDelay: '0.9s' }}>
                         Stop guessing. In 90 seconds, our AI-powered assessment gives you a clear answer on whether high-impact <a href="https://thykingdomcomeproductions.com/church-led-walls/" target="_blank" rel="noopener noreferrer" className={linkClass}>LED walls</a> are a smart investment for you.
                     </p>
                     <button 
                         onClick={scrollToSelection}
                         aria-label="Take the LED assessment to see if it's right for you"
-                        className="mt-8 px-6 py-3 text-base md:px-8 bg-white text-church-primary font-bold rounded-md shadow-lg transition-transform hover:scale-105 animate-fade-in-up opacity-0 animate-pulse-delayed relative overflow-hidden sparkle-button"
-                        style={{ animationDelay: '0.9s' }}
+                        className="mt-8 px-8 py-3 bg-white text-church-primary font-bold rounded-md shadow-lg transition-transform hover:scale-105 animate-hero-cta opacity-0 animate-pulse-delayed relative overflow-hidden sparkle-button"
                     >
                         Start My Free Assessment &rarr;
                     </button>
@@ -71,13 +70,13 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect, theme }) => {
 
             {/* Sector Selection Section */}
             <section id="sector-selection" className="animate-fade-in-up opacity-0" style={{ animationDelay: '500ms' }}>
-                <h2 className="text-2xl md:text-4xl font-display font-bold text-center text-gray-800 dark:text-gray-100">
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-center text-gray-800 dark:text-gray-100">
                     First, tell us about your organization.
                 </h2>
                 <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                     {/* House of Worship Card */}
                     <div className="bg-church-primary text-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform hover:-translate-y-1">
-                        <div className="p-6 md:p-8 flex-grow">
+                        <div className="p-8 flex-grow">
                             <IconChurch className="w-12 h-12 text-church-accent mb-4"/>
                             <h3 className="text-2xl font-display font-bold">For Houses of Worship</h3>
                             <p className="mt-4 text-gray-200">
@@ -95,7 +94,7 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect, theme }) => {
 
                     {/* Venues & Businesses Card */}
                     <div className="bg-hospitality-primary text-white rounded-lg shadow-lg overflow-hidden flex flex-col transition-transform hover:-translate-y-1">
-                         <div className="p-6 md:p-8 flex-grow">
+                         <div className="p-8 flex-grow">
                             <IconBuildingOffice className="w-12 h-12 text-hospitality-accent mb-4"/>
                             <h3 className="text-2xl font-display font-bold">For Venues & Businesses</h3>
                             <p className="mt-4 text-gray-200">
@@ -115,13 +114,13 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect, theme }) => {
             
             {/* Social Proof / Testimonials Section */}
             <section className="animate-fade-in-up" style={{ animationDelay: '700ms' }}>
-                 <h2 className="text-2xl md:text-4xl font-display font-bold text-center text-gray-800 dark:text-gray-100">
+                 <h2 className="text-3xl md:text-4xl font-display font-bold text-center text-gray-800 dark:text-gray-100">
                     Trusted by 200+ Churches in DFW
                 </h2>
                 <div className="mt-8 max-w-3xl mx-auto text-center p-8 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-inner relative overflow-hidden">
                     {testimonials.map((testimonial, index) => (
                         <div key={index} className={`transition-opacity duration-500 ease-in-out absolute inset-0 p-8 flex flex-col justify-center items-center ${index === currentTestimonial ? 'opacity-100' : 'opacity-0'}`}>
-                            <blockquote className="text-lg md:text-xl italic text-gray-700 dark:text-gray-300">
+                            <blockquote className="text-xl italic text-gray-700 dark:text-gray-300">
                                 "{testimonial.quote}"
                             </blockquote>
                             <cite className="mt-4 not-italic font-bold text-gray-600 dark:text-gray-400">
