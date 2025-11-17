@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Sector, LeadStatus, UserData, Answer, Result, GeminiInsights, Theme } from './types';
@@ -259,9 +260,9 @@ const App: React.FC = () => {
             The tone must be consultative, positive, and justify taking the next step. Do not use markdown.
             `;
             
-            console.log('🔍 Generating content with model: gemini-2.5-pro');
+            console.log('🔍 Generating content with model: gemini-2.5-flash');
             const response = await ai.models.generateContent({
-                model: "gemini-2.5-pro",
+                model: "gemini-2.5-flash",
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",
@@ -277,7 +278,7 @@ const App: React.FC = () => {
                         },
                         required: ["summary", "actionable_steps"]
                     },
-                    thinkingConfig: { thinkingBudget: 32768 }
+                    thinkingConfig: { thinkingBudget: 24576 }
                 }
             });
             

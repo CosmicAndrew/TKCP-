@@ -6,6 +6,7 @@ import { trackMetaEvent } from '../services/tracking';
 import { IconCalendar, IconPhone, IconRefresh, IconShare, IconCheckCircle, IconBookOpen } from './common/Icon';
 import Confetti from './common/Confetti';
 import ShareModal from './common/ShareModal';
+import CategoryScoreBreakdown from './common/CategoryScoreBreakdown';
 
 const applications = {
     church: [
@@ -67,14 +68,19 @@ const HotLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onN
                         Congratulations, {userData.firstName || 'Friend'}! Your assessment score of <strong>{score}/{maxScore}</strong> indicates you're a prime candidate for a transformative visual upgrade.
                     </p>
 
-                     {geminiInsights && (
-                        <div className="mt-8 text-left bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg border dark:border-gray-700">
-                            <h3 className="text-xl font-display font-bold text-gray-800 dark:text-gray-100 text-center mb-4">
-                                ✨ Your AI-Powered Recommendation
-                            </h3>
-                            <p className="text-gray-700 dark:text-gray-300 text-center mb-6 max-w-2xl mx-auto">{geminiInsights.summary}</p>
+                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                             {geminiInsights && (
+                                <div className="text-left bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg border dark:border-gray-700 h-full flex flex-col">
+                                    <h3 className="text-xl font-display font-bold text-gray-800 dark:text-gray-100 mb-2">
+                                        AI-Powered Insights
+                                    </h3>
+                                    <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">{geminiInsights.summary}</p>
+                                </div>
+                            )}
                         </div>
-                    )}
+                        <CategoryScoreBreakdown result={result} />
+                    </div>
                     
                     <div className="mt-8">
                         <h3 className="text-2xl font-display font-bold text-gray-800 dark:text-gray-100">Potential Applications for Your {sector === 'church' ? 'Ministry' : 'Venue'}</h3>
