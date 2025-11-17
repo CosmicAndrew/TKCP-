@@ -21,6 +21,7 @@ interface BuyersGuideProps {
     result: Result;
     sector: Sector;
     onReset: () => void;
+    onBackToResults: () => void;
 }
 
 export const GUIDE_SECTIONS = [
@@ -34,7 +35,7 @@ export const GUIDE_SECTIONS = [
 ];
 
 
-const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) => {
+const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBackToResults }) => {
     const mainContentRef = useRef<HTMLElement>(null);
     const [activeSection, setActiveSection] = useState(1);
     const [animationDirection, setAnimationDirection] = useState<'next' | 'prev'>('next');
@@ -134,12 +135,32 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
                 />
             )}
             
-            <div className="text-center mb-8">
+            <div className="text-center mb-8 relative">
+                <button 
+                    onClick={onBackToResults}
+                    className="absolute top-0 left-0 text-sm text-gray-600 dark:text-gray-400 hover:text-church-primary dark:hover:text-church-accent font-semibold flex items-center transition-colors print-hide"
+                    aria-label="Back to your assessment results"
+                >
+                    <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                    Back to Your Results
+                </button>
                 <IconBookOpen className="w-12 h-12 mx-auto text-church-primary dark:text-church-accent" />
-                <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your Interactive LED Buyer's Guide</h2>
-                <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                    Welcome, {userData.firstName || userData.fullName || 'friend'}! This guide is tailored to help you make the most informed decision for your {sector === 'church' ? 'House of Worship' : 'Venue'}.
-                </p>
+                
+                {result.leadStatus === 'cold' ? (
+                    <>
+                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Welcome, {userData.firstName || 'Friend'}! Let's Explore LED Solutions.</h2>
+                        <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                            Based on your assessment, you're in the perfect stage to learn more. This guide will walk you through everything you need to know to make a confident decision.
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your Interactive LED Buyer's Guide</h2>
+                        <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                            Welcome, {userData.firstName || userData.fullName || 'friend'}! This guide is tailored to help you make the most informed decision for your {sector === 'church' ? 'House of Worship' : 'Venue'}.
+                        </p>
+                    </>
+                )}
             </div>
 
             {/* Mobile Navigation */}
@@ -209,7 +230,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
              <div className="mt-12 text-center">
                  <button onClick={onReset} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-semibold flex items-center mx-auto transition-colors">
                     <IconRefresh className="mr-2"/>
-                    Back to Start
+                    Start Over
                 </button>
                 <div className="max-w-md mx-auto mt-8">
                     <Feedback />

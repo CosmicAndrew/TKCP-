@@ -442,7 +442,7 @@ const App: React.FC = () => {
              console.log("[App] Skipping HubSpot submission for now. Contact info will be collected in the Buyer's Guide.");
         }
         
-        // --- CORRECTED ROUTING LOGIC ---
+        // --- UPDATED ROUTING LOGIC ---
         if (leadStatus === 'hot') {
             HubSpot.trackEvent('Hot Lead Results Page Viewed', sessionUserId.current, { lead_status: leadStatus });
             setStep('hotResult');
@@ -450,8 +450,8 @@ const App: React.FC = () => {
             HubSpot.trackEvent('Warm Lead Results Page Viewed', sessionUserId.current, { lead_status: leadStatus });
             setStep('warmResult');
         } else { // cold
-            HubSpot.trackEvent('Cold Lead Results Page Viewed', sessionUserId.current, { lead_status: leadStatus });
-            setStep('coldResult');
+            HubSpot.trackEvent('Cold Lead Directed to Buyer Guide', sessionUserId.current, { lead_status: leadStatus });
+            setStep('buyersGuide');
         }
         setSubmissionStatus(null);
     };
@@ -471,6 +471,27 @@ const App: React.FC = () => {
         HubSpot.trackEvent('Buyer Guide Accessed from Results', sessionUserId.current, { lead_status: quizResult?.leadStatus });
         setStep('buyersGuide');
     }
+
+    const handleBackToResults = () => {
+        if (quizResult) {
+            switch (quizResult.leadStatus) {
+                case 'hot':
+                    setStep('hotResult');
+                    break;
+                case 'warm':
+                    setStep('warmResult');
+                    break;
+                case 'cold':
+                    // If a cold lead navigates back, send them to the guide again, as that IS their result page.
+                    setStep('buyersGuide');
+                    break;
+            }
+        } else {
+            // Fallback if state is somehow lost
+            handleReset();
+        }
+    };
+
 
     const renderContent = () => {
         if (submissionStatus) {
@@ -511,7 +532,7 @@ const App: React.FC = () => {
                  return <div className="flex justify-center items-center h-64"><Spinner /></div>;
             case 'buyersGuide':
                 if (quizResult && sector) {
-                    return <BuyersGuide result={quizResult} sector={sector} onReset={handleReset} />;
+                    return <BuyersGuide result={quizResult} sector={sector} onReset={handleReset} onBackToResults={handleBackToResults} />;
                 }
                 return <div className="flex justify-center items-center h-64"><Spinner /></div>;
             default:

@@ -78,7 +78,7 @@ const HotLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onN
                     
                     <div className="mt-8">
                         <h3 className="text-2xl font-display font-bold text-gray-800 dark:text-gray-100">Potential Applications for Your {sector === 'church' ? 'Ministry' : 'Venue'}</h3>
-                        <div className="mt-4 space-y-2">
+                        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                              {applications[sector].slice(0, 7).map((app, index) => (
                                 <div key={index} className="p-4 bg-white dark:bg-gray-900/50 rounded-lg border dark:border-gray-700 flex items-center gap-3">
                                     <IconCheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />

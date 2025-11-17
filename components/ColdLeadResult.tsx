@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { ResultPageProps } from '../types';
+import { HUBSPOT_CONFIG } from '../constants';
+import * as HubSpot from '../services/hubspot';
+import { trackMetaEvent } from '../services/tracking';
 import { IconBookOpen, IconRefresh, IconShare, IconCheckCircle } from './common/Icon';
 import ShareModal from './common/ShareModal';
 import CategoryScoreBreakdown from './common/CategoryScoreBreakdown';
@@ -21,6 +24,22 @@ const ColdLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
     const { userData, score, maxScore, geminiInsights } = result;
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const linkClass = "text-church-primary dark:text-church-accent underline hover:text-opacity-80";
+
+    const handleBookMeeting = () => {
+        HubSpot.trackEvent('Calendar Booking Attempted', HubSpot.getSessionUserId(), { meeting_type: 'discovery' });
+        trackMetaEvent('Schedule', { content_type: 'consultation_booking_cold' });
+        
+        const url = new URL(HUBSPOT_CONFIG.meetingLinks.discovery);
+        if (result.userData.firstName) url.searchParams.append('firstname', result.userData.firstName);
+        if (result.userData.lastName) url.searchParams.append('lastname', result.userData.lastName);
+        if (result.userData.email) url.searchParams.append('email', result.userData.email);
+        
+        url.searchParams.append('utm_source', 'assessment');
+        url.searchParams.append('utm_medium', 'results_cold');
+        url.searchParams.append('utm_campaign', 'q4_led_screens');
+
+        window.open(url.toString(), '_blank');
+    };
 
     return (
         <>
@@ -50,7 +69,7 @@ const ColdLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
 
                     <div className="mt-8">
                         <h3 className="text-2xl font-display font-bold text-gray-800 dark:text-gray-100">Early Ideas for Your {sector === 'church' ? 'Ministry' : 'Venue'}</h3>
-                        <div className="mt-4 space-y-2">
+                        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                              {applications[sector].slice(0, 3).map((app, index) => (
                                 <div key={index} className="p-4 bg-white dark:bg-gray-900/50 rounded-lg border dark:border-gray-700 flex items-center gap-3">
                                     <IconCheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
@@ -63,13 +82,19 @@ const ColdLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
                     <div className="mt-12 border-t dark:border-gray-700 pt-8 text-center">
                         <h3 className="text-2xl font-display font-bold dark:text-gray-100">Your Best Next Step</h3>
                         <p className="text-gray-600 dark:text-gray-300 mt-2 max-w-xl mx-auto">Education is key. Our comprehensive LED Buyer's Guide is the perfect resource to help you understand the technology and make an informed decision.</p>
-                        <div className="mt-6">
+                        <div className="mt-6 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4">
                             <button 
                                 onClick={onNavigateToGuide}
                                 className="inline-flex items-center justify-center px-8 py-3 font-bold text-white rounded-md bg-church-primary hover:opacity-90 transition-colors text-lg shadow-lg hover:shadow-xl"
                             >
                                 <IconBookOpen className="w-6 h-6" />
-                                <span className="ml-2">Get LED Buyer's Guide</span>
+                                <span className="ml-2">📖 Explore Complete Buyer's Guide</span>
+                            </button>
+                             <button 
+                                onClick={handleBookMeeting}
+                                className="text-sm text-church-primary dark:text-church-accent font-semibold hover:underline"
+                            >
+                                Schedule Consultation Anyway
                             </button>
                         </div>
                     </div>
