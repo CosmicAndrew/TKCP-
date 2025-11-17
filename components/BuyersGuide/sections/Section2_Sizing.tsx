@@ -44,9 +44,9 @@ const Section2_Sizing: React.FC<SectionProps> = ({ sector }) => {
             <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">2. Sizing & Placement Guide</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">Use our interactive tool to find the perfect screen dimensions for your space.</p>
 
-            <div className="mt-8 flex flex-col lg:flex-row gap-8">
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Controls & Recommendations */}
-                <div className="p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700 lg:w-1/2 order-2 lg:order-1">
+                <div className="p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700">
                     <h3 className="text-xl font-bold font-display text-gray-700 dark:text-gray-200">Interactive Calculator</h3>
                     
                     <div className="space-y-6 mt-4">
@@ -94,7 +94,7 @@ const Section2_Sizing: React.FC<SectionProps> = ({ sector }) => {
                 </div>
 
                 {/* Visual Diagram */}
-                <div className="flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900/50 rounded-lg min-h-[300px] lg:w-1/2 order-1 lg:order-2">
+                <div className="flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900/50 rounded-lg min-h-[300px]">
                     <div 
                         className="relative bg-gray-200 dark:bg-gray-700 border-2 border-gray-400 dark:border-gray-600"
                         style={{ width: `${venueWidth * diagramScale}px`, height: `${distance * 1.5 * diagramScale}px` }}
