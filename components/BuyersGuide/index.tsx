@@ -177,7 +177,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
             <div className="md:hidden mb-4 relative print-hide">
                 <button
                     onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-                    className="w-full flex justify-between items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow font-semibold text-gray-800 dark:text-gray-100"
+                    className="w-full flex justify-between items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-300"
                     aria-haspopup="true"
                     aria-expanded={isMobileNavOpen}
                 >
@@ -191,7 +191,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                                 <li key={section.id}>
                                     <button 
                                         onClick={() => { handleSectionChange(section.id); setIsMobileNavOpen(false); }}
-                                        className={`w-full text-left p-3 rounded-md text-sm font-semibold ${activeSection === section.id ? 'bg-church-primary/10 text-church-primary dark:text-blue-300' : 'text-gray-600 dark:text-gray-300'}`}
+                                        className={`w-full text-left p-3 rounded-md text-sm font-semibold transition-colors duration-300 ${activeSection === section.id ? 'bg-church-primary/10 text-church-primary dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                                     >
                                         {section.title}
                                     </button>

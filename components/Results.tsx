@@ -27,7 +27,7 @@ const applications = {
 const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onNavigateToGuide }) => {
     const { userData, score, maxScore, geminiInsights } = result;
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const linkClass = "text-church-primary dark:text-church-accent underline hover:text-opacity-80";
+    const linkClass = "text-church-primary dark:text-church-accent underline hover:text-opacity-80 transition-colors duration-300";
 
     const handleBookMeeting = () => {
         HubSpot.trackEvent('Calendar Booking Attempted', HubSpot.getSessionUserId(), { meeting_type: 'discovery' });
@@ -97,7 +97,7 @@ const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
                                 </button>
                                 <button 
                                     onClick={handleBookMeeting}
-                                    className="text-sm text-church-primary dark:text-church-accent font-semibold hover:underline"
+                                    className="text-sm text-church-primary dark:text-church-accent font-semibold hover:underline transition-colors hover:text-church-primary/80 dark:hover:text-church-accent/80"
                                 >
                                     Or, Schedule a Consultation Now
                                 </button>

@@ -131,7 +131,7 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect, theme }) => {
                     <div className="h-32"></div> {/* Placeholder for sizing */}
                 </div>
                  <div className="text-center mt-6">
-                    <a href="https://thykingdomcomeproductions.com/testimonials" target="_blank" rel="noopener noreferrer" className="text-church-primary dark:text-church-accent font-semibold hover:underline">
+                    <a href="https://thykingdomcomeproductions.com/testimonials" target="_blank" rel="noopener noreferrer" className="text-church-primary dark:text-church-accent font-semibold hover:underline transition-colors duration-300 hover:text-church-primary/80 dark:hover:text-church-accent/80">
                         Read More Testimonials &rarr;
                     </a>
                 </div>

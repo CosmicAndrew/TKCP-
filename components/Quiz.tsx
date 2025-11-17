@@ -110,7 +110,7 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
 
     const handlePrev = () => {
         if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(prev => prev - 1);
+            setCurrentQuestionIndex(prev => prev + 1);
         }
     };
 
@@ -188,7 +188,7 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
                     </div>
                      <button
                         onClick={() => setIsMuted(!isMuted)}
-                        className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300"
                         aria-label={isMuted ? "Unmute audio feedback" : "Mute audio feedback"}
                      >
                         {isMuted ? <IconVolumeOff className="w-5 h-5" /> : <IconVolumeUp className="w-5 h-5" />}

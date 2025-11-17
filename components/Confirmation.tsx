@@ -31,7 +31,7 @@ const applications = {
 const HotLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onNavigateToGuide }) => {
     const { userData, score, maxScore, geminiInsights } = result;
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const linkClass = "text-church-primary dark:text-church-accent underline hover:text-opacity-80";
+    const linkClass = "text-church-primary dark:text-church-accent underline hover:text-opacity-80 transition-colors duration-300";
 
     const handleBookMeeting = () => {
         HubSpot.trackEvent('Calendar Booking Attempted', HubSpot.getSessionUserId(), { meeting_type: 'priority' });
