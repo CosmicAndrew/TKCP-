@@ -11,7 +11,8 @@ interface EmailCaptureFormProps {
 
 const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit, sector }) => {
     const [formData, setFormData] = useState({
-        fullName: '',
+        firstName: '',
+        lastName: '',
         phone: '',
         organizationType: sector,
     });
@@ -27,7 +28,8 @@ const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit, sector })
 
     const validate = () => {
         const newErrors: { [key: string]: string } = {};
-        if (!formData.fullName) newErrors.fullName = "Full name is required.";
+        if (!formData.firstName) newErrors.firstName = "First name is required.";
+        if (!formData.lastName) newErrors.lastName = "Last name is required.";
         
         const phoneDigits = (formData.phone || '').replace(/\D/g, '');
         if (!phoneDigits) {
@@ -54,10 +56,16 @@ const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit, sector })
             <h2 className="text-3xl font-display font-bold text-center text-gray-800 dark:text-gray-100">Get Your LED Buyer's Guide</h2>
             <p className="text-center text-gray-600 dark:text-gray-300 mt-2">Enter your details to access the complete guide and valuable insights.</p>
             <form onSubmit={handleSubmit} className="mt-8 space-y-6 max-w-md mx-auto" noValidate>
-                 <div>
-                     <InputField id="fullName" type="text" placeholder="Full Name*" value={formData.fullName} onChange={handleChange} icon={<IconUser />} required label="Full Name" error={errors.fullName} />
-                     {errors.fullName && <p id="fullName-error" className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div>
+                     <InputField id="firstName" type="text" placeholder="First Name*" value={formData.firstName} onChange={handleChange} icon={<IconUser />} required label="First Name" error={errors.firstName} />
+                     {errors.firstName && <p id="firstName-error" className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
                    </div>
+                   <div>
+                     <InputField id="lastName" type="text" placeholder="Last Name*" value={formData.lastName} onChange={handleChange} icon={<IconUser />} required label="Last Name" error={errors.lastName} />
+                     {errors.lastName && <p id="lastName-error" className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
+                   </div>
+                 </div>
                 <div>
                   <InputField id="phone" type="tel" placeholder="Phone Number*" value={formData.phone} onChange={handleChange} icon={<IconPhone />} required label="Phone Number" error={errors.phone} />
                   {errors.phone && <p id="phone-error" className="text-red-500 text-sm mt-1">{errors.phone}</p>}

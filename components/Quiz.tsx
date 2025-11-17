@@ -119,13 +119,9 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
     };
 
     const handleEmailCaptureSubmit = (data: Partial<UserData>) => {
-        const [firstName, ...lastName] = (data.fullName || '').split(' ');
-        const userData = {
-            ...data,
-            firstName,
-            lastName: lastName.join(' ')
-        };
-        onComplete(answers, userData);
+        // The data from EmailCaptureForm now contains separate firstName and lastName,
+        // so no splitting is required.
+        onComplete(answers, data);
     };
     
     const progress = ((currentQuestionIndex + 1) / ASSESSMENT_QUESTIONS.length) * 100;
