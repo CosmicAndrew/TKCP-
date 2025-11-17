@@ -3,6 +3,7 @@ import { Sector, Result } from '../../../types';
 import InfoCard from '../common/InfoCard';
 import CalendarCTA from '../common/CalendarCTA';
 import { IconCheckCircle, IconDollarSign } from '../../common/Icon';
+import { LINK_CLASS } from '../../../constants';
 
 
 interface SectionProps {
@@ -17,7 +18,7 @@ const Section1_Comparison: React.FC<SectionProps> = ({ sector }) => {
     return (
         <div className="animate-fade-in-up">
             <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">1. LED vs. Projector Comparison</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">Understand the fundamental differences and why leading organizations are making the switch.</p>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">Understand the fundamental differences and why leading organizations are making the switch to <a href="https://thykingdomcomeproductions.com" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>LED video walls</a>.</p>
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InfoCard

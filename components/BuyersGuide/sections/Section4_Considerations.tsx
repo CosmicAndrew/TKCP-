@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Sector, Result } from '../../../types';
 import { HUBSPOT_CONFIG, LINK_CLASS, TKCP_CONFIG } from '../../../constants';
@@ -31,13 +32,13 @@ const content = {
             ]
         },
         testimonial: {
-            quote: "Installed 3 LED video walls in our 3,500-seat main sanctuary. The entire experience, start to finish was fantastic and we would recommend them to anyone looking to get these installed in their space.",
+            quote: "Installed 3 LED video walls in our 3,500-seat sanctuary. Experience was fantastic—we recommend them to anyone.",
             author: "Brenden Burge, Worship Pastor",
             org: "Lilly Grove Baptist Church, Houston, TX",
             imageUrl: "https://images.unsplash.com/photo-1507692049440-535914c61a57?q=80&w=800&auto=format&fit=crop",
             imageAlt: "A vibrant church service with an LED screen showing lyrics, enhancing the worship experience.",
             link: {
-                text: "Read All Testimonials →",
+                text: "Read More Testimonials →",
                 href: "https://thykingdomcomeproductions.com/testimonials"
             }
         },
@@ -101,7 +102,7 @@ const Section4_Considerations: React.FC<SectionProps> = ({ sector }) => {
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">4. {relevantContent.title}</h2>
+            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">4. Your <a href="https://thykingdomcomeproductions.com/church-led-walls/" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>LED Transformation</a>: Sector-Specific Applications</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">{relevantContent.subtitle}</p>
 
             {/* Key Impact Areas */}

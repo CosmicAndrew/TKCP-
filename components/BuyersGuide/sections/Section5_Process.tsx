@@ -2,6 +2,7 @@
 import React from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
+import { LINK_CLASS } from '../../../constants';
 
 interface SectionProps {
   sector: Sector;
@@ -20,7 +21,7 @@ const Section5_Process: React.FC<SectionProps> = ({ sector }) => {
     return (
         <div className="animate-fade-in-up">
             <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">5. The TKCP Implementation Process</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">Our partnership approach ensures a smooth, successful project from start to finish.</p>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">Our partnership approach ensures a smooth, successful project from start to finish, including a seamless <a href="https://thykingdomcomeproductions.com/services" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>professional installation</a>.</p>
             
              <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700">
                 <h3 className="text-xl font-bold font-display text-gray-700 dark:text-gray-200 mb-6 text-center">Your Journey to Visual Excellence</h3>

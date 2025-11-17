@@ -3,6 +3,7 @@
 import React from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
+import { LINK_CLASS } from '../../../constants';
 
 interface SectionProps {
   sector: Sector;
@@ -23,7 +24,7 @@ const Section3_MarketIntelligence: React.FC<SectionProps> = ({ sector }) => {
     return (
         <div className="animate-fade-in-up">
             <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">3. LED Market Intelligence Dashboard</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">See how TKCP compares to other LED providers and market trends in your area.</p>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">See how TKCP compares to other providers of <a href="https://thykingdomcomeproductions.com/church-led-walls/" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>church LED displays</a> and market trends in your area.</p>
 
             <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700 market-intelligence">
                 <h3 className="text-xl font-display font-bold text-center text-church-primary dark:text-blue-300 mb-6">🎯 Why Organizations Choose TKCP</h3>

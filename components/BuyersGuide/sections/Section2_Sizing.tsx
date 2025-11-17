@@ -107,7 +107,7 @@ const Section2_Sizing: React.FC<SectionProps> = ({ sector }) => {
                                 <p className="text-xl font-bold text-church-primary dark:text-blue-300">{recommendations.width}ft x {recommendations.height}ft</p>
                             </div>
                             <div className="bg-white dark:bg-gray-800 p-3 rounded-md shadow-inner">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">Optimal Pixel Pitch</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Optimal <a href="https://thykingdomcomeproductions.com/led-panels/" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>Pixel Pitch</a></p>
                                 <p className="text-xl font-bold text-church-primary dark:text-blue-300">{recommendations.pixelPitch} mm</p>
                             </div>
                         </div>

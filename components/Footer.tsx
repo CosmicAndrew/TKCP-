@@ -35,8 +35,6 @@ const Footer: React.FC = () => {
                     <p>&copy; {new Date().getFullYear()} {TKCP_CONFIG.companyName}. All Rights Reserved. | <a href={TKCP_CONFIG.website} className="hover:underline">Main Site</a></p>
                     <p className="mt-2">
                         <a href="https://thykingdomcomeproductions.com/privacy-policy/" target="_blank" rel="noopener noreferrer" className="hover:underline">Privacy Policy</a>
-                        <span className="mx-2">|</span>
-                        <span>Assessment URL: <a href="https://assessment.thykingdomcomeproductions.com/" className="hover:underline">assessment.thykingdomcomeproductions.com</a></span>
                     </p>
                 </div>
             </div>
