@@ -12,7 +12,7 @@ interface SectionProps {
 const content = {
     church: {
         title: "Church-Specific LED Video Wall Applications",
-        subtitle: "Transform your worship space into an environment where every seat has the perfect view and every message lands with clarity.",
+        subtitle: "Discover how LED technology can amplify your ministry's impact and help fulfill the Great Commission—making disciples and reaching every seat, every screen, and every soul.",
         applications: [
             { emoji: '🎵', title: 'Worship Services', description: "Display song lyrics, sermon notes, and scripture with crystal clarity. Churches report a 40% increase in online viewership quality and engagement." },
             { emoji: '📢', title: 'Announcements & Communications', description: "Make service times, events, and giving campaigns visible from every seat. Eliminate the 'I didn't see the announcement' excuse." },
@@ -32,9 +32,9 @@ const content = {
             ]
         },
         testimonial: {
-            quote: "Installed 3 LED video walls in our 3,500-seat sanctuary. Experience was fantastic—we recommend them to anyone.",
-            author: "Brenden Burge, Worship Pastor",
-            org: "Lilly Grove Baptist Church, Houston, TX",
+            quote: "We have three new beautiful LED screens and all with one purpose, to get the message out and I know that the church, the congregation, the people are going to be so blessed with the work that's being done.",
+            author: "Senior Pastor Arthur Reyes",
+            org: "Calvary Chapel Downey",
             imageUrl: "https://images.unsplash.com/photo-1507692049440-535914c61a57?q=80&w=800&auto=format&fit=crop",
             imageAlt: "A vibrant church service with an LED screen showing lyrics, enhancing the worship experience.",
             link: {
@@ -104,6 +104,8 @@ const Section4_Considerations: React.FC<SectionProps> = ({ sector }) => {
         <div className="animate-fade-in-up">
             <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">4. Your <a href="https://thykingdomcomeproductions.com/church-led-walls/" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>LED Transformation</a>: Sector-Specific Applications</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">{relevantContent.subtitle}</p>
+            <p className="mt-4 font-semibold text-gray-700 dark:text-gray-200">We don't just install LED walls—we equip ministries to proclaim Jesus with excellence. Every pixel, every panel, every project is dedicated to advancing God's Kingdom.</p>
+
 
             {/* Key Impact Areas */}
             <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700">
@@ -133,7 +135,8 @@ const Section4_Considerations: React.FC<SectionProps> = ({ sector }) => {
 
             {/* Success Story */}
             <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-xl font-bold font-display text-gray-800 dark:text-gray-100 text-center mb-4">Success Story</h3>
+                <h3 className="text-xl font-bold font-display text-gray-800 dark:text-gray-100 text-center mb-1">Success Story</h3>
+                <p className="text-center text-sm font-semibold text-church-accent dark:text-yellow-400 mb-4">Advancing the Gospel through visual excellence</p>
                 <div
                     className="relative min-h-[300px] bg-cover bg-center rounded-lg shadow-lg flex items-center justify-center text-center overflow-hidden"
                     style={{ backgroundImage: `url(${testimonial.imageUrl})` }}

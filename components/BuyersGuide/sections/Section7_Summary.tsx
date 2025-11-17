@@ -212,6 +212,12 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     </ol>
                 </section>
                 
+                 <section className="mission-statement mt-6">
+                    <p className="text-center text-sm italic text-gray-600 dark:text-gray-400 border-t dark:border-gray-700 pt-4 dark-mode-text-override dark-mode-border-override">
+                        At Thy Kingdom Come Productions, we believe every LED installation is an opportunity to serve the Kingdom and honor Christ through excellence.
+                    </p>
+                </section>
+
                  <footer className="print-footer mt-6 pt-4 border-t dark:border-gray-700 text-center text-xs text-gray-500 dark:text-gray-400 dark-mode-border-override dark-mode-text-override">
                     <p>© {new Date().getFullYear()} {TKCP_CONFIG.companyName} - Your Partner in Visual Excellence</p>
                 </footer>
