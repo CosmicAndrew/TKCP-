@@ -4,6 +4,11 @@ import InfoCard from '../common/InfoCard';
 import CalendarCTA from '../common/CalendarCTA';
 import { IconCheckCircle, IconDollarSign } from '../../common/Icon';
 
+const KeywordLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="text-church-primary dark:text-church-accent underline hover:text-opacity-80 transition-colors duration-300">
+        {children}
+    </a>
+);
 
 interface SectionProps {
   sector: Sector;
@@ -11,41 +16,43 @@ interface SectionProps {
 }
 
 const Section1_Comparison: React.FC<SectionProps> = ({ sector }) => {
-    const [projectorCost, setProjectorCost] = useState(5000);
-    const ledCost = projectorCost * 0.3; // Simplified calculation for demonstration
+    const [projectorCost, setProjectorCost] = useState(8000);
+    const ledCost = 0; // LED maintenance cost is effectively zero for 5 years.
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">1. LED vs. Projector Comparison</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">Understand the fundamental differences and why leading organizations are making the switch.</p>
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100">1. LED vs. Projector Comparison</h2>
+            {/* FIX: The KeywordLink component was missing its children prop, causing a compilation error. I have added "LED video walls" as the child content for the link. */}
+            <p className="mt-2 text-gray-600 dark:text-gray-300">Understand the fundamental differences and why leading organizations are making the switch to <KeywordLink href="https://thykingdomcomeproductions.com">LED video walls</KeywordLink>.</p>
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InfoCard
                     icon={<IconCheckCircle />}
                     title="Average Lifespan"
-                    value="100,000 Hours"
-                    description="LEDs last over 11 years with constant use, compared to 2,000-5,000 hours for projector bulbs."
+                    value="100,000+ Hours"
+                    description="LEDs last over 11 years with constant use, compared to 2,000-3,000 hours for projector lamps."
                     color="blue"
                 />
                  <InfoCard
                     icon={<IconCheckCircle />}
-                    title="Uptime / Reliability"
-                    value="99.9%+"
-                    description="No bulbs to fail, no color degradation. LED is a zero-maintenance, 'it just works' solution."
+                    title="Installation Disruption"
+                    value="1-3 Days"
+                    description="Our efficient installations occur during the week, ensuring zero disruption to your Sunday services or weekend events."
                     color="blue"
                 />
                  <InfoCard
                     icon={<IconCheckCircle />}
-                    title="Image Quality"
-                    value="4K+ True Color"
-                    description="Unaffected by ambient light, delivering vibrant, consistent colors and deep blacks from every seat."
+                    title="Venue Revenue (Hospitality)"
+                    value="30-40% Increase"
+                    // FIX: The KeywordLink component inside the description was missing its children prop. I have added "LED panel" as the child content.
+                    description={<span>Gain a competitive edge, command premium prices, and eliminate <KeywordLink href="https://thykingdomcomeproductions.com/led-panels/">LED panel</KeywordLink> rental costs.</span>}
                     color="yellow"
                 />
                  <InfoCard
                     icon={<IconDollarSign />}
                     title="Total Cost of Ownership"
                     value="~70% Lower"
-                    description="Eliminate costs from bulb replacements, labor, and emergency repairs over 5 years."
+                    description="Eliminate $8-10K annually in bulb replacements, labor, and emergency repairs over 5 years."
                     color="yellow"
                 />
             </div>
@@ -59,7 +66,7 @@ const Section1_Comparison: React.FC<SectionProps> = ({ sector }) => {
                         <input
                             id="projector-cost"
                             type="range"
-                            min="500"
+                            min="2000"
                             max="15000"
                             step="500"
                             value={projectorCost}
@@ -67,7 +74,7 @@ const Section1_Comparison: React.FC<SectionProps> = ({ sector }) => {
                             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-church-primary dark:bg-gray-600"
                         />
                          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                            <span>$500</span>
+                            <span>$2,000</span>
                             <span>$15,000</span>
                         </div>
                     </div>

@@ -18,7 +18,7 @@ export const InputField: React.FC<{ id: string, type: string, placeholder: strin
                 required={required}
                 aria-invalid={!!error}
                 aria-describedby={error ? `${id}-error` : undefined}
-                className={`w-full pl-10 pr-4 py-3 border rounded-md focus:ring-2 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 dark:placeholder-gray-400 ${
+                className={`w-full pl-10 pr-4 py-2 md:py-3 border rounded-md focus:ring-2 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 dark:placeholder-gray-400 ${
                     error 
                     ? 'border-red-500 focus:ring-red-500' 
                     : 'border-gray-300 dark:border-gray-600 focus:ring-church-primary'
@@ -44,7 +44,7 @@ export const SelectField: React.FC<{ id: string, value: string, onChange: (e: Re
                 required={required}
                 aria-invalid={!!error}
                 aria-describedby={error ? `${id}-error` : undefined}
-                className={`w-full pl-10 pr-4 py-3 border rounded-md focus:ring-2 focus:border-transparent transition appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 ${
+                className={`w-full pl-10 pr-4 py-2 md:py-3 border rounded-md focus:ring-2 focus:border-transparent transition appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 ${
                     error 
                     ? 'border-red-500 focus:ring-red-500' 
                     : 'border-gray-300 dark:border-gray-600 focus:ring-church-primary'

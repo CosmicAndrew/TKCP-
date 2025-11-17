@@ -2,6 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
 
+const KeywordLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="text-church-primary dark:text-church-accent underline hover:text-opacity-80 transition-colors duration-300">
+        {children}
+    </a>
+);
+
 interface SectionProps {
   sector: Sector;
   result: Result;
@@ -41,8 +47,9 @@ const Section2_Sizing: React.FC<SectionProps> = ({ sector }) => {
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">2. Sizing & Placement Guide</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">Use our interactive tool to find the perfect screen dimensions for your space.</p>
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100">2. Sizing & Placement Guide</h2>
+            {/* FIX: Added "LED displays" as children to the KeywordLink component to resolve the missing prop error. */}
+            <p className="mt-2 text-gray-600 dark:text-gray-300">Use our interactive tool to find the perfect screen dimensions for your <KeywordLink href="https://thykingdomcomeproductions.com/led-panels/">LED displays</KeywordLink>.</p>
 
             <div className="mt-8 flex flex-col lg:flex-row gap-8">
                 {/* Controls & Recommendations */}
@@ -94,7 +101,7 @@ const Section2_Sizing: React.FC<SectionProps> = ({ sector }) => {
                 </div>
 
                 {/* Visual Diagram */}
-                <div className="flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900/50 rounded-lg min-h-[300px] lg:w-1/2 order-1 lg:order-2">
+                <div className="flex flex-col items-center justify-center p-4 bg-gray-100 dark:bg-gray-900/50 rounded-lg min-h-[300px] lg:w-1/2 order-1 lg:order-2">
                     <div 
                         className="relative bg-gray-200 dark:bg-gray-700 border-2 border-gray-400 dark:border-gray-600"
                         style={{ width: `${venueWidth * diagramScale}px`, height: `${distance * 1.5 * diagramScale}px` }}
@@ -108,6 +115,10 @@ const Section2_Sizing: React.FC<SectionProps> = ({ sector }) => {
 
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-4 h-4 bg-red-500 rounded-full" title="Farthest Viewer"></div>
                         <div className="absolute left-1/2 -translate-x-1/2 border-l border-dashed border-red-500/50" style={{ bottom: '24px', height: `${distancePx}px`}}></div>
+                    </div>
+                     <div className="mt-4 text-xs text-center text-gray-600 dark:text-gray-400">
+                        <p className="font-semibold">Available Pixel Pitches:</p>
+                        <p>1.9mm, 2.6mm, 2.9mm, 3.91mm, 5.95mm</p>
                     </div>
                 </div>
             </div>

@@ -10,16 +10,16 @@ interface SectionProps {
 
 const Section5_Process: React.FC<SectionProps> = ({ sector }) => {
     const steps = [
-        { name: "Discovery Call", description: "We listen to your vision, goals, and challenges." },
-        { name: "Site Assessment", description: "Our engineers map out a technical plan for a perfect fit." },
-        { name: "Proposal Review", description: "A transparent, detailed plan and quote with no surprises." },
-        { name: "Installation", description: "Our professional team ensures a clean, efficient setup." },
-        { name: "Training & Support", description: "We empower your team for long-term success." },
+        { name: "Discovery Call (15 min)", description: "We listen to your vision, goals, and challenges to understand your unique needs for your LED video walls." },
+        { name: "Site Assessment (30-60 min)", description: "Our engineers map out a technical plan for a perfect fit, done either virtually or on-site." },
+        { name: "Proposal Review", description: "A transparent, detailed plan and quote for your LED panels with no surprises." },
+        { name: "Installation (1-3 Days)", description: "Our professional team ensures a clean, efficient setup, scheduled on weekdays or off-hours to avoid disruption." },
+        { name: "Training & Support", description: "We provide hands-on training for your team and offer 24/7 access to support for long-term success." },
     ];
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">5. The TKCP Implementation Process</h2>
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100">5. The TKCP Implementation Process</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">Our partnership approach ensures a smooth, successful project from start to finish.</p>
             
              <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700">

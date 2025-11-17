@@ -44,6 +44,7 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
     const { answers, score, maxScore, userData, leadStatus, geminiInsights } = result;
     const [isGenerating, setIsGenerating] = useState(false);
     const [loadingText, setLoadingText] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
     const findAnswerText = (questionIndex: number, answerValue: string | undefined) => {
         if (answerValue === undefined) return 'N/A';
@@ -59,6 +60,7 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
     const date = new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
     const handleGeneratePdf = async () => {
+        setError(null); // Clear previous errors
         trackMetaEvent('Download', { content_type: 'buyers_guide_summary' });
         HubSpot.trackEvent('Generated PDF Summary', HubSpot.getSessionUserId());
         const input = document.getElementById('printable-summary');
@@ -140,7 +142,7 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 pdf.save(`TKCP_LED_Summary_${userData.lastName || 'Client'}.pdf`);
             } catch (error) {
                 console.error("PDF Generation failed:", error);
-                alert("Sorry, there was an error generating the PDF. Please try again.");
+                setError("Sorry, there was an error generating the PDF. Please try again.");
             } finally {
                 setIsGenerating(false);
                 document.body.classList.remove('pdf-generating');
@@ -155,7 +157,7 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
             <div id="printable-summary" className="bg-white dark:bg-gray-800 p-4">
                 <header className="print-header mb-6 text-center border-b-2 border-church-primary dark:border-church-accent pb-4">
                      <img src={TKCP_CONFIG.logoBase64} alt="TKCP Logo" className="mx-auto h-12 mb-2" />
-                    <h1 className="text-3xl font-display font-bold text-church-primary dark:text-blue-300 dark-mode-text-override">Personal LED Assessment Summary</h1>
+                    <h1 className="text-2xl md:text-3xl font-display font-bold text-church-primary dark:text-blue-300 dark-mode-text-override">Personal LED Assessment Summary</h1>
                      <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 dark-mode-text-override">
                         <p>{TKCP_CONFIG.companyName} | {TKCP_CONFIG.phone} | {TKCP_CONFIG.website}</p>
                         <p className="mt-1">
@@ -234,6 +236,7 @@ const Section7_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     </>
                 )}
             </button>
+            {error && <p className="mt-4 text-center text-red-600 dark:text-red-400">{error}</p>}
         </div>
     );
 };

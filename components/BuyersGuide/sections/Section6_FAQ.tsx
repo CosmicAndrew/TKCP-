@@ -3,9 +3,15 @@ import React, { useState } from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
 
+const KeywordLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="text-church-primary dark:text-church-accent underline hover:text-opacity-80 transition-colors duration-300">
+        {children}
+    </a>
+);
+
 interface FAQItemProps {
     question: string;
-    answer: string;
+    answer: React.ReactNode;
     isOpen: boolean;
     onClick: () => void;
     id: string;
@@ -44,11 +50,11 @@ const Section6_FAQ: React.FC<{ sector: Sector; result: Result; }> = ({ sector })
     const faqs = [
         {
             question: "How long does a typical installation take?",
-            answer: "Most of our church installations are completed in 1-2 days, and in many cases, we're in and out within a single day. We know your Sunday schedule is sacred, so we work around it—scheduling installations during weekdays or off-hours to ensure zero disruption to your worship services. Our efficient, certified teams handle everything from rigging to calibration, so you can focus on your ministry while we transform your space."
+            answer: "Most of our installations are completed in just 1-3 days, with many being done in a single day. We know your Sunday schedule is sacred, so we work around it—scheduling installations during weekdays or off-hours to ensure zero disruption to your worship services or primary events. Our efficient, certified teams handle everything from rigging to calibration."
         },
         {
             question: "What kind of warranty is included?",
-            answer: "We stand behind our work with a comprehensive 5-year parts and labor warranty. This is superior to the industry standard of 2-3 years with limited coverage, giving you complete peace of mind."
+            answer: "We stand behind our work with a comprehensive 5-year parts and labor warranty. This is superior to the industry standard of 2-3 years with limited coverage, giving you complete peace of mind for your investment in new LED walls."
         },
         {
             question: "Can an LED screen be installed in our specific venue?",
@@ -56,11 +62,12 @@ const Section6_FAQ: React.FC<{ sector: Sector; result: Result; }> = ({ sector })
         },
         {
             question: "How difficult is it to operate the screen?",
-            answer: `We prioritize user-friendly systems. Our screens integrate perfectly with software like ProPresenter, which is standard in the ${sector === 'church' ? 'worship' : 'events'} world. We provide full training to ensure your team feels confident and empowered.`
+            // FIX: The KeywordLink component was missing its children prop. Provided "church LED displays" as the child content.
+            answer: <span>We prioritize user-friendly systems. Our <KeywordLink href="https://thykingdomcomeproductions.com/church-led-walls/">church LED displays</KeywordLink> integrate perfectly with software like ProPresenter, which is standard in the {sector === 'church' ? 'worship' : 'events'} world. We provide full training to ensure anyone on your team can learn it in minutes.</span>
         },
         {
             question: "Is financing available?",
-            answer: "Yes, we offer flexible financing and leasing options to make your vision a reality. We work with you to find a financial solution that fits your budget and helps you realize the long-term value of your investment."
+            answer: "Yes, we offer flexible financing and leasing options to make your vision a reality. Complete systems start at just $11,950, and we'll work with you to find a financial solution that fits your budget."
         }
     ];
 
@@ -70,7 +77,7 @@ const Section6_FAQ: React.FC<{ sector: Sector; result: Result; }> = ({ sector })
 
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">6. Frequently Asked Questions</h2>
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100">6. Frequently Asked Questions</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">Get answers to the most common questions about LED technology and the TKCP process.</p>
             
             <div className="mt-8 border-t dark:border-gray-700">

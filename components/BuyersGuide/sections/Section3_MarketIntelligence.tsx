@@ -21,7 +21,7 @@ const InsightCard: React.FC<{ icon: string; title: string; text: string }> = ({ 
 const Section3_MarketIntelligence: React.FC<SectionProps> = ({ sector }) => {
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">3. LED Market Intelligence Dashboard</h2>
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100">3. LED Market Intelligence Dashboard</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">See how TKCP compares to other LED providers and market trends in your area.</p>
 
             <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700 market-intelligence">

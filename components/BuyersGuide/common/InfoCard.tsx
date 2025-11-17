@@ -112,7 +112,7 @@ const InfoCard: React.FC<InfoCardProps> = ({ icon, title, value, description, co
                 </div>
                 <div>
                     <p className="font-semibold text-gray-600 dark:text-gray-300">{title}</p>
-                    <p className={`text-3xl font-bold ${selectedColor.value}`}>
+                    <p className={`text-2xl md:text-3xl font-bold ${selectedColor.value}`}>
                        {displayContent}
                     </p>
                 </div>
