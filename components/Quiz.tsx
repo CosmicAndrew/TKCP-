@@ -1,14 +1,11 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Sector, UserData, Answer, LeadStatus } from '../types';
-import { ASSESSMENT_QUESTIONS, calculateLeadTemperature } from '../constants';
-import * as HubSpot from '../services/hubspot';
+import { ASSESSMENT_QUESTIONS, calculateLeadTemperature, LOCAL_STORAGE_KEYS } from '../constants';
+import { trackMetaEvent } from '../services/tracking';
 import ContactForm from './ContactForm';
 import EmailCaptureForm from './EmailCaptureForm';
 import QuestionCard from './QuestionCard';
 import ProgressBar from './common/ProgressBar';
-// FIX: Adding volume icons to be used by the new mute button.
 import { IconVolumeUp, IconVolumeOff } from './common/Icon';
 
 interface QuizProps {
@@ -16,21 +13,10 @@ interface QuizProps {
     onComplete: (answers: { [key: number]: Answer }, userData: Partial<UserData>) => void;
 }
 
-// Placeholder for Meta Pixel tracking
-const trackMetaEvent = (eventName: string, params: object = {}) => {
-    console.log(`[Meta Pixel Event]: ${eventName}`, params);
-    // In a real app, you would integrate the Meta Pixel SDK here.
-    // window.fbq('track', eventName, params);
-};
-
-
-const QUIZ_STATE_KEY = 'tkcp_quiz_state';
-
-// FIX: Added an explicit return type to ensure that the state retrieved from localStorage is correctly typed.
-// This prevents the 'answers' object from being inferred as 'any' or 'unknown', which was causing type errors downstream.
+// Added an explicit return type to ensure that the state retrieved from localStorage is correctly typed.
 const getInitialState = (): { currentQuestionIndex: number; answers: { [key: number]: Answer } } => {
     try {
-        const savedState = localStorage.getItem(QUIZ_STATE_KEY);
+        const savedState = localStorage.getItem(LOCAL_STORAGE_KEYS.quizState);
         if (savedState) {
             const parsed = JSON.parse(savedState);
             // Basic validation
@@ -61,7 +47,6 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
     
     // --- Sector-Specific Audio ---
     const hospitalityAudioData = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='; // Professional click
-    // FIX: Replaced corrupted and extremely long base64 string with a valid, short one to fix syntax error.
     const churchAudioData = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='; // Gentle chime (using a valid placeholder)
 
     // Save state to localStorage
@@ -70,7 +55,7 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
             currentQuestionIndex,
             answers
         };
-        localStorage.setItem(QUIZ_STATE_KEY, JSON.stringify(stateToSave));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.quizState, JSON.stringify(stateToSave));
     }, [currentQuestionIndex, answers]);
     
     // Initialize audio on component mount
@@ -109,7 +94,6 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
             setCurrentQuestionIndex(prev => prev + 1);
         } else {
             // Quiz is finished, decide which form to show
-            // FIX: Explicitly cast Object.values(answers) to Answer[] to resolve TypeScript inference issue where `answer` was treated as `unknown`.
             const totalScore = (Object.values(answers) as Answer[]).reduce((sum, answer) => sum + answer.points, 0);
             const leadStatus = calculateLeadTemperature(totalScore);
             setLeadStatusForForm(leadStatus);
@@ -126,7 +110,7 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
 
     const handlePrev = () => {
         if (currentQuestionIndex > 0) {
-            setCurrentQuestionIndex(prev => prev - 1);
+            setCurrentQuestionIndex(prev => prev + 1);
         }
     };
 

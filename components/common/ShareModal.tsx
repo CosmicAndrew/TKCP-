@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Result } from '../../types';
+import { utf8ToBase64 } from '../../utils';
 import { IconTwitter, IconFacebook, IconLinkedIn, IconLink } from './Icon';
 
 interface ShareModalProps {
@@ -7,15 +8,6 @@ interface ShareModalProps {
     onClose: () => void;
     result: Result;
 }
-
-// --- UTF-8 Safe Base64 Encoding ---
-const utf8ToBase64 = (str: string): string => {
-    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-        function toSolidBytes(match, p1) {
-            return String.fromCharCode(parseInt(p1, 16));
-        }
-    ));
-};
 
 const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
     const [shareUrl, setShareUrl] = useState('');

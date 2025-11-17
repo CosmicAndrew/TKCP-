@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-
-const COOKIE_CONSENT_KEY = 'tkcp_cookie_consent';
+import { LOCAL_STORAGE_KEYS } from '../../constants';
 
 const CookieConsentBanner: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
         try {
-            const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+            const consent = localStorage.getItem(LOCAL_STORAGE_KEYS.cookieConsent);
             if (consent !== 'true') {
                 setIsVisible(true);
             }
@@ -21,7 +20,7 @@ const CookieConsentBanner: React.FC = () => {
 
     const handleAccept = () => {
         try {
-            localStorage.setItem(COOKIE_CONSENT_KEY, 'true');
+            localStorage.setItem(LOCAL_STORAGE_KEYS.cookieConsent, 'true');
             setIsVisible(false);
         } catch (error) {
             console.error("Could not save cookie consent to localStorage:", error);

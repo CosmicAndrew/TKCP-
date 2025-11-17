@@ -1,8 +1,7 @@
 
-import { UserData } from '../types';
 
-const SESSION_USER_ID_KEY = 'tkcp_session_user_id';
-const CONTACT_INFO_KEY = 'tkcp_contact_info';
+import { UserData } from '../types';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 
 // --- HubSpot Configuration ---
 const HUBSPOT_PORTAL_ID = '22563653';
@@ -16,29 +15,29 @@ const HUBSPOT_FORM_GUID = 'f0cf68b1-496b-401a-8d26-816713d10c95';
  * This ID links anonymous activity to an eventual contact record.
  */
 export const getSessionUserId = (): string => {
-    let sessionId = localStorage.getItem(SESSION_USER_ID_KEY);
+    let sessionId = localStorage.getItem(LOCAL_STORAGE_KEYS.sessionUserId);
     if (!sessionId) {
         sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        localStorage.setItem(SESSION_USER_ID_KEY, sessionId);
+        localStorage.setItem(LOCAL_STORAGE_KEYS.sessionUserId, sessionId);
     }
     return sessionId;
 };
 
 export const clearSessionUserId = (): void => {
-    localStorage.removeItem(SESSION_USER_ID_KEY);
-    localStorage.removeItem(CONTACT_INFO_KEY);
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.sessionUserId);
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.contactInfo);
 };
 
 // --- Contact Info Cache for Meeting Links ---
 
 const cacheContactInfo = (data: Partial<UserData>) => {
     try {
-        const existingInfo = JSON.parse(localStorage.getItem(CONTACT_INFO_KEY) || '{}');
+        const existingInfo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.contactInfo) || '{}');
         const newInfo = { ...existingInfo };
         if (data.email) newInfo.email = data.email;
         if (data.firstName) newInfo.firstName = data.firstName;
         if (data.lastName) newInfo.lastName = data.lastName;
-        localStorage.setItem(CONTACT_INFO_KEY, JSON.stringify(newInfo));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.contactInfo, JSON.stringify(newInfo));
     } catch (error) {
         console.error("Failed to cache contact info:", error);
     }
@@ -46,7 +45,7 @@ const cacheContactInfo = (data: Partial<UserData>) => {
 
 export const getContactInfoForMeeting = (): Partial<UserData> => {
     try {
-        return JSON.parse(localStorage.getItem(CONTACT_INFO_KEY) || '{}');
+        return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.contactInfo) || '{}');
     } catch {
         return {};
     }

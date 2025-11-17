@@ -3,8 +3,8 @@ import { Question, Sector } from './types';
 export const TKCP_CONFIG = {
     companyName: "Thy Kingdom Come Productions",
     website: "https://assessment.thykingdomcomeproductions.com/",
-    phone: "(817) 952-9202",
-    phoneLink: "tel:+18179529202",
+    phone: "(469) 840-9808",
+    phoneLink: "tel:+14698409808",
     colors: {
         churchPrimary: "#2B4C7E",
         churchAccent: "#D4AF37",
@@ -21,6 +21,14 @@ export const HUBSPOT_CONFIG = {
         discovery: 'https://meetings.hubspot.com/led-solution-consultation/led-video-consult',
         planning: 'https://meetings.hubspot.com/led-solution-consultation/led-video-consult'
     }
+};
+
+export const LOCAL_STORAGE_KEYS = {
+    theme: 'theme',
+    quizState: 'tkcp_quiz_state',
+    sessionUserId: 'tkcp_session_user_id',
+    contactInfo: 'tkcp_contact_info',
+    cookieConsent: 'tkcp_cookie_consent',
 };
 
 export const US_STATES = [
@@ -57,48 +65,64 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
     text: () => "What's your organization's size?",
     category: "Project Scoping",
     options: [
-      { value: '1000+', text: { church: 'Over 1,000 people', hospitality: 'Over 1,000 capacity' }, points: 4 },
-      { value: '500-1000', text: { church: '500-1,000 people', hospitality: '500-1,000 capacity' }, points: 3 },
-      { value: '200-500', text: { church: '200-500 people', hospitality: '200-500 capacity' }, points: 2 },
       { value: '<200', text: { church: 'Under 200 people', hospitality: 'Under 200 capacity' }, points: 1 },
+      { value: '200-500', text: { church: '200-500 people', hospitality: '200-500 capacity' }, points: 2 },
+      { value: '500-1000', text: { church: '500-1,000 people', hospitality: '500-1,000 capacity' }, points: 3 },
+      { value: '1000+', text: { church: 'Over 1,000 people', hospitality: 'Over 1,000 capacity' }, points: 4 },
     ],
   },
-  // Question 3: Timeline (Improved)
+  // Question 3: Timeline/Compelling Event
   {
-    text: () => "When do you need your new <a href='https://thykingdomcomeproductions.com/led-display-solutions/' target='_blank' class='text-church-primary underline'>LED displays</a> to be operational?",
+    text: () => "Within the next 3-6 months, are you planning to upgrade your visual/tech capabilities?",
     category: "Timeline",
     options: [
-      { value: 'urgent', text: { church: 'Urgently - Our current system is failing / We have a critical event soon.', hospitality: 'Urgently - We have a critical event or system failure.' }, points: 4 },
-      { value: '3-6_months', text: { church: 'Within 3-6 months - We\'re planning for the next major season (e.g., Easter/Christmas).', hospitality: 'Within 3-6 months - Planning for our next major conference season.' }, points: 3 },
-      { value: 'fiscal_year', text: { church: 'This fiscal year - It\'s in the budget, but timing is flexible.', hospitality: 'This fiscal year - It\'s in the budget, but timing is flexible.' }, points: 2 },
-      { value: 'exploring', text: { church: 'Just exploring - We\'re in the early planning stages for next year.', hospitality: 'Just exploring - We\'re in the early planning stages for next year.' }, points: 1 },
+      { value: 'yes_now', text: { church: 'Yes, we are actively exploring options now.', hospitality: 'Yes, we are actively exploring options now.' }, points: 4 },
+      { value: 'yes_q1', text: { church: 'Yes, but it\'s looking more toward Q1 2026.', hospitality: 'Yes, but it\'s looking more toward Q1 2026.' }, points: 2 },
+      { value: 'maybe', text: { church: 'Maybe down the road, no firm plans.', hospitality: 'Maybe down the road, no firm plans.' }, points: 1 },
+      { value: 'no', text: { church: 'No immediate plans.', hospitality: 'No immediate plans.' }, points: 0 },
     ],
   },
-  // Question 4: Compelling Event (Improved & Sector-Specific)
+  // Question 4: NEW - Compelling Event Driver
   {
     text: (sector: Sector) => sector === 'church' 
-        ? "What's the main driver for upgrading your church <a href='https://thykingdomcomeproductions.com/church-led-walls/' target='_blank' class='text-church-primary underline'>LED walls</a>?"
-        : "What's the main driver for upgrading your venue's <a href='https://thykingdomcomeproductions.com/' target='_blank' class='text-church-primary underline'>LED video walls</a>?",
+        ? "What's the main driver behind your interest in LED technology?"
+        : "What's the main driver behind your interest in LED technology?",
     category: "Compelling Event",
     options: [
-        { value: 'system_failure', text: { church: 'Repeated tech failures are disrupting our services.', hospitality: 'Our current AV setup is unreliable and costly to rent.' }, points: 4 },
-        { value: 'revenue_competition', text: { church: 'We\'re preparing for a major event like Easter or Christmas.', hospitality: 'We\'re losing bookings to better-equipped competitors.' }, points: 3 },
-        { value: 'improve_experience', text: { church: 'We want to improve our livestream and online presence.', hospitality: 'We need to increase revenue from high-end corporate events.' }, points: 2 },
-        { value: 'capital_upgrade', text: { church: 'We\'re in a capital campaign for facility upgrades.', hospitality: 'We\'re undergoing a facility modernization or renovation.' }, points: 1 },
+        { value: 'urgent_problem', text: { church: 'Our current system keeps failing when we need it most', hospitality: 'Our current limitations are costing us bookings' }, points: 4 },
+        { value: 'planned_upgrade', text: { church: 'We\'re planning facility improvements for 2026', hospitality: 'We\'re planning venue upgrades for competitive advantage' }, points: 3 },
+        { value: 'future_proofing', text: { church: 'Want to future-proof our ministry technology', hospitality: 'Want to enhance our event capabilities' }, points: 2 },
+        { value: 'general_interest', text: { church: 'Just learning about LED options', hospitality: 'Just exploring what\'s available' }, points: 1 },
     ],
   },
-  // Question 5: Commitment Level
+  // Question 5: Transformation Thirst Builder
   {
     text: () => "Which path best describes your future?",
     category: "Impact",
     visual: 'two-paths',
     paths: {
-        title: { church: "Current Projector Reality", hospitality: "The Old AV Approach" },
-        points: {
-            church: ["Constant bulb replacements", "Emergency repair calls", "Sunday morning stress", "Poor back-row visibility"],
-            hospitality: ["High AV rental costs", "Lost bookings to better-equipped venues", "Limited creative options", "Complex, unreliable setups"]
+        title: {
+            church: "Current Projector Reality",
+            hospitality: "The Old AV Approach"
         },
-        footer: { church: `Maybe next year we'll upgrade...`, hospitality: `It's just the cost of doing business...` }
+        points: {
+            church: [
+                "Constant bulb replacements",
+                "Emergency repair calls",
+                "Sunday morning stress",
+                "Poor back-row visibility",
+            ],
+            hospitality: [
+                "High AV rental costs",
+                "Lost bookings to better-equipped venues",
+                "Limited creative options",
+                "Complex, unreliable setups"
+            ]
+        },
+        footer: {
+            church: `Maybe next year we'll upgrade...`,
+            hospitality: `It's just the cost of doing business...`
+        }
     },
     options: [
         { value: 'committed', text: { church: '🎯 Fully committed - let\'s make this happen', hospitality: '🎯 Fully committed - let\'s make this happen' }, points: 4 },
