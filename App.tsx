@@ -383,7 +383,7 @@ const App: React.FC = () => {
             <hr style="margin-top: 30px; border: 0; border-top: 1px solid #ddd;" />
             <p style="font-size: 12px; color: #777;">
                 Join 500+ churches who upgraded to LED. <br />
-                Thy Kingdom Come Productions | (817) 952-9202
+                Thy Kingdom Come Productions | <a href="tel:+18179529202" style="color: #777; text-decoration: none;">(817) 952-9202</a>
             </p>
         </div>
         `;

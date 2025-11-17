@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ResultPageProps } from '../types';
 import { HUBSPOT_CONFIG, TKCP_CONFIG } from '../constants';
@@ -112,7 +113,7 @@ const HotLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onN
                             </a>
                         </div>
                         <div className="mt-6 flex justify-center items-center gap-x-6 text-sm font-semibold text-gray-600 dark:text-gray-400">
-                           <span>✓ 3-Day Installation</span>
+                           <span>✓ 1-2 Day Installation</span>
                            <span>✓ 100,000+ Hour Lifespan</span>
                            <span>✓ 200+ Churches Served</span>
                         </div>

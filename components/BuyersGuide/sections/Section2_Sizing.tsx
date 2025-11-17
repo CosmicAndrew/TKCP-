@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
@@ -110,6 +111,12 @@ const Section2_Sizing: React.FC<SectionProps> = ({ sector }) => {
                         <div className="absolute left-1/2 -translate-x-1/2 border-l border-dashed border-red-500/50" style={{ bottom: '24px', height: `${distancePx}px`}}></div>
                     </div>
                 </div>
+            </div>
+
+            <div className="mt-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-church-accent text-center rounded-r-lg">
+                <p className="text-lg text-gray-800 dark:text-gray-200">
+                    Starting Point: The <a href="https://thykingdomcomeproductions.com/services" target="_blank" rel="noopener noreferrer" className="font-bold text-church-primary underline hover:text-opacity-80">Majestic Package</a> starts at <strong>$11,950</strong> for a 10' × 5' system.
+                </p>
             </div>
 
             <CalendarCTA

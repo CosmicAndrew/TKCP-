@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
@@ -48,7 +49,7 @@ const Section6_FAQ: React.FC<{ sector: Sector; result: Result; }> = ({ sector })
         },
         {
             question: "What kind of warranty is included?",
-            answer: "We stand behind our work with a comprehensive 5-year parts and labor warranty. This is superior to the industry standard of 2-3 years with limited coverage, giving you complete peace of mind."
+            answer: "TKCP provides a 5-year standard warranty through DVS LED Systems, covering all components. Our LED panels are rated for 100,000+ hours (8-10 years)."
         },
         {
             question: "Can an LED screen be installed in our specific venue?",
@@ -60,7 +61,7 @@ const Section6_FAQ: React.FC<{ sector: Sector; result: Result; }> = ({ sector })
         },
         {
             question: "Is financing available?",
-            answer: "Yes, we offer flexible financing and leasing options to make your vision a reality. We work with you to find a financial solution that fits your budget and helps you realize the long-term value of your investment."
+            answer: "Yes! Flexible financing is available. Our starting packages begin at $11,950, and we work with you to find a financial solution that fits your budget."
         }
     ];
 

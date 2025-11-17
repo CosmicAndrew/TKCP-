@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
@@ -35,12 +36,12 @@ const Section3_MarketIntelligence: React.FC<SectionProps> = ({ sector }) => {
                      <InsightCard 
                         icon="⚡"
                         title="Faster Installation"
-                        text="Our certified in-house teams average a 2-3 day install vs. the industry standard of 5-7 days."
+                        text="Our certified in-house teams average a 1-2 day install vs. the industry standard of 5-7 days."
                     />
                      <InsightCard 
                         icon="🛡️"
                         title="Superior Warranty"
-                        text="We offer a 5-year comprehensive parts and labor warranty, beating the typical 2-3 year limited coverage."
+                        text="As an authorized DVS LED Systems dealer, all installations include a 5-year comprehensive parts and labor warranty (with optional 7- & 10-year extensions available)."
                     />
                 </div>
             </div>
