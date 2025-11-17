@@ -48,6 +48,8 @@ const Landing: React.FC<LandingProps> = ({ onSectorSelect, theme }) => {
                 <div className="absolute inset-0 overflow-hidden">
                     <div className={`absolute inset-0 hero-bg-church-sanctuary transition-opacity duration-1000 ease-in-out ${theme === 'light' ? 'opacity-100' : 'opacity-0'}`} />
                     <div className={`absolute inset-0 hero-bg-modern-venue transition-opacity duration-1000 ease-in-out ${theme === 'dark' ? 'opacity-100' : 'opacity-0'}`} />
+                    {/* Add a darkening overlay for better text contrast */}
+                    <div className="absolute inset-0 bg-black/40"></div>
                 </div>
                 <div className="relative z-10 text-white p-8 max-w-3xl">
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold [text-shadow:_0_2px_4px_rgba(0,0,0,0.5)] animate-hero-text opacity-0">
