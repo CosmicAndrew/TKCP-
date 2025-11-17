@@ -1,5 +1,3 @@
-
-
 import { UserData } from '../types';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
@@ -192,7 +190,7 @@ export const upsertContact = async (data: Partial<UserData> & { session_user_id?
  * This is currently a simulation and can be replaced with a backend call.
  */
 export const trackEvent = (eventName: string, sessionId: string, properties: object = {}) => {
-    const detectedSector = localStorage.getItem('tkcp_sector') || 'unknown';
+    const detectedSector = localStorage.getItem(LOCAL_STORAGE_KEYS.sector) || 'unknown';
     const eventData = {
         eventName,
         sessionId,

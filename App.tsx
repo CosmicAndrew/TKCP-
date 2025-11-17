@@ -1,5 +1,3 @@
-
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Sector, LeadStatus, UserData, Answer, Result, GeminiInsights, Theme } from './types';
@@ -10,7 +8,9 @@ import { trackMetaEvent, trackGA4Event } from './services/tracking';
 import Header from './components/Header';
 import Landing from './components/Landing';
 import Quiz from './components/Quiz';
-import Confirmation from './components/Confirmation';
+import HotLeadResult from './components/Confirmation'; // Re-purposed for Hot Leads
+import WarmLeadResult from './components/Results'; // Re-purposed for Warm Leads
+import ColdLeadResult from './components/ColdLeadResult'; // New component for Cold Leads
 import BuyersGuide from './components/BuyersGuide';
 import Footer from './components/Footer';
 import Spinner from './components/common/Spinner';
@@ -90,7 +90,7 @@ const generateFallbackInsights = (sector: Sector): GeminiInsights => {
 
 
 const App: React.FC = () => {
-    const [step, setStep] = useState<'loading' | 'landing' | 'quiz' | 'confirmation' | 'buyersGuide'>('loading');
+    const [step, setStep] = useState<'loading' | 'landing' | 'quiz' | 'hotResult' | 'warmResult' | 'coldResult' | 'buyersGuide'>('loading');
     const [sector, setSector] = useState<Sector | null>(null);
     const [quizResult, setQuizResult] = useState<Result | null>(null);
     const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
@@ -116,7 +116,16 @@ const App: React.FC = () => {
                 
                 setQuizResult(resultData);
                 setSector(resultData.sector);
-                setStep('confirmation');
+                
+                // Route to correct page based on stored result
+                if (resultData.leadStatus === 'hot') {
+                    setStep('hotResult');
+                } else if (resultData.leadStatus === 'warm') {
+                    setStep('warmResult');
+                } else {
+                    setStep('coldResult');
+                }
+
                 // Clean the hash to avoid re-triggering and clean up URL
                 history.replaceState(null, document.title, window.location.pathname + window.location.search);
                 return;
@@ -142,7 +151,7 @@ const App: React.FC = () => {
         
         if (detectedSector) {
             console.log(`Detected Sector from URL: ${detectedSector}`);
-            localStorage.setItem('tkcp_sector', detectedSector); // Persist for HubSpot service
+            localStorage.setItem(LOCAL_STORAGE_KEYS.sector, detectedSector); // Persist for HubSpot service
             setSector(detectedSector);
             setStep('quiz');
         } else {
@@ -164,7 +173,7 @@ const App: React.FC = () => {
                 title = 'LED Screen Assessment for Venues & Businesses | TKCP';
                 description = 'Find out how an integrated LED screen can boost revenue and elevate events at your venue. Take the free TKCP assessment today.';
             }
-        } else if ((step === 'confirmation' || step === 'buyersGuide') && quizResult) {
+        } else if (step.includes('Result') && quizResult) {
             const leadStatusText = quizResult.leadStatus.charAt(0).toUpperCase() + quizResult.leadStatus.slice(1);
             title = `Your Assessment Results: ${leadStatusText} Lead | TKCP`;
             description = `Congratulations, ${quizResult.userData.firstName || 'friend'}! View your personalized LED screen assessment results and see your custom-tailored next steps.`;
@@ -274,7 +283,6 @@ const App: React.FC = () => {
                 throw parsingError; 
             }
             
-            // FIX: Removed the premature HubSpot API call. Insights will be sent with the main contact data.
             return insights;
 
         } catch (e: any) {
@@ -288,24 +296,22 @@ const App: React.FC = () => {
         trackMetaEvent('Lead', { sector: selectedSector });
         HubSpot.trackEvent('Selected Sector', sessionUserId.current, { sector: selectedSector });
         console.log(`Selected Sector: ${selectedSector}`);
-        localStorage.setItem('tkcp_sector', selectedSector); // Persist for HubSpot service
+        localStorage.setItem(LOCAL_STORAGE_KEYS.sector, selectedSector); // Persist for HubSpot service
         setSector(selectedSector);
         setStep('quiz');
     };
 
     const sendFollowUpEmail = (result: Result) => {
-        const { userData, score, maxScore, leadStatus, geminiInsights, sector } = result;
+        const { userData, score, maxScore, leadStatus, geminiInsights } = result;
         if (!userData.email) {
             console.log("No email provided, skipping follow-up email.");
             return;
         }
 
-        // Generate results link
         const resultDataString = JSON.stringify(result);
         const encodedResult = utf8ToBase64(resultDataString);
         const resultsUrl = `${window.location.origin}${window.location.pathname}#results=${encodedResult}`;
 
-        // Generate pre-filled booking link
         const bookingUrl = new URL(HUBSPOT_CONFIG.meetingLinks.priority);
         if(userData.firstName) bookingUrl.searchParams.append('firstname', userData.firstName);
         if(userData.lastName) bookingUrl.searchParams.append('lastname', userData.lastName);
@@ -339,7 +345,7 @@ const App: React.FC = () => {
             <hr style="margin-top: 30px; border: 0; border-top: 1px solid #ddd;" />
             <p style="font-size: 12px; color: #777;">
                 Join 500+ churches who upgraded to LED. <br />
-                Thy Kingdom Come Productions | (469) 840-9808
+                Thy Kingdom Come Productions | (817) 952-9202
             </p>
         </div>
         `;
@@ -385,8 +391,6 @@ const App: React.FC = () => {
         
         sendFollowUpEmail(result);
 
-        const commitment = finalAnswers[ASSESSMENT_QUESTIONS.length - 1]?.value;
-
         // --- Conversion Tracking ---
         trackMetaEvent('InitiateCheckout', {
             content_type: 'assessment',
@@ -402,7 +406,7 @@ const App: React.FC = () => {
             custom_parameters: {
                 sector: sector,
                 lead_score: totalScore,
-                commitment_level: commitment,
+                commitment_level: finalAnswers[4]?.value,
                 compelling_event: finalAnswers[3]?.value
             }
         });
@@ -411,26 +415,20 @@ const App: React.FC = () => {
         
         const urlParams = new URLSearchParams(window.location.search);
         
-        // FIX: Only call HubSpot if we have an email address.
-        // This happens for 'hot' leads via ContactForm.
-        // For 'warm'/'cold' leads, the submission will happen later in the Buyer's Guide.
         if (finalUserData.email) {
             try {
                 await HubSpot.upsertContact({
                     ...finalUserData,
                     session_user_id: sessionUserId.current,
-                    // Map answers to HubSpot custom properties
                     pain_scale_score: finalAnswers[0]?.points,
                     organization_size: finalAnswers[1]?.value,
                     timeline_urgency: finalAnswers[2]?.value,
                     compelling_event: finalAnswers[3]?.value,
-                    commitment_level: commitment,
-                    // System properties
+                    commitment_level: finalAnswers[4]?.value,
                     sector: sector,
-                    total_assessment_score: totalScore, // This will be mapped to total_assessment_score in the service
+                    total_assessment_score: totalScore,
                     lead_temperature: leadStatus,
                     assessment_answers_json: JSON.stringify(finalAnswers),
-                    // Add the generated AI insights to the main HubSpot submission.
                     gemini_followup_insights: JSON.stringify(insights, null, 2),
                     lifecyclestage: 'lead',
                     source_url: window.location.href,
@@ -439,17 +437,21 @@ const App: React.FC = () => {
                 console.log("✅ HubSpot contact submission process completed.");
             } catch (hubspotError) {
                 console.error("🚨 HubSpot submission failed, but the user flow will continue gracefully.", hubspotError);
-                // Optionally, set an internal state here to retry or notify admins, but don't block the UI.
             }
         } else {
              console.log("[App] Skipping HubSpot submission for now. Contact info will be collected in the Buyer's Guide.");
         }
         
-        if (commitment === 'exploring' || commitment === 'leaning') {
-            HubSpot.trackEvent('Buyer Guide Accessed', sessionUserId.current, { commitment_level: commitment });
-            setStep('buyersGuide');
-        } else {
-            setStep('confirmation');
+        // --- CORRECTED ROUTING LOGIC ---
+        if (leadStatus === 'hot') {
+            HubSpot.trackEvent('Hot Lead Results Page Viewed', sessionUserId.current, { lead_status: leadStatus });
+            setStep('hotResult');
+        } else if (leadStatus === 'warm') {
+            HubSpot.trackEvent('Warm Lead Results Page Viewed', sessionUserId.current, { lead_status: leadStatus });
+            setStep('warmResult');
+        } else { // cold
+            HubSpot.trackEvent('Cold Lead Results Page Viewed', sessionUserId.current, { lead_status: leadStatus });
+            setStep('coldResult');
         }
         setSubmissionStatus(null);
     };
@@ -460,29 +462,18 @@ const App: React.FC = () => {
     };
 
     const handleReset = () => {
-        HubSpot.clearSessionUserId(); // Start a fresh session
-        localStorage.removeItem(LOCAL_STORAGE_KEYS.quizState); // Clear saved progress
-        window.location.href = window.location.pathname; // Clears params and hash, re-triggers detection
+        HubSpot.clearSessionUserId();
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.quizState);
+        window.location.href = window.location.pathname;
     };
+
+    const handleNavigateToGuide = () => {
+        HubSpot.trackEvent('Buyer Guide Accessed from Results', sessionUserId.current, { lead_status: quizResult?.leadStatus });
+        setStep('buyersGuide');
+    }
 
     const renderContent = () => {
         if (submissionStatus) {
-            if (error) {
-                return (
-                    <div className="flex flex-col justify-center items-center h-[60vh] text-center">
-                        <div className="text-red-500 mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md">
-                            <h3 className="font-bold text-lg">Oops! Something went wrong.</h3>
-                            <p className="mt-1">{error}</p>
-                        </div>
-                        <button
-                            onClick={processQuizCompletion}
-                            className="px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 transition-colors"
-                        >
-                            Retry
-                        </button>
-                    </div>
-                );
-            }
             return (
                 <div role="status" className="flex flex-col justify-center items-center h-[60vh] text-center">
                     <Spinner />
@@ -502,22 +493,28 @@ const App: React.FC = () => {
                  if (sector) {
                     return <Quiz sector={sector} onComplete={handleQuizComplete} />;
                  }
-                 // This case should ideally not be reached due to the initial detection
                  return <div className="text-center">Loading assessment...</div>;
-            case 'confirmation':
+            case 'hotResult':
                 if (quizResult && sector) {
-                     return <Confirmation result={quizResult} onReset={handleReset} sector={sector} />;
+                     return <HotLeadResult result={quizResult} onReset={handleReset} sector={sector} onNavigateToGuide={handleNavigateToGuide} />;
                 }
-                 // Fallback to prevent state update during render
+                 return <div className="flex justify-center items-center h-64"><Spinner /></div>;
+            case 'warmResult':
+                if (quizResult && sector) {
+                     return <WarmLeadResult result={quizResult} onReset={handleReset} sector={sector} onNavigateToGuide={handleNavigateToGuide} />;
+                }
+                 return <div className="flex justify-center items-center h-64"><Spinner /></div>;
+            case 'coldResult':
+                if (quizResult && sector) {
+                     return <ColdLeadResult result={quizResult} onReset={handleReset} sector={sector} onNavigateToGuide={handleNavigateToGuide} />;
+                }
                  return <div className="flex justify-center items-center h-64"><Spinner /></div>;
             case 'buyersGuide':
                 if (quizResult && sector) {
                     return <BuyersGuide result={quizResult} sector={sector} onReset={handleReset} />;
                 }
-                // Fallback to prevent state update during render
                 return <div className="flex justify-center items-center h-64"><Spinner /></div>;
             default:
-                 // Fallback to prevent state update during render
                  return <div className="flex justify-center items-center h-64"><Spinner /></div>;
         }
     };

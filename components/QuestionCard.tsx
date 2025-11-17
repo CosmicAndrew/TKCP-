@@ -59,7 +59,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
     const header = (
         <div>
             <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">{question.category}</p>
-            <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100 text-center">{question.text(sector)}</h2>
+            <h2 
+              className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100 text-center"
+              dangerouslySetInnerHTML={{ __html: question.text(sector) }}
+            />
         </div>
     );
 
@@ -114,7 +117,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
         <div className="animate-slide-in-right flex-grow flex flex-col">
             <div className="text-left">
                 <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{question.category}</p>
-                <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100">{question.text(sector)}</h2>
+                <h2 
+                  className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100"
+                  dangerouslySetInnerHTML={{ __html: question.text(sector) }}
+                />
             </div>
 
             <div className="mt-8 space-y-4 flex-grow">

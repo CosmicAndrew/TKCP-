@@ -1,27 +1,23 @@
 import React, { useState } from 'react';
 import { ResultPageProps } from '../types';
-import { IconDownload, IconRefresh, IconShare, IconCheckCircle, IconBookOpen } from './common/Icon';
+import { IconBookOpen, IconRefresh, IconShare, IconCheckCircle } from './common/Icon';
 import ShareModal from './common/ShareModal';
 import CategoryScoreBreakdown from './common/CategoryScoreBreakdown';
 
 const applications = {
     church: [
         "Worship services - Song lyrics, sermon notes, scripture",
-        "Live-streaming - Broadcast-quality online services",
-        "Youth ministry - Gaming, movies, interactive content",
-        "Special services - Christmas, Easter, baptisms, weddings",
+        "Announcements - Service times, events, giving campaigns",
         "Fellowship - Photo slideshows, community updates",
     ],
     hospitality: [
         "Corporate events - Presentations, keynotes, branding",
-        "Weddings - Custom monograms, photo slideshows",
-        "Trade shows - Booth displays, product demos",
         "Hotel lobbies - Brand messaging, local attractions",
-        "Conference centers - Multi-room event displays",
+        "Wayfinding - Digital signage, conference schedules",
     ]
 };
 
-const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onNavigateToGuide }) => {
+const ColdLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onNavigateToGuide }) => {
     const { userData, score, maxScore, geminiInsights } = result;
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const linkClass = "text-church-primary dark:text-church-accent underline hover:text-opacity-80";
@@ -30,15 +26,15 @@ const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
         <>
             <div className="max-w-4xl mx-auto animate-fade-in">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 md:p-10">
-                    <div className="text-5xl mb-4 animate-bounce-in">💡</div>
+                    <div className="text-5xl mb-4 animate-bounce-in">🧭</div>
                     <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-800 dark:text-gray-100">
-                        Explore <a href="https://thykingdomcomeproductions.com/church-led-walls/" target="_blank" rel="noopener noreferrer" className={linkClass}>LED Wall</a> Solutions for Your Space
+                        Start Your <a href="https://thykingdomcomeproductions.com/led-panels/" target="_blank" rel="noopener noreferrer" className={linkClass}>LED Display</a> Journey
                     </h1>
                     <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-                        Thanks, {userData.firstName || 'Friend'}! Your score of <strong>{score}/{maxScore}</strong> shows you're actively planning. Here's how an LED upgrade could benefit you.
+                        Welcome, {userData.firstName || 'Friend'}! Your score of <strong>{score}/{maxScore}</strong> shows you're in the research phase. We've prepared resources to guide you.
                     </p>
 
-                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                     <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                              {geminiInsights && (
                                 <div className="text-left bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg border dark:border-gray-700 h-full flex flex-col">
@@ -53,9 +49,9 @@ const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
                     </div>
 
                     <div className="mt-8">
-                        <h3 className="text-2xl font-display font-bold text-gray-800 dark:text-gray-100">Potential Applications for Your {sector === 'church' ? 'Ministry' : 'Venue'}</h3>
+                        <h3 className="text-2xl font-display font-bold text-gray-800 dark:text-gray-100">Early Ideas for Your {sector === 'church' ? 'Ministry' : 'Venue'}</h3>
                         <div className="mt-4 space-y-2">
-                             {applications[sector].slice(0, 5).map((app, index) => (
+                             {applications[sector].slice(0, 3).map((app, index) => (
                                 <div key={index} className="p-4 bg-white dark:bg-gray-900/50 rounded-lg border dark:border-gray-700 flex items-center gap-3">
                                     <IconCheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
                                     <p className="text-gray-700 dark:text-gray-300">{app}</p>
@@ -65,33 +61,27 @@ const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
                     </div>
 
                     <div className="mt-12 border-t dark:border-gray-700 pt-8 text-center">
-                        <h3 className="text-2xl font-display font-bold dark:text-gray-100">See the Financial Impact</h3>
-                        <p className="text-gray-600 dark:text-gray-300 mt-2 max-w-xl mx-auto">Download our free ROI calculator to understand the long-term value and potential revenue generation for your organization.</p>
+                        <h3 className="text-2xl font-display font-bold dark:text-gray-100">Your Best Next Step</h3>
+                        <p className="text-gray-600 dark:text-gray-300 mt-2 max-w-xl mx-auto">Education is key. Our comprehensive LED Buyer's Guide is the perfect resource to help you understand the technology and make an informed decision.</p>
                         <div className="mt-6">
-                            <a 
-                                href="https://example.com/roi_calculator.pdf" // Placeholder link
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center px-8 py-3 font-bold text-gray-900 rounded-md bg-church-accent hover:bg-yellow-400 transition-colors text-lg shadow-lg hover:shadow-xl"
+                            <button 
+                                onClick={onNavigateToGuide}
+                                className="inline-flex items-center justify-center px-8 py-3 font-bold text-white rounded-md bg-church-primary hover:opacity-90 transition-colors text-lg shadow-lg hover:shadow-xl"
                             >
-                                <IconDownload className="w-6 h-6" />
-                                <span className="ml-2">Download ROI Calculator</span>
-                            </a>
+                                <IconBookOpen className="w-6 h-6" />
+                                <span className="ml-2">Get LED Buyer's Guide</span>
+                            </button>
                         </div>
                     </div>
                     
                     <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <blockquote className="text-center bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border-l-4 border-church-primary">
-                            <p className="text-gray-700 dark:text-gray-300 italic">"TKCP replaced our 10-year-old projector. They worked late without complaints. Support has been top-notch."</p>
-                            <cite className="block text-right mt-2 not-italic font-semibold text-gray-600 dark:text-gray-400">— Grant Hill, Church Client | <a href="https://thykingdomcomeproductions.com/testimonials" target="_blank" rel="noopener noreferrer" className={linkClass}>Case Studies</a></cite>
+                             <p className="text-gray-700 dark:text-gray-300 italic">"Thank you for being a blessing and using your gifts for God's Kingdom."</p>
+                            <cite className="block text-right mt-2 not-italic font-semibold text-gray-600 dark:text-gray-400">— Randy Adams, Church Client | <a href="https://thykingdomcomeproductions.com/testimonials" target="_blank" rel="noopener noreferrer" className={linkClass}>More Stories</a></cite>
                         </blockquote>
                     </div>
 
                     <div className="mt-12 flex items-center justify-center gap-6">
-                         <button onClick={onNavigateToGuide} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-semibold flex items-center mx-auto transition-colors text-sm">
-                            <IconBookOpen className="mr-2"/>
-                            Explore Buyer's Guide
-                        </button>
                         <button onClick={() => setIsShareModalOpen(true)} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-semibold flex items-center mx-auto transition-colors text-sm">
                             <IconShare className="w-5 h-5" />
                             <span className="ml-2">Share Results</span>
@@ -108,4 +98,4 @@ const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
     );
 };
 
-export default WarmLeadResult;
+export default ColdLeadResult;

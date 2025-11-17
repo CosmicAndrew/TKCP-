@@ -80,3 +80,10 @@ export interface Result {
     sector: Sector;
     geminiInsights?: GeminiInsights;
 }
+
+export interface ResultPageProps {
+    result: Result;
+    onReset: () => void;
+    onNavigateToGuide: () => void;
+    sector: Sector;
+}

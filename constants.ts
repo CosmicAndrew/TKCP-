@@ -2,9 +2,9 @@ import { Question, Sector } from './types';
 
 export const TKCP_CONFIG = {
     companyName: "Thy Kingdom Come Productions",
-    website: "https://assessment.thykingdomcomeproductions.com/",
-    phone: "(469) 840-9808",
-    phoneLink: "tel:+14698409808",
+    website: "https://thykingdomcomeproductions.com/",
+    phone: "817-952-9202",
+    phoneLink: "tel:+18179529202",
     colors: {
         churchPrimary: "#2B4C7E",
         churchAccent: "#D4AF37",
@@ -13,6 +13,8 @@ export const TKCP_CONFIG = {
     },
     logoBase64: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjYwIiB2aWV3Qm94PSIwIDAgMjAwIDYwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjx0ZXh0IHg9IjEwIiB5PSI0NSIgZm9udC1mYW1pbHk9IidQbGF5ZmFpciBEaXNwbGF5Jywgc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiBmb250LXNpemU9IjI0IiBmaWxsPSIjMkI0QzdFIj5US0NQPC90ZXh0Pjwvc3ZnPg=="
 };
+
+const LINK_CLASS = "text-church-primary dark:text-church-accent underline hover:text-opacity-80";
 
 export const HUBSPOT_CONFIG = {
     portalId: '22563653', // TKCP's actual Portal ID
@@ -29,6 +31,7 @@ export const LOCAL_STORAGE_KEYS = {
     sessionUserId: 'tkcp_session_user_id',
     contactInfo: 'tkcp_contact_info',
     cookieConsent: 'tkcp_cookie_consent',
+    sector: 'tkcp_sector',
 };
 
 export const US_STATES = [
@@ -71,28 +74,26 @@ export const ASSESSMENT_QUESTIONS: Question[] = [
       { value: '1000+', text: { church: 'Over 1,000 people', hospitality: 'Over 1,000 capacity' }, points: 4 },
     ],
   },
-  // Question 3: Timeline/Compelling Event
+  // Question 3: Timeline (IMPROVED)
   {
-    text: () => "Within the next 3-6 months, are you planning to upgrade your visual/tech capabilities?",
+    text: () => `When are you planning to upgrade to <a href="https://thykingdomcomeproductions.com" target="_blank" class="${LINK_CLASS}">LED video walls</a>?`,
     category: "Timeline",
     options: [
-      { value: 'yes_now', text: { church: 'Yes, we are actively exploring options now.', hospitality: 'Yes, we are actively exploring options now.' }, points: 4 },
-      { value: 'yes_q1', text: { church: 'Yes, but it\'s looking more toward Q1 2026.', hospitality: 'Yes, but it\'s looking more toward Q1 2026.' }, points: 2 },
-      { value: 'maybe', text: { church: 'Maybe down the road, no firm plans.', hospitality: 'Maybe down the road, no firm plans.' }, points: 1 },
-      { value: 'no', text: { church: 'No immediate plans.', hospitality: 'No immediate plans.' }, points: 0 },
+      { value: 'urgent', text: { church: 'Urgent - Need by Christmas/Easter (next 3 months)', hospitality: 'Immediate - Losing bookings to competitors now' }, points: 4 },
+      { value: 'q1_2026', text: { church: 'Active planning - Q1 2026 budget cycle', hospitality: 'Q1 2026 - Conference season preparation' }, points: 3 },
+      { value: '6_12_months', text: { church: 'Exploring - Within next 6-12 months', hospitality: 'Planning - Within next 6-12 months' }, points: 2 },
+      { value: 'researching', text: { church: 'Researching - No firm timeline yet', hospitality: 'Exploratory - No specific deadline' }, points: 0 },
     ],
   },
-  // Question 4: NEW - Compelling Event Driver
+  // Question 4: Compelling Event Driver (IMPROVED)
   {
-    text: (sector: Sector) => sector === 'church' 
-        ? "What's the main driver behind your interest in LED technology?"
-        : "What's the main driver behind your interest in LED technology?",
+    text: () => `What's the primary driver behind your interest in <a href="https://thykingdomcomeproductions.com/led-panels/" target="_blank" class="${LINK_CLASS}">LED displays</a>?`,
     category: "Compelling Event",
     options: [
-        { value: 'urgent_problem', text: { church: 'Our current system keeps failing when we need it most', hospitality: 'Our current limitations are costing us bookings' }, points: 4 },
-        { value: 'planned_upgrade', text: { church: 'We\'re planning facility improvements for 2026', hospitality: 'We\'re planning venue upgrades for competitive advantage' }, points: 3 },
-        { value: 'future_proofing', text: { church: 'Want to future-proof our ministry technology', hospitality: 'Want to enhance our event capabilities' }, points: 2 },
-        { value: 'general_interest', text: { church: 'Just learning about LED options', hospitality: 'Just exploring what\'s available' }, points: 1 },
+        { value: 'emergency_crisis', text: { church: 'Emergency - Projector failing/streaming issues', hospitality: 'Revenue crisis - Lost bookings/competitive gap' }, points: 4 },
+        { value: 'capital_campaign_upgrade', text: { church: 'Capital campaign - Major facility renovation', hospitality: 'Facility upgrade - Renovation/expansion project' }, points: 3 },
+        { value: 'strategic_enhancement', text: { church: 'Strategic upgrade - Enhance worship experience', hospitality: 'Competitive positioning - Stay ahead of market' }, points: 2 },
+        { value: 'early_research', text: { church: 'Early research - Gathering information', hospitality: 'Initial exploration - Learning about options' }, points: 1 },
     ],
   },
   // Question 5: Transformation Thirst Builder

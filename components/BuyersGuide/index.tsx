@@ -8,7 +8,7 @@ import Spinner from '../common/Spinner';
 import Feedback from '../common/Feedback';
 import Confetti from '../common/Confetti';
 
-// Lazy load sections for performance - FIXED PATHS
+// Lazy load sections for performance
 const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
 const Section2_Sizing = lazy(() => import('./sections/Section2_Sizing'));
 const Section3_MarketIntelligence = lazy(() => import('./sections/Section3_MarketIntelligence'));
@@ -16,7 +16,6 @@ const Section4_Considerations = lazy(() => import('./sections/Section4_Considera
 const Section5_Process = lazy(() => import('./sections/Section5_Process'));
 const Section6_FAQ = lazy(() => import('./sections/Section6_FAQ'));
 const Section7_Summary = lazy(() => import('./sections/Section7_Summary'));
-
 
 interface BuyersGuideProps {
     result: Result;
@@ -31,8 +30,9 @@ export const GUIDE_SECTIONS = [
     { id: 4, title: 'Sector-Specific Considerations', component: Section4_Considerations },
     { id: 5, title: 'Implementation Process', component: Section5_Process },
     { id: 6, title: 'Frequently Asked Questions', component: Section6_FAQ },
-    { id: 7, title: 'Your Custom Summary', component: Section7_Summary },
+    { id: 7, 'title': 'Your Custom Summary', 'component': Section7_Summary },
 ];
+
 
 const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) => {
     const mainContentRef = useRef<HTMLElement>(null);
@@ -116,7 +116,6 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
             HubSpot.trackEvent('Progressive Form Submitted', HubSpot.getSessionUserId());
         } catch (error) {
             console.error("HubSpot submission from Buyer's Guide failed, continuing flow.", error);
-            // Optionally add UI feedback for the user about the submission failure.
         }
 
         setShowProgressiveForm(false);
@@ -134,11 +133,12 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset }) =>
                     onClose={() => setShowProgressiveForm(false)}
                 />
             )}
+            
             <div className="text-center mb-8">
                 <IconBookOpen className="w-12 h-12 mx-auto text-church-primary dark:text-church-accent" />
-                <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your Interactive LED Buyer's Guide</h1>
+                <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your Interactive LED Buyer's Guide</h2>
                 <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                    Welcome, {userData.firstName || userData.fullName}! This guide is tailored to help you make the most informed decision for your {sector === 'church' ? 'House of Worship' : 'Venue'}.
+                    Welcome, {userData.firstName || userData.fullName || 'friend'}! This guide is tailored to help you make the most informed decision for your {sector === 'church' ? 'House of Worship' : 'Venue'}.
                 </p>
             </div>
 
