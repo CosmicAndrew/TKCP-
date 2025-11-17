@@ -49,12 +49,12 @@ export interface UserData {
     // Assessment answer data
     pain_scale_score?: number;
     organization_size?: string;
-    timeline_urgency?: string;
+    timeline?: string;
     compelling_event?: string;
     commitment_level?: string;
     
     // System & calculated properties
-    total_assessment_score?: number;
+    assessment_score?: number;
     lead_temperature?: LeadStatus;
     sector?: Sector;
     assessment_answers_json?: string;

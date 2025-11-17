@@ -98,11 +98,11 @@ export const upsertContact = async (data: Partial<UserData> & { session_user_id?
     if (data.session_user_id) hubspotProperties.session_user_id = data.session_user_id;
     if (data.pain_scale_score !== undefined) hubspotProperties.pain_scale_score = data.pain_scale_score;
     if (data.organization_size) hubspotProperties.organization_size = data.organization_size;
-    if (data.timeline_urgency) hubspotProperties.timeline_urgency = data.timeline_urgency;
+    if (data.timeline) hubspotProperties.timeline = data.timeline;
     if (data.compelling_event) hubspotProperties.compelling_event = data.compelling_event;
     if (data.commitment_level) hubspotProperties.commitment_level = data.commitment_level;
-    // CRITICAL MAPPING: 'total_assessment_score' from app becomes 'total_assessment_score' in HubSpot to trigger workflows.
-    if (data.total_assessment_score !== undefined) hubspotProperties.total_assessment_score = data.total_assessment_score;
+    // CRITICAL MAPPING: 'assessment_score' from app becomes 'assessment_score' in HubSpot to trigger workflows.
+    if (data.assessment_score !== undefined) hubspotProperties.assessment_score = data.assessment_score;
     if (data.lead_temperature) hubspotProperties.lead_temperature = data.lead_temperature;
     if (data.assessment_answers_json) hubspotProperties.assessment_answers_json = data.assessment_answers_json;
     if (data.lifecyclestage) hubspotProperties.lifecyclestage = data.lifecyclestage;

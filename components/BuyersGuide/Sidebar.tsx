@@ -1,7 +1,8 @@
 
+
 import React from 'react';
 import { GUIDE_SECTIONS } from './index';
-import { IconCheckCircle, IconCompare, IconChurch, IconChecklist, IconPrint, IconSearch, IconShare, IconQuestionMarkCircle, IconRuler, IconCog, IconDollarSign } from '../common/Icon';
+import { IconCheckCircle, IconCompare, IconRuler, IconDollarSign, IconChecklist, IconTrendingUp, IconShare } from '../common/Icon';
 
 interface SidebarProps {
     activeSection: number;
@@ -12,11 +13,9 @@ interface SidebarProps {
 const SECTION_ICONS: { [key: number]: React.ReactNode } = {
     1: <IconCompare className="w-5 h-5" />,
     2: <IconRuler className="w-5 h-5" />,
-    3: <IconSearch className="w-5 h-5" />,
-    4: <IconChurch className="w-5 h-5" />,
-    5: <IconChecklist className="w-5 h-5" />,
-    6: <IconQuestionMarkCircle className="w-5 h-5" />,
-    7: <IconPrint className="w-5 h-5" />,
+    3: <IconDollarSign className="w-5 h-5" />,
+    4: <IconChecklist className="w-5 h-5" />,
+    5: <IconTrendingUp className="w-5 h-5" />,
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection, completedSections }) => {

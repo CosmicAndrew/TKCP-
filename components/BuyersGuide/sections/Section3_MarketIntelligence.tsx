@@ -1,7 +1,7 @@
 
+
 import React from 'react';
 import { Sector, Result } from '../../../types';
-import CalendarCTA from '../common/CalendarCTA';
 
 interface SectionProps {
   sector: Sector;
@@ -18,11 +18,11 @@ const InsightCard: React.FC<{ icon: string; title: string; text: string }> = ({ 
     </div>
 );
 
-const Section3_MarketIntelligence: React.FC<SectionProps> = ({ sector }) => {
+const Section5_ROI: React.FC<SectionProps> = ({ sector }) => {
     return (
         <div className="animate-fade-in-up">
-            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">3. LED Market Intelligence Dashboard</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">See how TKCP compares to other LED providers and market trends in your area.</p>
+            <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">5. ROI & Market Impact</h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">See how TKCP compares and understand the tangible returns on your investment.</p>
 
             <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700 market-intelligence">
                 <h3 className="text-xl font-display font-bold text-center text-church-primary dark:text-blue-300 mb-6">🎯 Why Organizations Choose TKCP</h3>
@@ -59,14 +59,12 @@ const Section3_MarketIntelligence: React.FC<SectionProps> = ({ sector }) => {
                     </div>
                 </div>
             </div>
-
-            <CalendarCTA
-                headline="💡 Get a Personalized Competitive Analysis"
-                buttonText="Book a Discovery Call"
-                meetingType="discovery"
-            />
+             <div className="mt-12 text-center">
+                <h3 className="text-2xl font-display font-bold text-gray-800 dark:text-gray-100">You've completed the guide!</h3>
+                <p className="mt-2 text-gray-600 dark:text-gray-300">You're now equipped with the foundational knowledge to make a smart decision. Your personalized results are ready.</p>
+            </div>
         </div>
     );
 };
 
-export default Section3_MarketIntelligence;
+export default Section5_ROI;

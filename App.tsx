@@ -459,11 +459,11 @@ const App: React.FC = () => {
                     session_user_id: sessionUserId.current,
                     pain_scale_score: finalAnswers[0]?.points,
                     organization_size: finalAnswers[1]?.value,
-                    timeline_urgency: finalAnswers[2]?.value,
+                    timeline: finalAnswers[2]?.value,
                     compelling_event: finalAnswers[3]?.value,
                     commitment_level: finalAnswers[4]?.value,
                     sector: sector,
-                    total_assessment_score: totalScore,
+                    assessment_score: totalScore,
                     lead_temperature: leadStatus,
                     assessment_answers_json: JSON.stringify(finalAnswers),
                     gemini_followup_insights: JSON.stringify(insights, null, 2),
@@ -544,8 +544,8 @@ const App: React.FC = () => {
                     setStep('warmResult');
                     break;
                 case 'cold':
-                    // If a cold lead navigates back, send them to the guide again, as that IS their result page.
-                    setStep('buyersGuide');
+                    // FIX: Allow cold leads to navigate back to their results page from the guide.
+                    setStep('coldResult');
                     break;
             }
         } else {

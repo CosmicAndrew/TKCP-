@@ -10,12 +10,11 @@ import Confetti from '../common/Confetti';
 
 // Lazy load sections for performance
 const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
-const Section2_Sizing = lazy(() => import('./sections/Section2_Sizing'));
-const Section3_MarketIntelligence = lazy(() => import('./sections/Section3_MarketIntelligence'));
-const Section4_Considerations = lazy(() => import('./sections/Section4_Considerations'));
-const Section5_Process = lazy(() => import('./sections/Section5_Process'));
-const Section6_FAQ = lazy(() => import('./sections/Section6_FAQ'));
-const Section7_Summary = lazy(() => import('./sections/Section7_Summary'));
+const Section2_Technology = lazy(() => import('./sections/Section2_Sizing'));
+const Section3_Cost = lazy(() => import('./sections/Section4_Considerations'));
+const Section4_Installation = lazy(() => import('./sections/Section5_Process'));
+const Section5_ROI = lazy(() => import('./sections/Section3_MarketIntelligence'));
+
 
 interface BuyersGuideProps {
     result: Result;
@@ -27,13 +26,11 @@ interface BuyersGuideProps {
 }
 
 export const GUIDE_SECTIONS = [
-    { id: 1, title: 'LED vs. Projector', component: Section1_Comparison },
-    { id: 2, title: 'Sizing & Placement', component: Section2_Sizing },
-    { id: 3, title: 'Market Intelligence', component: Section3_MarketIntelligence },
-    { id: 4, title: 'Sector-Specific Considerations', component: Section4_Considerations },
-    { id: 5, title: 'Implementation Process', component: Section5_Process },
-    { id: 6, title: 'Frequently Asked Questions', component: Section6_FAQ },
-    { id: 7, 'title': 'Your Custom Summary', 'component': Section7_Summary },
+    { id: 1, title: 'Introduction', component: Section1_Comparison },
+    { id: 2, title: 'Technology', component: Section2_Technology },
+    { id: 3, title: 'Cost & Financing', component: Section3_Cost },
+    { id: 4, title: 'Installation', component: Section4_Installation },
+    { id: 5, title: 'ROI & Impact', component: Section5_ROI },
 ];
 
 
@@ -98,7 +95,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
             ...updatedUserData,
             session_user_id: HubSpot.getSessionUserId(),
             sector: result.sector,
-            total_assessment_score: result.score,
+            assessment_score: result.score,
             lead_temperature: result.leadStatus,
             assessment_answers_json: JSON.stringify(result.answers),
             gemini_followup_insights: result.geminiInsights ? JSON.stringify(result.geminiInsights, null, 2) : undefined,
@@ -109,7 +106,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
             // Map individual answers to custom properties
             pain_scale_score: result.answers[0]?.points,
             organization_size: result.answers[1]?.value,
-            timeline_urgency: result.answers[2]?.value,
+            timeline: result.answers[2]?.value,
             compelling_event: result.answers[3]?.value,
             commitment_level: result.answers[4]?.value,
         };
@@ -144,8 +141,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                         className="absolute top-0 left-0 text-sm text-gray-600 dark:text-gray-400 hover:text-church-primary dark:hover:text-church-accent font-semibold flex items-center transition-colors print-hide"
                         aria-label="Back to your assessment results"
                     >
-                        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                        Back to Your Results
+                        ← Back to Your Results
                     </button>
                 )}
                 <IconBookOpen className="w-12 h-12 mx-auto text-church-primary dark:text-church-accent" />
