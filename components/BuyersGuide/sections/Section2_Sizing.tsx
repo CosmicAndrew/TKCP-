@@ -1,7 +1,9 @@
 
+
 import React, { useState, useMemo } from 'react';
 import { Sector, Result } from '../../../types';
 import CalendarCTA from '../common/CalendarCTA';
+import { LINK_CLASS } from '../../../constants';
 
 interface SectionProps {
   sector: Sector;
@@ -45,9 +47,27 @@ const Section2_Sizing: React.FC<SectionProps> = ({ sector }) => {
             <h2 className="text-3xl font-display font-bold text-gray-800 dark:text-gray-100">2. Sizing & Placement Guide</h2>
             <p className="mt-2 text-gray-600 dark:text-gray-300">Use our interactive tool to find the perfect screen dimensions for your space.</p>
 
-            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Controls & Recommendations */}
-                <div className="p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700">
+            <div className="mt-8 flex flex-col lg:flex-row gap-8">
+                {/* Visual Diagram - comes first in markup for mobile stacking */}
+                <div className="lg:order-2 flex-1 flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900/50 rounded-lg min-h-[300px]">
+                    <div 
+                        className="relative bg-gray-200 dark:bg-gray-700 border-2 border-gray-400 dark:border-gray-600"
+                        style={{ width: `${venueWidth * diagramScale}px`, height: `${distance * 1.5 * diagramScale}px` }}
+                    >
+                         <div 
+                            className="absolute top-0 left-1/2 -translate-x-1/2 bg-church-accent flex items-center justify-center text-xs font-bold text-black"
+                            style={{ width: `${screenWidthPx}px`, height: `${screenHeightPx}px` }}
+                         >
+                            SCREEN
+                        </div>
+
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-4 h-4 bg-red-500 rounded-full" title="Farthest Viewer"></div>
+                        <div className="absolute left-1/2 -translate-x-1/2 border-l border-dashed border-red-500/50" style={{ bottom: '24px', height: `${distancePx}px`}}></div>
+                    </div>
+                </div>
+
+                {/* Controls & Recommendations - comes second for mobile, ordered first for desktop */}
+                <div className="lg:order-1 flex-1 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg border dark:border-gray-700">
                     <h3 className="text-xl font-bold font-display text-gray-700 dark:text-gray-200">Interactive Calculator</h3>
                     
                     <div className="space-y-6 mt-4">
@@ -93,29 +113,11 @@ const Section2_Sizing: React.FC<SectionProps> = ({ sector }) => {
                         </div>
                     </div>
                 </div>
-
-                {/* Visual Diagram */}
-                <div className="flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900/50 rounded-lg min-h-[300px]">
-                    <div 
-                        className="relative bg-gray-200 dark:bg-gray-700 border-2 border-gray-400 dark:border-gray-600"
-                        style={{ width: `${venueWidth * diagramScale}px`, height: `${distance * 1.5 * diagramScale}px` }}
-                    >
-                         <div 
-                            className="absolute top-0 left-1/2 -translate-x-1/2 bg-church-accent flex items-center justify-center text-xs font-bold text-black"
-                            style={{ width: `${screenWidthPx}px`, height: `${screenHeightPx}px` }}
-                         >
-                            SCREEN
-                        </div>
-
-                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-4 h-4 bg-red-500 rounded-full" title="Farthest Viewer"></div>
-                        <div className="absolute left-1/2 -translate-x-1/2 border-l border-dashed border-red-500/50" style={{ bottom: '24px', height: `${distancePx}px`}}></div>
-                    </div>
-                </div>
             </div>
 
             <div className="mt-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-church-accent text-center rounded-r-lg">
                 <p className="text-lg text-gray-800 dark:text-gray-200">
-                    Starting Point: The <a href="https://thykingdomcomeproductions.com/services" target="_blank" rel="noopener noreferrer" className="font-bold text-church-primary underline hover:text-opacity-80">Majestic Package</a> starts at <strong>$11,950</strong> for a 10' × 5' system.
+                    Starting Point: The Majestic Package starts at <strong>$11,950</strong> for a 10' × 5' <a href="https://thykingdomcomeproductions.com" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>LED video wall</a>.
                 </p>
             </div>
 

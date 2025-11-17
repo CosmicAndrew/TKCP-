@@ -7,6 +7,7 @@ import ProgressiveForm from './common/ProgressiveForm';
 import Spinner from '../common/Spinner';
 import Feedback from '../common/Feedback';
 import Confetti from '../common/Confetti';
+import { LINK_CLASS } from '../../constants';
 
 // Lazy load sections for performance
 const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
@@ -151,14 +152,14 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                 
                 {guideEntrypoint === 'quiz' && result.leadStatus === 'warm' ? (
                      <>
-                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your LED Video Wall Education Starts Here</h2>
+                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Your <a href="https://thykingdomcomeproductions.com" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>LED Video Wall</a> Education Starts Here</h2>
                         <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                            Your score: <strong>{result.score}/{result.maxScore}</strong> — You're close to being ready! This guide will help you make a confident decision.
                         </p>
                     </>
                 ) : guideEntrypoint === 'quiz' && result.leadStatus === 'cold' ? (
                     <>
-                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Welcome to Your LED Display Journey</h2>
+                        <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-800 dark:text-gray-100 mt-4">Welcome to Your <a href="https://thykingdomcomeproductions.com/led-panels/" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>LED Display</a> Journey</h2>
                         <p className="mt-2 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                             Your score: <strong>{result.score}/{result.maxScore}</strong> — Perfect timing to learn! This guide covers everything you need to know.
                         </p>

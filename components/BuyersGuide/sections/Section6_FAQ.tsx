@@ -61,7 +61,7 @@ const Section6_FAQ: React.FC<{ sector: Sector; result: Result; }> = ({ sector })
         },
         {
             question: "Is financing available?",
-            answer: "Yes! Flexible financing is available. Our starting packages begin at $11,950, and we work with you to find a financial solution that fits your budget."
+            answer: "Yes! Flexible financing is available. Starting packages begin at $11,950. Contact us for a custom quote tailored to your space."
         }
     ];
 

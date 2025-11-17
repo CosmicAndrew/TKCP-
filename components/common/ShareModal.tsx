@@ -117,7 +117,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
                     </div>
 
                     <div className="mt-4 flex justify-center items-center gap-x-4 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                       <span>✓ 3-Day Installation</span>
+                       <span>✓ 1-2 Day Installation</span>
                        <span>✓ 100,000+ Hour Lifespan</span>
                        <span>✓ 200+ Churches Served</span>
                     </div>

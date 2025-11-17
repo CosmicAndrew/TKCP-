@@ -4,7 +4,7 @@ import { IconBookOpen, IconRefresh, IconShare, IconCheckCircle } from './common/
 import ShareModal from './common/ShareModal';
 import CategoryScoreBreakdown from './common/CategoryScoreBreakdown';
 import * as HubSpot from '../services/hubspot';
-import { HUBSPOT_CONFIG } from '../constants';
+import { HUBSPOT_CONFIG, LINK_CLASS } from '../constants';
 import { trackMetaEvent } from '../services/tracking';
 
 const applications = {
@@ -27,8 +27,7 @@ const applications = {
 const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onNavigateToGuide }) => {
     const { userData, score, maxScore, geminiInsights } = result;
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const linkClass = "text-church-primary dark:text-church-accent underline hover:text-opacity-80 transition-colors duration-300";
-
+    
     const handleBookMeeting = () => {
         HubSpot.trackEvent('Calendar Booking Attempted', HubSpot.getSessionUserId(), { meeting_type: 'discovery' });
         trackMetaEvent('Schedule', { content_type: 'consultation_booking_warm' });
@@ -51,7 +50,7 @@ const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 md:p-10">
                     <div className="text-5xl mb-4 animate-bounce-in">💡</div>
                     <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-800 dark:text-gray-100">
-                        Explore <a href="https://thykingdomcomeproductions.com/church-led-walls/" target="_blank" rel="noopener noreferrer" className={linkClass}>LED Wall</a> Solutions for Your Space
+                        Explore <a href="https://thykingdomcomeproductions.com/church-led-walls/" target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>LED Wall</a> Solutions for Your Space
                     </h1>
                     <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
                         Thanks, {userData.firstName || 'Friend'}! Your score of <strong>{score}/{maxScore}</strong> shows you're actively planning. Here's how an LED upgrade could benefit you.

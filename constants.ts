@@ -14,7 +14,7 @@ export const TKCP_CONFIG = {
     logoBase64: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjYwIiB2aWV3Qm94PSIwIDAgMjAwIDYwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjx0ZXh0IHg9IjEwIiB5PSI0NSIgZm9udC1mYW1pbHk9IidQbGF5ZmFpciBEaXNwbGF5Jywgc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIiBmb250LXNpemU9IjI0IiBmaWxsPSIjMkI0QzdFIj5US0NQPC90ZXh0Pjwvc3ZnPg=="
 };
 
-const LINK_CLASS = "text-church-primary dark:text-church-accent underline hover:text-opacity-80";
+export const LINK_CLASS = "text-church-primary dark:text-church-accent underline hover:text-opacity-80";
 
 export const HUBSPOT_CONFIG = {
     portalId: '22563653', // TKCP's actual Portal ID
