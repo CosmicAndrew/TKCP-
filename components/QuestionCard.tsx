@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Question, Answer, Sector, PathDetail } from '../types';
 import { IconProjectorDim, IconLEDBright, IconCheckCircle } from './common/Icon';
 
@@ -56,10 +56,26 @@ const TwoPathsSimple: React.FC<{ path: PathDetail; sector: Sector }> = ({ path, 
 
 
 const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, onAnswer, sector, selectedAnswer }) => {
+    const titleRef = useRef<HTMLHeadingElement>(null);
+
+    // --- Accessibility Enhancement ---
+    // Automatically focus the question title when it changes. This directs screen readers
+    // to the new content, providing a smoother experience for keyboard and assistive tech users.
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            // preventScroll ensures the page doesn't jump unexpectedly
+            titleRef.current?.focus({ preventScroll: true }); 
+        }, 150); // Delay allows for the slide-in animation to start
+        return () => clearTimeout(timer);
+    }, [questionIndex]);
+    
     const header = (
         <div>
             <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">{question.category}</p>
             <h2 
+              ref={titleRef}
+              tabIndex={-1} // Makes the element programmatically focusable
+              style={{ outline: 'none' }} // Prevents a visual focus ring on this programmatic focus
               className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100 text-center"
               dangerouslySetInnerHTML={{ __html: question.text(sector) }}
             />
@@ -84,7 +100,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
                                     key={option.value}
                                     onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
                                     aria-pressed={isSelected}
-                                    className={`assessment-question-option w-full text-left p-4 border rounded-lg text-lg transition-all duration-300 flex items-center justify-between
+                                    className={`assessment-question-option w-full text-left p-4 border rounded-lg text-lg transition-all duration-300 flex items-center justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${sector === Sector.Church ? 'focus-visible:ring-church-accent' : 'focus-visible:ring-hospitality-accent'}
                                         ${isAnswered && !isSelected ? 'opacity-60 scale-95' : 'hover:-translate-y-1'}
                                         ${isSelected
                                             ? (sector === Sector.Church ? 'border-church-primary dark:border-church-accent ring-2 ring-church-primary/50 bg-church-primary/10 dark:bg-church-primary/20 animate-pop-in shadow-lg' : 'border-hospitality-primary dark:border-hospitality-accent ring-2 ring-hospitality-primary/50 bg-hospitality-primary/10 dark:bg-hospitality-primary/20 animate-pop-in shadow-lg')
@@ -118,6 +134,9 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
             <div className="text-left">
                 <p className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{question.category}</p>
                 <h2 
+                  ref={titleRef}
+                  tabIndex={-1}
+                  style={{ outline: 'none' }}
                   className="mt-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-800 dark:text-gray-100"
                   dangerouslySetInnerHTML={{ __html: question.text(sector) }}
                 />
@@ -132,7 +151,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, questionIndex, on
                             key={option.value}
                             onClick={() => onAnswer(questionIndex, { value: option.value, points: option.points })}
                             aria-pressed={isSelected}
-                            className={`assessment-question-option w-full text-left p-4 border-2 rounded-lg text-lg transition-all duration-300 flex items-center justify-between
+                            className={`assessment-question-option w-full text-left p-4 border-2 rounded-lg text-lg transition-all duration-300 flex items-center justify-between focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${sector === Sector.Church ? 'focus-visible:ring-church-accent' : 'focus-visible:ring-hospitality-accent'}
                                 ${isAnswered && !isSelected ? 'opacity-60 scale-95' : 'hover:-translate-y-1'}
                                 ${isSelected
                                     ? (sector === Sector.Church ? 'bg-church-accent/20 dark:bg-church-accent/30 border-church-accent animate-pop-in shadow-lg' : 'bg-hospitality-accent/20 dark:bg-hospitality-accent/30 border-hospitality-accent animate-pop-in shadow-lg')

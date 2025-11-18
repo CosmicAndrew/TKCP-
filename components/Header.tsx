@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TKCP_CONFIG } from '../constants';
 import { Theme } from '../types';
-import { IconSun, IconMoon } from './common/Icon';
+import { IconSun, IconMoon, IconMail } from './common/Icon';
 
 interface HeaderProps {
     theme: Theme;
@@ -43,12 +43,29 @@ const Header: React.FC<HeaderProps> = ({ theme, toggleTheme }) => {
     return (
         <header className="bg-white dark:bg-gray-800 shadow-md transition-colors duration-300 sticky top-0 z-50">
             <div className="container mx-auto px-4 py-2 md:py-4 flex justify-between items-center">
-                <a href="https://thykingdomcomeproductions.com" target="_blank" rel="noopener noreferrer" className="text-xl md:text-3xl font-display font-bold text-church-primary dark:text-gray-100 transition-opacity duration-300 hover:opacity-80">
+                <a 
+                    href="https://thykingdomcomeproductions.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-xl md:text-3xl font-display font-bold text-church-primary dark:text-gray-100 transition-colors duration-300 hover:text-church-accent dark:hover:text-church-accent"
+                    aria-label="Visit the Thy Kingdom Come Productions homepage"
+                >
                     {TKCP_CONFIG.companyName}
                 </a>
                 <div className="flex items-center gap-2 md:gap-4">
-                    <a href={TKCP_CONFIG.phoneLink} className="hidden md:inline text-sm font-bold text-church-primary dark:text-gray-300 hover:text-church-accent dark:hover:text-church-accent transition-colors">
+                    <a 
+                        href={TKCP_CONFIG.phoneLink} 
+                        className="hidden md:inline text-sm font-bold text-church-primary dark:text-gray-300 hover:text-church-accent dark:hover:text-church-accent transition-colors"
+                        aria-label={`Call us at ${TKCP_CONFIG.phone}`}
+                    >
                         {TKCP_CONFIG.phone}
+                    </a>
+                     <a
+                        href={TKCP_CONFIG.emailLink}
+                        className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-church-primary transition-colors"
+                        aria-label={`Email us at ${TKCP_CONFIG.email}`}
+                    >
+                        <IconMail className="w-6 h-6" />
                     </a>
                     <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} />
                 </div>

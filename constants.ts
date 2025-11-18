@@ -5,6 +5,8 @@ export const TKCP_CONFIG = {
     website: "https://thykingdomcomeproductions.com/",
     phone: "817-952-9202",
     phoneLink: "tel:+18179529202",
+    email: "hello@ThyKingdomComeProductions.com",
+    emailLink: "mailto:hello@ThyKingdomComeProductions.com",
     colors: {
         churchPrimary: "#2B4C7E",
         churchAccent: "#D4AF37",
