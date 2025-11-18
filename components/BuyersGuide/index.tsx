@@ -37,6 +37,11 @@ export const GUIDE_SECTIONS = [
     { id: 7, 'title': 'Your Custom Summary', 'component': Section7_Summary },
 ];
 
+const createSectionId = (id: number, title: string) => {
+    const slug = title.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    return `section-${id}-${slug}`;
+};
+
 
 const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBackToResults, onGuideComplete, guideEntrypoint }) => {
     const mainContentRef = useRef<HTMLDivElement>(null);
@@ -227,7 +232,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                         return (
                             <section
                                 key={section.id}
-                                id={`guide-section-${section.id}`}
+                                id={createSectionId(section.id, section.title)}
                                 data-section-id={section.id}
                                 ref={(el) => {
                                     if (el) sectionRefs.current.set(section.id, el);

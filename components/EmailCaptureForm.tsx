@@ -59,16 +59,16 @@ const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit, sector })
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
                      <InputField id="firstName" type="text" placeholder="First Name*" value={formData.firstName} onChange={handleChange} icon={<IconUser />} required label="First Name" error={errors.firstName} />
-                     {errors.firstName && <p id="firstName-error" className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
+                     {errors.firstName && <p id="firstName-error" role="alert" className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
                    </div>
                    <div>
                      <InputField id="lastName" type="text" placeholder="Last Name*" value={formData.lastName} onChange={handleChange} icon={<IconUser />} required label="Last Name" error={errors.lastName} />
-                     {errors.lastName && <p id="lastName-error" className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
+                     {errors.lastName && <p id="lastName-error" role="alert" className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
                    </div>
                  </div>
                 <div>
                   <InputField id="phone" type="tel" placeholder="Phone Number*" value={formData.phone} onChange={handleChange} icon={<IconPhone />} required label="Phone Number" error={errors.phone} />
-                  {errors.phone && <p id="phone-error" className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                  {errors.phone && <p id="phone-error" role="alert" className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
                 <div>
                   <SelectField id="organizationType" value={formData.organizationType} onChange={handleChange} icon={<IconBuildingOffice/>} required label="Organization Type" error={errors.organizationType}>
@@ -76,7 +76,7 @@ const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit, sector })
                         <option value="church">House of Worship</option>
                         <option value="hospitality">Venue/Business</option>
                   </SelectField>
-                  {errors.organizationType && <p id="organizationType-error" className="text-red-500 text-sm mt-1">{errors.organizationType}</p>}
+                  {errors.organizationType && <p id="organizationType-error" role="alert" className="text-red-500 text-sm mt-1">{errors.organizationType}</p>}
                 </div>
 
                 <button

@@ -127,32 +127,32 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, sector, leadStatus 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
                      <InputField id="firstName" type="text" placeholder="First Name" value={formData.firstName || ''} onChange={handleChange} icon={<IconUser />} required label="First Name" error={errors.firstName} />
-                     {errors.firstName && <p id="firstName-error" className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
+                     {errors.firstName && <p id="firstName-error" role="alert" className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
                    </div>
                    <div>
                      <InputField id="lastName" type="text" placeholder="Last Name" value={formData.lastName || ''} onChange={handleChange} icon={<IconUser />} required label="Last Name" error={errors.lastName} />
-                     {errors.lastName && <p id="lastName-error" className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
+                     {errors.lastName && <p id="lastName-error" role="alert" className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
                    </div>
                 </div>
                 <div>
                   <InputField id="email" type="email" placeholder="Email Address" value={formData.email || ''} onChange={handleChange} icon={<IconMail />} required label="Email Address" error={errors.email} />
-                  {errors.email && <p id="email-error" className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                  {errors.email && <p id="email-error" role="alert" className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
                 <div>
                     <InputField id="phone" type="tel" placeholder="(XXX) XXX-XXXX" value={formData.phone || ''} onChange={handleChange} icon={<IconPhone />} required label="Phone Number" error={errors.phone} />
-                    {errors.phone && <p id="phone-error" className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                    {errors.phone && <p id="phone-error" role="alert" className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
                      <InputField id="city" type="text" placeholder={isLocationRequired ? "City" : "City (Optional)"} value={formData.city || ''} onChange={handleChange} icon={<IconLocation />} required={isLocationRequired} label="City" error={errors.city} />
-                     {errors.city && <p id="city-error" className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                     {errors.city && <p id="city-error" role="alert" className="text-red-500 text-sm mt-1">{errors.city}</p>}
                    </div>
                    <div>
                      <SelectField id="state" value={formData.state || ''} onChange={handleSelectChange} icon={<IconLocation />} required={isLocationRequired} label="State" error={errors.state}>
                          <option value="" disabled>{isLocationRequired ? "State*" : "State (Optional)"}</option>
                          {US_STATES.map(state => <option key={state} value={state}>{state}</option>)}
                      </SelectField>
-                     {errors.state && <p id="state-error" className="text-red-500 text-sm mt-1">{errors.state}</p>}
+                     {errors.state && <p id="state-error" role="alert" className="text-red-500 text-sm mt-1">{errors.state}</p>}
                    </div>
                 </div>
 

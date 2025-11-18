@@ -69,19 +69,19 @@ const ProgressiveForm: React.FC<ProgressiveFormProps> = ({ onSubmit, onClose }) 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <InputField id="city" type="text" placeholder="City*" value={formData.city} onChange={handleChange} icon={<IconLocation />} required label="City" error={errors.city} />
-                            {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                            {errors.city && <p id="city-error" role="alert" className="text-red-500 text-sm mt-1">{errors.city}</p>}
                         </div>
                         <div>
                             <SelectField id="state" value={formData.state} onChange={handleSelectChange} icon={<IconLocation />} required label="State" error={errors.state}>
                                 <option value="" disabled>State*</option>
                                 {US_STATES.map(state => <option key={state} value={state}>{state}</option>)}
                             </SelectField>
-                            {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
+                            {errors.state && <p id="state-error" role="alert" className="text-red-500 text-sm mt-1">{errors.state}</p>}
                         </div>
                     </div>
                     <div>
                         <InputField id="email" type="email" placeholder="Email Address*" value={formData.email} onChange={handleChange} icon={<IconMail />} required label="Email Address" error={errors.email} />
-                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                        {errors.email && <p id="email-error" role="alert" className="text-red-500 text-sm mt-1">{errors.email}</p>}
                     </div>
                     <button
                         type="submit"
