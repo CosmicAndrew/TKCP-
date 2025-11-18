@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ResultPageProps } from '../types';
-import { IconBookOpen, IconRefresh, IconShare, IconCheckCircle } from './common/Icon';
-import ShareModal from './common/ShareModal';
+import { IconBookOpen, IconRefresh, IconCheckCircle } from './common/Icon';
+import SocialShare from './common/SocialShare';
 import CategoryScoreBreakdown from './common/CategoryScoreBreakdown';
 import * as HubSpot from '../services/hubspot';
 import { HUBSPOT_CONFIG, LINK_CLASS } from '../constants';
@@ -26,7 +26,6 @@ const applications = {
 
 const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onNavigateToGuide }) => {
     const { userData, score, maxScore, geminiInsights } = result;
-    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     
     const handleBookMeeting = () => {
         HubSpot.trackEvent('Calendar Booking Attempted', HubSpot.getSessionUserId(), { meeting_type: 'discovery' });
@@ -103,12 +102,10 @@ const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
                             </div>
                         </div>
                     </div>
+                    
+                    <SocialShare result={result} />
 
-                    <div className="mt-12 flex items-center justify-center gap-6">
-                        <button onClick={() => setIsShareModalOpen(true)} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-semibold flex items-center mx-auto transition-colors text-sm">
-                            <IconShare className="w-5 h-5" />
-                            <span className="ml-2">Share Results</span>
-                        </button>
+                    <div className="mt-8 flex items-center justify-center gap-6">
                          <button onClick={onReset} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-semibold flex items-center mx-auto transition-colors text-sm">
                             <IconRefresh className="mr-2"/>
                             Start Over
@@ -116,7 +113,6 @@ const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
                     </div>
                 </div>
             </div>
-            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} result={result} />
         </>
     );
 };

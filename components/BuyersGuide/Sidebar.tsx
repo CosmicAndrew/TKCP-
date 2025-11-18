@@ -1,11 +1,12 @@
 
+
 import React from 'react';
 import { GUIDE_SECTIONS } from './index';
 import { IconCheckCircle, IconCompare, IconChurch, IconChecklist, IconPrint, IconSearch, IconShare, IconQuestionMarkCircle, IconRuler, IconCog, IconDollarSign } from '../common/Icon';
 
 interface SidebarProps {
     activeSection: number;
-    setActiveSection: (section: number) => void;
+    onNavigate: (section: number) => void;
     completedSections: Set<number>;
 }
 
@@ -19,7 +20,7 @@ const SECTION_ICONS: { [key: number]: React.ReactNode } = {
     7: <IconPrint className="w-5 h-5" />,
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection, completedSections }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeSection, onNavigate, completedSections }) => {
     
     const handleShare = async () => {
         const shareData = {
@@ -48,7 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection, comp
                     {GUIDE_SECTIONS.map(section => (
                         <li key={section.id}>
                             <button
-                                onClick={() => setActiveSection(section.id)}
+                                onClick={() => onNavigate(section.id)}
                                 className={`sidebar-nav-button group w-full text-left flex items-center gap-3 p-3 my-1 rounded-md transition-colors text-sm font-semibold
                                     ${activeSection === section.id
                                         ? 'bg-church-primary/10 text-church-primary dark:bg-church-primary/20 dark:text-blue-300'

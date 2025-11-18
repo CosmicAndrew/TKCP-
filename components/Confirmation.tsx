@@ -1,13 +1,13 @@
 
 
-import React, { useState } from 'react';
+import React from 'react';
 import { ResultPageProps } from '../types';
 import { HUBSPOT_CONFIG, TKCP_CONFIG } from '../constants';
 import * as HubSpot from '../services/hubspot';
 import { trackMetaEvent } from '../services/tracking';
-import { IconCalendar, IconPhone, IconRefresh, IconShare, IconCheckCircle, IconBookOpen } from './common/Icon';
+import { IconCalendar, IconPhone, IconRefresh, IconCheckCircle, IconBookOpen } from './common/Icon';
 import Confetti from './common/Confetti';
-import ShareModal from './common/ShareModal';
+import SocialShare from './common/SocialShare';
 import CategoryScoreBreakdown from './common/CategoryScoreBreakdown';
 
 const applications = {
@@ -33,7 +33,6 @@ const applications = {
 
 const HotLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onNavigateToGuide }) => {
     const { userData, score, maxScore, geminiInsights } = result;
-    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const linkClass = "text-church-primary dark:text-church-accent underline hover:text-opacity-80 transition-colors duration-300";
 
     const handleBookMeeting = () => {
@@ -127,14 +126,12 @@ const HotLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onN
                         </blockquote>
                     </div>
 
-                    <div className="mt-12 flex items-center justify-center gap-6">
+                    <SocialShare result={result} />
+
+                    <div className="mt-8 flex items-center justify-center gap-6">
                          <button onClick={onNavigateToGuide} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-semibold flex items-center mx-auto transition-colors text-sm">
                             <IconBookOpen className="mr-2"/>
                             Explore Buyer's Guide
-                        </button>
-                        <button onClick={() => setIsShareModalOpen(true)} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-semibold flex items-center mx-auto transition-colors text-sm">
-                            <IconShare className="w-5 h-5" />
-                            <span className="ml-2">Share Results</span>
                         </button>
                          <button onClick={onReset} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-semibold flex items-center mx-auto transition-colors text-sm">
                             <IconRefresh className="mr-2"/>
@@ -143,7 +140,6 @@ const HotLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onN
                     </div>
                 </div>
             </div>
-            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} result={result} />
         </>
     );
 };

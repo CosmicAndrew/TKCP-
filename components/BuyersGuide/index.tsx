@@ -39,13 +39,13 @@ export const GUIDE_SECTIONS = [
 
 
 const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBackToResults, onGuideComplete, guideEntrypoint }) => {
-    const mainContentRef = useRef<HTMLElement>(null);
+    const mainContentRef = useRef<HTMLDivElement>(null);
     const [activeSection, setActiveSection] = useState(1);
-    const [animationDirection, setAnimationDirection] = useState<'next' | 'prev'>('next');
     const [completedSections, setCompletedSections] = useState<Set<number>>(new Set([1]));
     const [userData, setUserData] = useState(result.userData);
     const [showProgressiveForm, setShowProgressiveForm] = useState(false);
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+    const sectionRefs = useRef<Map<number, HTMLElement>>(new Map());
 
     const isProfileComplete = !!userData.email;
     const isLastSection = activeSection === GUIDE_SECTIONS.length;
@@ -63,28 +63,38 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
 
     }, [activeSection, isProfileComplete, isLastSection]);
     
-    // Effect for smooth scrolling
+    // Intersection Observer for updating active section on scroll
     useEffect(() => {
-        if (mainContentRef.current) {
-            mainContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }, [activeSection]);
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const id = Number(entry.target.getAttribute('data-section-id'));
+                        if (id) {
+                            setActiveSection(id);
+                            setCompletedSections(prev => new Set(prev).add(id));
+                        }
+                    }
+                });
+            },
+            { root: null, rootMargin: '-40% 0px -60% 0px', threshold: 0 }
+        );
 
+        const currentRefs = sectionRefs.current;
+        currentRefs.forEach((el) => observer.observe(el));
 
-    const handleSectionChange = (sectionId: number) => {
-        if (sectionId === activeSection) return;
+        return () => {
+            currentRefs.forEach((el) => el && observer.unobserve(el));
+        };
+    }, []);
 
+    const handleNavigate = (sectionId: number) => {
         if (sectionId > 0 && sectionId <= GUIDE_SECTIONS.length) {
-             if ((sectionId > 1) && !isProfileComplete) {
+            if (sectionId > 1 && !isProfileComplete) {
                 setShowProgressiveForm(true);
             } else {
-                if (sectionId > activeSection) {
-                    setAnimationDirection('next');
-                } else {
-                    setAnimationDirection('prev');
-                }
-                setActiveSection(sectionId);
-                setCompletedSections(prev => new Set(prev).add(sectionId));
+                const element = sectionRefs.current.get(sectionId);
+                element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
     };
@@ -127,7 +137,6 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
     };
     
     const currentResult = { ...result, userData };
-    const ActiveComponent = GUIDE_SECTIONS.find(s => s.id === activeSection)?.component;
 
     return (
         <div className="animate-fade-in buyer-guide-container">
@@ -191,7 +200,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                             {GUIDE_SECTIONS.map(section => (
                                 <li key={section.id}>
                                     <button 
-                                        onClick={() => { handleSectionChange(section.id); setIsMobileNavOpen(false); }}
+                                        onClick={() => { handleNavigate(section.id); setIsMobileNavOpen(false); }}
                                         className={`w-full text-left p-3 rounded-md text-sm font-semibold transition-colors duration-300 ${activeSection === section.id ? 'bg-church-primary/10 text-church-primary dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                                     >
                                         {section.title}
@@ -207,20 +216,35 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                 <aside className="md:w-1/4">
                     <Sidebar
                         activeSection={activeSection}
-                        setActiveSection={handleSectionChange}
+                        onNavigate={handleNavigate}
                         completedSections={completedSections}
                     />
                 </aside>
-                <main ref={mainContentRef} className="relative flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col overflow-hidden">
-                   {isLastSection && <Confetti intensity="light" container="parent" />}
-                   <div key={activeSection} className={`flex-grow flex flex-col ${animationDirection === 'next' ? 'animate-slide-in-from-right' : 'animate-slide-in-from-left'}`}>
-                        <Suspense fallback={<div className="flex justify-center items-center h-64"><Spinner /></div>}>
-                           {ActiveComponent && <ActiveComponent sector={sector} result={currentResult} />}
-                        </Suspense>
-                   </div>
+                <div ref={mainContentRef} className="flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col">
+                    {GUIDE_SECTIONS.map((section, index) => {
+                        const Component = section.component;
+                        const isFinalSection = index === GUIDE_SECTIONS.length - 1;
+                        return (
+                            <section
+                                key={section.id}
+                                id={`guide-section-${section.id}`}
+                                data-section-id={section.id}
+                                ref={(el) => {
+                                    if (el) sectionRefs.current.set(section.id, el);
+                                    else sectionRefs.current.delete(section.id);
+                                }}
+                                className={`py-8 ${isFinalSection ? '' : 'border-b dark:border-gray-700'}`}
+                            >
+                                {isFinalSection && <Confetti intensity="light" container="parent" />}
+                                <Suspense fallback={<div className="flex justify-center items-center h-64"><Spinner /></div>}>
+                                    <Component sector={sector} result={currentResult} />
+                                </Suspense>
+                            </section>
+                        );
+                    })}
                     <div className="mt-8 pt-6 border-t dark:border-gray-700 flex justify-between items-center print-hide">
                         <button 
-                            onClick={() => handleSectionChange(activeSection - 1)} 
+                            onClick={() => handleNavigate(activeSection - 1)} 
                             disabled={activeSection === 1}
                             className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
                         >
@@ -235,7 +259,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                             </button>
                         ) : !isLastSection ? (
                             <button 
-                                onClick={() => handleSectionChange(activeSection + 1)} 
+                                onClick={() => handleNavigate(activeSection + 1)} 
                                 disabled={isLastSection}
                                 className="px-6 py-2 bg-church-primary text-white font-semibold rounded-md hover:bg-church-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
@@ -243,7 +267,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                             </button>
                         ) : null}
                     </div>
-                </main>
+                </div>
             </div>
              <div className="mt-12 text-center">
                  <button onClick={onReset} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-semibold flex items-center mx-auto transition-colors">

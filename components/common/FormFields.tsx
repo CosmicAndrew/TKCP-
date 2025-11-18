@@ -2,8 +2,10 @@ import React from 'react';
 
 export const InputField: React.FC<{ id: string, type: string, placeholder: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, icon: React.ReactNode, required?: boolean, label: string, error?: string }> = 
 ({ id, type, placeholder, value, onChange, icon, required, label, error }) => (
-    <>
-        <label htmlFor={id} className="sr-only">{label}</label>
+    <div>
+        <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {label}{required && <span className="text-red-500">*</span>}
+        </label>
         <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400" aria-hidden="true">
                 {icon}
@@ -25,13 +27,15 @@ export const InputField: React.FC<{ id: string, type: string, placeholder: strin
                 }`}
             />
         </div>
-    </>
+    </div>
 );
 
 export const SelectField: React.FC<{ id: string, value: string, onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void, icon: React.ReactNode, required?: boolean, children: React.ReactNode, label: string, error?: string }> =
 ({ id, value, onChange, icon, required, children, label, error }) => (
-    <>
-        <label htmlFor={id} className="sr-only">{label}</label>
+    <div>
+        <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {label}{required && <span className="text-red-500">*</span>}
+        </label>
         <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400" aria-hidden="true">
                 {icon}
@@ -56,5 +60,5 @@ export const SelectField: React.FC<{ id: string, value: string, onChange: (e: Re
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
             </div>
         </div>
-    </>
+    </div>
 );

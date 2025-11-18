@@ -2,7 +2,7 @@ import { Question, Sector } from './types';
 
 export const TKCP_CONFIG = {
     companyName: "Thy Kingdom Come Productions",
-    website: "https://thykingdomcomeproductions.com/",
+    website: "https://assessment.thykingdomcomeproductions.com/",
     phone: "817-952-9202",
     phoneLink: "tel:+18179529202",
     email: "hello@ThyKingdomComeProductions.com",

@@ -39,8 +39,9 @@ const Footer: React.FC = () => {
                     <div className="space-y-4">
                         <h4 className="font-display text-xl font-bold text-gray-800 dark:text-white">{TKCP_CONFIG.companyName}</h4>
                         <p className="text-gray-500 dark:text-gray-400">Illuminating spaces for God's glory with Christ-centered excellence.</p>
-                        <blockquote className="italic text-base text-gray-400 dark:text-gray-500 border-l-2 border-gray-300 dark:border-gray-600 pl-4">
-                            'Let your light shine...' — Matthew 5:16
+                         <blockquote className="my-4 p-4 italic text-lg font-medium leading-relaxed text-green-700 dark:text-green-300 border-l-4 border-green-500 bg-green-50 dark:bg-green-900/20">
+                            "Let your light shine before others, that they may see your good deeds and glorify your Father in heaven."
+                            <cite className="block text-right mt-2 not-italic text-sm text-green-600 dark:text-green-400">— Matthew 5:16</cite>
                         </blockquote>
                     </div>
                     
