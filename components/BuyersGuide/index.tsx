@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, Suspense, lazy, useRef } from 'react';
 import { Result, Sector, UserData } from '../../types';
 import * as HubSpot from '../../services/hubspot';
@@ -16,7 +17,8 @@ const Section3_MarketIntelligence = lazy(() => import('./sections/Section3_Marke
 const Section4_Considerations = lazy(() => import('./sections/Section4_Considerations'));
 const Section5_Process = lazy(() => import('./sections/Section5_Process'));
 const Section6_FAQ = lazy(() => import('./sections/Section6_FAQ'));
-const Section7_Summary = lazy(() => import('./sections/Section7_Summary'));
+// Corrected import to point to the existing Section9_Summary file
+const Section7_Summary = lazy(() => import('./sections/Section9_Summary'));
 
 interface BuyersGuideProps {
     result: Result;
@@ -262,7 +264,14 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                             >
                                 View Your Personalized Results &rarr;
                             </button>
-                        ) : !isLastSection ? (
+                        ) : isLastSection && guideEntrypoint === 'results' ? (
+                             <button 
+                                onClick={onBackToResults} 
+                                className="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                            >
+                                Back to Results
+                            </button>
+                        ) : (
                             <button 
                                 onClick={() => handleNavigate(activeSection + 1)} 
                                 disabled={isLastSection}
@@ -270,7 +279,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                             >
                                 Next Section
                             </button>
-                        ) : null}
+                        )}
                     </div>
                 </div>
             </div>
