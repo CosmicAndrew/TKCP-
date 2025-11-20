@@ -1,13 +1,13 @@
 
-
 import React from 'react';
-import { GUIDE_SECTIONS } from './index';
-import { IconCheckCircle, IconCompare, IconChurch, IconChecklist, IconPrint, IconSearch, IconShare, IconQuestionMarkCircle, IconRuler, IconCog, IconDollarSign } from '../common/Icon';
+import { IconCheckCircle, IconShare } from '../common/Icon';
+import { IconCompare, IconChurch, IconChecklist, IconPrint, IconSearch, IconQuestionMarkCircle, IconRuler } from '../common/Icon';
 
 interface SidebarProps {
     activeSection: number;
     onNavigate: (section: number) => void;
     completedSections: Set<number>;
+    sections: { id: number; title: string }[];
 }
 
 const SECTION_ICONS: { [key: number]: React.ReactNode } = {
@@ -20,7 +20,7 @@ const SECTION_ICONS: { [key: number]: React.ReactNode } = {
     7: <IconPrint className="w-5 h-5" />,
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ activeSection, onNavigate, completedSections }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeSection, onNavigate, completedSections, sections }) => {
     
     const handleShare = async () => {
         const shareData = {
@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onNavigate, completedS
             <h3 className="text-lg font-bold font-display text-gray-800 dark:text-gray-100 mb-4 px-2">Guide Sections</h3>
             <nav>
                 <ul>
-                    {GUIDE_SECTIONS.map(section => (
+                    {sections.map(section => (
                         <li key={section.id}>
                             <button
                                 onClick={() => onNavigate(section.id)}

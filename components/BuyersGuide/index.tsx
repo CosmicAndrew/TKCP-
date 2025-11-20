@@ -190,6 +190,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                         activeSection={activeSection}
                         onNavigate={handleNavigate}
                         completedSections={completedSections}
+                        sections={GUIDE_SECTIONS}
                     />
                 </aside>
                 <div className="flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col">
