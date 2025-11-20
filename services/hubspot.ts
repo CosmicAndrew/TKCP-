@@ -143,23 +143,39 @@ export const upsertContact = async (data: Partial<UserData> & { session_user_id?
 };
 
 /**
- * Tracks a behavioral event in HubSpot using the tracking code API.
+ * Tracks a custom behavioral event in HubSpot using the Tracking Code API.
+ * Requires HubSpot tracking code to be loaded in index.html.
  */
 export const trackBehavioralEvent = (eventName: string, properties: object = {}) => {
-    const _hsq = window._hsq = window._hsq || [];
+    const sessionId = getSessionUserId();
     const detectedSector = localStorage.getItem(LOCAL_STORAGE_KEYS.sector) || 'unknown';
-    
-    // Push to HubSpot Tracking Queue
-    _hsq.push(["trackEvent", {
-        id: eventName,
-        value: undefined, // Value is optional and usually numeric
-        ...properties,
-        sector: detectedSector
-    }]);
 
-    // For debugging purposes only
-    if (process.env.NODE_ENV === 'development') {
-        console.log('[HubSpot Track]', eventName, properties);
+    const eventProperties = {
+        ...properties,
+        sector: detectedSector,
+        session_id: sessionId,
+        url: window.location.href,
+        timestamp: new Date().toISOString()
+    };
+
+    // Check if HubSpot tracking code is loaded
+    if (typeof window !== 'undefined' && window._hsq) {
+        try {
+            // Push custom behavioral event to HubSpot queue
+            window._hsq.push([
+                'trackCustomBehavioralEvent',
+                {
+                    name: eventName,
+                    properties: eventProperties
+                }
+            ]);
+
+            console.log(`✅ Tracked HubSpot event: ${eventName}`, eventProperties);
+        } catch (error) {
+            console.warn(`⚠️ Failed to track HubSpot event: ${eventName}`, error);
+        }
+    } else {
+        console.warn(`⚠️ HubSpot tracking code not loaded. Event logged but not tracked: ${eventName}`, eventProperties);
     }
 };
 
