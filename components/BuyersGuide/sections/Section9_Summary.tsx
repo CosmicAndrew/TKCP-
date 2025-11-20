@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Result, Sector } from '../../../types';
 import { ASSESSMENT_QUESTIONS, TKCP_CONFIG } from '../../../constants';
 import * as HubSpot from '../../../services/hubspot';
+import { trackMetaEvent } from '../../../services/tracking';
 import { IconPrint, IconCheckCircle, IconSpinner } from '../../common/Icon';
 import ScoreGauge from '../../common/ScoreGauge';
 
@@ -11,10 +12,12 @@ interface SectionProps {
     result: Result;
 }
 
-const trackMetaEvent = (eventName: string, params: object = {}) => {
-    console.log(`[Meta Pixel Event]: ${eventName}`, params);
-};
-
+/**
+ * Converts an SVG data URL to a PNG data URL by drawing it onto a canvas.
+ * This is necessary because jsPDF may not support SVG rendering without plugins.
+ * @param svgDataUrl The data URL of the SVG image.
+ * @returns A Promise that resolves with the PNG data URL.
+ */
 const svgToPngDataURL = (svgDataUrl: string): Promise<string> => {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -50,10 +53,13 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
         return option ? option.text[sector] : 'N/A';
     };
 
+    // Mapped indices based on new ASSESSMENT_QUESTIONS array in constants.ts
     const painLevel = findAnswerText(0, answers[0]?.value);
     const orgSize = findAnswerText(1, answers[1]?.value);
-    const timeline = findAnswerText(2, answers[2]?.value);
-    const compellingEvent = findAnswerText(3, answers[3]?.value);
+    const timeline = findAnswerText(6, answers[6]?.value); // Index 6 is Timeline
+    const budgetRange = findAnswerText(7, answers[7]?.value); // Index 7 is Budget
+    const compellingEvent = findAnswerText(8, answers[8]?.value); // Index 8 is Compelling Event
+    
     const date = new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
     const handleGeneratePdf = async () => {
@@ -69,10 +75,11 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 const html2canvas = (await import('html2canvas')).default;
                 
                 setLoadingText('Preparing document...');
+                // To ensure consistent output, temporarily switch to light mode for the capture
                 const wasDarkMode = document.documentElement.classList.contains('dark');
                 if (wasDarkMode) {
                     document.documentElement.classList.remove('dark');
-                    await new Promise(resolve => setTimeout(resolve, 50));
+                    await new Promise(resolve => setTimeout(resolve, 50)); // Give DOM a moment to update
                 }
 
                 setLoadingText('Processing document...');
@@ -89,6 +96,7 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
             
+                // Refactored multi-page PDF generation logic
                 const imgProps = pdf.getImageProperties(imgData);
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfPageHeight = pdf.internal.pageSize.getHeight();
@@ -100,9 +108,11 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 let position = 0;
                 let page = 1;
                 
+                // Add the first page
                 pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
                 heightLeft -= pdfPageHeight;
 
+                // Add new pages if content is taller than one page
                 while (heightLeft > 0) {
                     position = -page * pdfPageHeight;
                     pdf.addPage();
@@ -115,10 +125,11 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 const pngLogoDataUrl = await svgToPngDataURL(TKCP_CONFIG.logoBase64);
                 const pageCount = pdf.internal.getNumberOfPages();
                 const logoWidth = 100;
-                const logoHeight = 30;
+                const logoHeight = 30; // Aspect ratio of logo is 200:60
 
                 for (let i = 1; i <= pageCount; i++) {
                     pdf.setPage(i);
+                    // Use the GState constructor from the pdf instance
                     const GState = (pdf as any).GState;
                     pdf.setGState(new GState({ opacity: 0.08 }));
                     const x = (pdf.internal.pageSize.getWidth() - logoWidth) / 2;
@@ -128,7 +139,7 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 }
 
                 setLoadingText('Saving file...');
-                await new Promise(res => setTimeout(res, 500));
+                await new Promise(res => setTimeout(res, 500)); // Brief delay for UX
 
                 pdf.save(`TKCP_LED_Summary_${userData.lastName || 'Client'}.pdf`);
             } catch (error) {
@@ -144,6 +155,7 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
 
     return (
         <div className="animate-fade-in-up">
+            {/* For dark mode, this container matches the main content background. Print styles will force a white background. */}
             <div id="printable-summary" className="bg-white dark:bg-gray-800 p-4">
                 <header className="print-header mb-6 text-center border-b-2 border-church-primary dark:border-church-accent pb-4">
                      <img src={TKCP_CONFIG.logoBase64} alt="TKCP Logo" className="mx-auto h-12 mb-2" />
@@ -164,6 +176,7 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                                 <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Organization Size:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{orgSize}</td></tr>
                                 <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Current Pain Level:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{painLevel}</td></tr>
                                 <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Project Timeline:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{timeline}</td></tr>
+                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Budget Range:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{budgetRange}</td></tr>
                                 <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Primary Driver:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{compellingEvent}</td></tr>
                                 <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Lead Score:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{score}/{maxScore} ({leadStatus.charAt(0).toUpperCase() + leadStatus.slice(1)})</td></tr>
                             </tbody>
