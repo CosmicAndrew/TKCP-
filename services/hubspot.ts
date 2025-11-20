@@ -1,9 +1,9 @@
+
 import { UserData } from '../types';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
 // --- HubSpot Configuration ---
 const HUBSPOT_PORTAL_ID = '22563653';
-// The Form GUID for the 'TKCP LED Assessment' form in HubSpot. This resolves the 404 error.
 const HUBSPOT_FORM_GUID = 'f0cf68b1-496b-401a-8d26-816713d10c95';
 
 // --- Session Management ---
@@ -51,7 +51,6 @@ export const getContactInfoForMeeting = (): Partial<UserData> => {
 
 /**
  * Helper function to retrieve the HubSpot user token (hubspotutk) from cookies.
- * This is crucial for associating the form submission with the user's browsing session.
  */
 const getHubspotCookie = (): string | null => {
     const cookies = document.cookie.split(';');
@@ -66,22 +65,15 @@ const getHubspotCookie = (): string | null => {
 
 /**
  * Creates or updates a contact in HubSpot using the Forms API v3.
- * This function is now async and handles the actual API submission.
  */
 export const upsertContact = async (data: Partial<UserData> & { session_user_id?: string }): Promise<void> => {
-    // FIX: Add defensive checks to ensure required data is present before making an API call.
     if (!data.email) {
-        console.error('[HubSpot Service] CRITICAL: An attempt was made to submit a contact without an email address. This indicates a logic error in the application flow where `upsertContact` was called prematurely. Submission has been blocked.', data);
-        throw new Error('Email is required for HubSpot submission. A call was made to upsertContact without an email.');
-    }
-    if (!data.firstName || !data.lastName) {
-        console.warn('[HubSpot Service] Warning: `firstname` or `lastname` is missing. HubSpot might reject this if the fields are required on the form.', data);
+        console.error('[HubSpot Service] Email is required for submission.');
+        return; // Fail gracefully
     }
 
-    // Cache key contact info for pre-filling meeting links later.
     cacheContactInfo(data);
 
-    // Map application data to HubSpot internal property names.
     const hubspotProperties: { [key: string]: any } = {};
     if (data.email) hubspotProperties.email = data.email;
     if (data.firstName) hubspotProperties.firstname = data.firstName;
@@ -101,7 +93,6 @@ export const upsertContact = async (data: Partial<UserData> & { session_user_id?
     if (data.timeline_urgency) hubspotProperties.timeline_urgency = data.timeline_urgency;
     if (data.compelling_event) hubspotProperties.compelling_event = data.compelling_event;
     if (data.commitment_level) hubspotProperties.commitment_level = data.commitment_level;
-    // CRITICAL MAPPING: 'total_assessment_score' from app becomes 'total_assessment_score' in HubSpot to trigger workflows.
     if (data.total_assessment_score !== undefined) hubspotProperties.total_assessment_score = data.total_assessment_score;
     if (data.lead_temperature) hubspotProperties.lead_temperature = data.lead_temperature;
     if (data.assessment_answers_json) hubspotProperties.assessment_answers_json = data.assessment_answers_json;
@@ -110,100 +101,71 @@ export const upsertContact = async (data: Partial<UserData> & { session_user_id?
     if (data.source_url) hubspotProperties.source_url = data.source_url;
     if (data.utm_campaign) hubspotProperties.utm_campaign = data.utm_campaign;
 
-    // Format the properties into the structure required by the HubSpot Forms API v3.
     const fields = Object.entries(hubspotProperties)
         .filter(([, value]) => value !== undefined && value !== null && value !== '')
         .map(([name, value]) => ({
-            objectTypeId: "0-1", // The objectTypeId for contact properties is "0-1".
+            objectTypeId: "0-1",
             name: name,
             value: value,
         }));
 
-    // If there are no fields to submit (e.g., an anonymous update), don't call the API.
-    if (fields.length === 0) {
-        console.log("[HubSpot Service] No data to submit.");
-        return;
-    }
+    if (fields.length === 0) return;
 
     const hubspotCookie = getHubspotCookie();
-
     const payload = {
         fields,
         context: {
-            ...(hubspotCookie && { hutk: hubspotCookie }), // Include the user token if available.
-            pageUri: "https://assessment.thykingdomcomeproductions.com",
-            pageName: "TKCP LED Assessment",
+            ...(hubspotCookie && { hutk: hubspotCookie }),
+            pageUri: window.location.href,
+            pageName: document.title,
         },
     };
 
-    const endpoint = `https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${HUBSPOT_FORM_GUID}`;
-    
-    console.log('[HubSpot Service] Submitting contact to HubSpot Forms API...');
-    console.log('Endpoint:', endpoint);
-    console.log('Payload:', JSON.stringify(payload, null, 2));
-    
     try {
-        const response = await fetch(endpoint, {
+        const response = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${HUBSPOT_FORM_GUID}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
 
-        if (response.ok) {
-            const result = await response.json();
-            console.log("✅ Successfully submitted contact to HubSpot");
-            console.log("HubSpot Response:", result);
-            return;
-        } else {
+        if (!response.ok) {
             const errorBody = await response.text();
-            
-            // Attempt to parse the error body to check for specific HubSpot error types.
-            try {
+             try {
                 const errorJson = JSON.parse(errorBody);
-                const isBlockedEmail = errorJson.errors?.some((e: { errorType?: string }) => e.errorType === 'BLOCKED_EMAIL');
-
-                if (isBlockedEmail) {
-                    console.warn(`[HubSpot] BLOCKED_EMAIL: The address '${data.email}' is blocked. This is a HubSpot configuration issue, not a code error. The user flow will continue gracefully.`);
-                    // Do not throw an error for blocked emails, allowing the app to proceed.
-                    return;
-                }
-            } catch (jsonParseError) {
-                // If parsing fails, it's not a structured HubSpot error we can inspect.
-                // The generic error will be thrown below.
-                console.error("❌ HubSpot API Error - Could not parse error response as JSON:", errorBody);
-            }
-
-            // For all other errors, throw the exception to be caught by the calling function.
-            console.error(`❌ HubSpot API Error ${response.status}:`, errorBody);
-            throw new Error(`HubSpot API Error: ${response.status} - ${errorBody}`);
+                // Ignore BLOCKED_EMAIL errors as they are configuration based
+                if (errorJson.errors?.some((e: any) => e.errorType === 'BLOCKED_EMAIL')) return;
+            } catch {}
+            console.error(`HubSpot API Error: ${response.status}`, errorBody);
         }
     } catch (error) {
-        console.error("🚨 HubSpot submission failed.", error);
-        throw error;
+        console.error("HubSpot submission network error.", error);
     }
 };
 
 /**
- * Tracks a custom behavioral event in HubSpot.
- * This is currently a simulation and can be replaced with a backend call.
+ * Tracks a behavioral event in HubSpot using the tracking code API.
+ */
+export const trackBehavioralEvent = (eventName: string, properties: object = {}) => {
+    const _hsq = window._hsq = window._hsq || [];
+    const detectedSector = localStorage.getItem(LOCAL_STORAGE_KEYS.sector) || 'unknown';
+    
+    // Push to HubSpot Tracking Queue
+    _hsq.push(["trackEvent", {
+        id: eventName,
+        value: undefined, // Value is optional and usually numeric
+        ...properties,
+        sector: detectedSector
+    }]);
+
+    // For debugging purposes only
+    if (process.env.NODE_ENV === 'development') {
+        console.log('[HubSpot Track]', eventName, properties);
+    }
+};
+
+/**
+ * Legacy wrapper for backwards compatibility during refactor
  */
 export const trackEvent = (eventName: string, sessionId: string, properties: object = {}) => {
-    const detectedSector = localStorage.getItem(LOCAL_STORAGE_KEYS.sector) || 'unknown';
-    const eventData = {
-        eventName,
-        sessionId,
-        properties: {
-            ...properties,
-            sector: detectedSector,
-            url: window.location.href,
-        },
-        occurredAt: new Date().toISOString()
-    };
-
-    console.log('[HubSpot Service] Tracking Event (SIMULATED):', eventData);
-    // In a real application, this would typically make a POST request to a backend endpoint
-    // which would then use a private HubSpot API key to post the event.
-    // e.g., fetch('/api/hubspot/track', { method: 'POST', ... });
+    trackBehavioralEvent(eventName, properties);
 };

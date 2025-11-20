@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { UserData, Sector } from '../types';
 import { trackMetaEvent } from '../services/tracking';
@@ -9,16 +10,8 @@ interface EmailCaptureFormProps {
     sector: Sector;
 }
 
-interface EmailCaptureState {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    organizationType: string;
-}
-
 const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit, sector }) => {
-    const [formData, setFormData] = useState<EmailCaptureState>({
+    const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         email: '',
@@ -31,19 +24,12 @@ const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit, sector })
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-         if (errors[e.target.name]) {
-             setErrors({ ...errors, [e.target.name]: '' });
-        }
+         if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' });
     };
 
     const focusFirstError = (newErrors: { [key: string]: string }) => {
         const firstErrorKey = Object.keys(newErrors)[0];
-        if (firstErrorKey) {
-            const element = document.getElementById(firstErrorKey);
-            if (element) {
-                element.focus();
-            }
-        }
+        document.getElementById(firstErrorKey)?.focus();
     };
 
     const validate = () => {
@@ -93,7 +79,7 @@ const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit, sector })
         <div className="animate-fade-in-up">
             <h2 className="text-3xl font-display font-bold text-center text-gray-800 dark:text-gray-100">Get Your LED Buyer's Guide</h2>
             <p className="text-center text-gray-600 dark:text-gray-300 mt-2">Enter your details to access the complete guide and valuable insights.</p>
-            <form onSubmit={handleSubmit} className="mt-8 space-y-6 max-w-md mx-auto" noValidate aria-busy={isSubmitting}>
+            <form onSubmit={handleSubmit} className="mt-8 space-y-6 max-w-md mx-auto" noValidate>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
                      <InputField 
@@ -146,7 +132,6 @@ const EmailCaptureForm: React.FC<EmailCaptureFormProps> = ({ onSubmit, sector })
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    aria-disabled={isSubmitting}
                     className="w-full flex items-center justify-center bg-church-primary text-white font-bold py-3 px-6 rounded-md hover:bg-church-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-church-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isSubmitting ? (

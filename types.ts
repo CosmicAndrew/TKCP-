@@ -1,3 +1,4 @@
+
 export enum Sector {
   Church = 'church',
   Hospitality = 'hospitality',
@@ -86,4 +87,10 @@ export interface ResultPageProps {
     onReset: () => void;
     onNavigateToGuide: () => void;
     sector: Sector;
+}
+
+declare global {
+    interface Window {
+        _hsq: any[];
+    }
 }

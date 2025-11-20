@@ -10,14 +10,12 @@ import Feedback from '../common/Feedback';
 import Confetti from '../common/Confetti';
 import { LINK_CLASS } from '../../constants';
 
-// Lazy load sections for performance
 const Section1_Comparison = lazy(() => import('./sections/Section1_Comparison'));
 const Section2_Sizing = lazy(() => import('./sections/Section2_Sizing'));
 const Section3_MarketIntelligence = lazy(() => import('./sections/Section3_MarketIntelligence'));
 const Section4_Considerations = lazy(() => import('./sections/Section4_Considerations'));
 const Section5_Process = lazy(() => import('./sections/Section5_Process'));
 const Section6_FAQ = lazy(() => import('./sections/Section6_FAQ'));
-// Corrected import to point to the existing Section9_Summary file
 const Section7_Summary = lazy(() => import('./sections/Section9_Summary'));
 
 interface BuyersGuideProps {
@@ -44,7 +42,6 @@ const createSectionId = (id: number, title: string) => {
     return `section-${id}-${slug}`;
 };
 
-
 const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBackToResults, onGuideComplete, guideEntrypoint }) => {
     const mainContentRef = useRef<HTMLDivElement>(null);
     const [activeSection, setActiveSection] = useState(1);
@@ -58,19 +55,18 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
     const isLastSection = activeSection === GUIDE_SECTIONS.length;
 
      useEffect(() => {
-        HubSpot.trackEvent(`Viewed Guide Section ${activeSection}`, HubSpot.getSessionUserId());
+        HubSpot.trackBehavioralEvent(`Viewed Guide Section ${activeSection}`);
         
         if ((activeSection === 2 || activeSection === 3) && !isProfileComplete) {
             setShowProgressiveForm(true);
         }
         
         if (isLastSection) {
-            HubSpot.trackEvent('Finished Buyer\'s Guide', HubSpot.getSessionUserId());
+            HubSpot.trackBehavioralEvent('Finished Buyer\'s Guide');
         }
 
     }, [activeSection, isProfileComplete, isLastSection]);
     
-    // Intersection Observer for updating active section on scroll
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -123,8 +119,6 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
             lifecyclestage: 'lead',
             source_url: window.location.href,
             utm_campaign: urlParams.get('utm_campaign') || undefined,
-            
-            // Map individual answers to custom properties
             pain_scale_score: result.answers[0]?.points,
             organization_size: result.answers[1]?.value,
             timeline_urgency: result.answers[2]?.value,
@@ -134,7 +128,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
 
         try {
             await HubSpot.upsertContact(fullSubmissionData);
-            HubSpot.trackEvent('Progressive Form Submitted', HubSpot.getSessionUserId());
+            HubSpot.trackBehavioralEvent('Progressive Form Submitted');
         } catch (error) {
             console.error("HubSpot submission from Buyer's Guide failed, continuing flow.", error);
         }
@@ -190,7 +184,6 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                 )}
             </div>
 
-            {/* Mobile Navigation */}
             <div className="md:hidden mb-4 relative print-hide">
                 <button
                     onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}

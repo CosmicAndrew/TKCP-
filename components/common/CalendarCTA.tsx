@@ -1,0 +1,41 @@
+
+import React from 'react';
+import { HUBSPOT_CONFIG } from '../../../constants';
+import * as HubSpot from '../../../services/hubspot';
+
+type MeetingType = keyof typeof HUBSPOT_CONFIG.meetingLinks;
+
+interface CalendarCTAProps {
+    headline: string;
+    buttonText: string;
+    meetingType: MeetingType;
+}
+
+const CalendarCTA: React.FC<CalendarCTAProps> = ({ headline, buttonText, meetingType }) => {
+    const handleScheduleClick = () => {
+        const meetingLink = HUBSPOT_CONFIG.meetingLinks[meetingType];
+        HubSpot.trackBehavioralEvent('Calendar Booking Attempted', { meeting_type: meetingType });
+        
+        const hubspotContactInfo = HubSpot.getContactInfoForMeeting();
+        const url = new URL(meetingLink);
+        if(hubspotContactInfo.email) url.searchParams.append('email', hubspotContactInfo.email);
+        if(hubspotContactInfo.firstName) url.searchParams.append('firstname', hubspotContactInfo.firstName);
+        if(hubspotContactInfo.lastName) url.searchParams.append('lastname', hubspotContactInfo.lastName);
+
+        window.open(url.toString(), '_blank');
+    };
+
+    return (
+        <div className="my-8 p-6 bg-gray-100 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-lg text-center print-hide calendar-cta">
+            <h4 className="text-xl font-display font-bold text-gray-800 dark:text-gray-100">{headline}</h4>
+            <button
+                onClick={handleScheduleClick}
+                className="mt-4 px-8 py-3 bg-church-accent text-gray-900 font-bold rounded-md hover:bg-yellow-400 transition-transform hover:scale-105"
+            >
+                {buttonText}
+            </button>
+        </div>
+    );
+};
+
+export default CalendarCTA;

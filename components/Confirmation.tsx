@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { ResultPageProps } from '../types';
 import { HUBSPOT_CONFIG, TKCP_CONFIG } from '../constants';
@@ -36,10 +35,10 @@ const HotLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, onN
     const linkClass = "text-church-primary dark:text-church-accent underline hover:text-opacity-80 transition-colors duration-300";
 
     const handleBookMeeting = () => {
-        HubSpot.trackEvent('Calendar Booking Attempted', HubSpot.getSessionUserId(), { meeting_type: 'priority' });
+        HubSpot.trackBehavioralEvent('Calendar Booking Attempted', { meeting_type: 'priority' });
         trackMetaEvent('Purchase', {
             content_type: 'consultation_booking',
-            value: 500, // Average consultation conversion value
+            value: 500,
             currency: 'USD'
         });
         

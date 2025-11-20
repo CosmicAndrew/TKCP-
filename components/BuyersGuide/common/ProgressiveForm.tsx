@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { UserData } from '../../../types';
 import { US_STATES } from '../../../constants';
@@ -20,26 +21,17 @@ const ProgressiveForm: React.FC<ProgressiveFormProps> = ({ onSubmit, onClose }) 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        if (errors[e.target.name]) {
-            setErrors({ ...errors, [e.target.name]: '' });
-        }
+        if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' });
     };
     
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        if (errors[e.target.name]) {
-            setErrors({ ...errors, [e.target.name]: '' });
-        }
+        if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' });
     };
 
     const focusFirstError = (newErrors: { [key: string]: string }) => {
         const firstErrorKey = Object.keys(newErrors)[0];
-        if (firstErrorKey) {
-            const element = document.getElementById(firstErrorKey);
-            if (element) {
-                element.focus();
-            }
-        }
+        document.getElementById(firstErrorKey)?.focus();
     };
 
     const validate = () => {
@@ -66,8 +58,6 @@ const ProgressiveForm: React.FC<ProgressiveFormProps> = ({ onSubmit, onClose }) 
             setIsSubmitting(true);
             try {
                 await onSubmit(formData);
-                // Component typically unmounts here via parent state change, 
-                // but we catch errors just in case.
             } catch (error) {
                 console.error("Submission error:", error);
                 setIsSubmitting(false);
@@ -87,21 +77,15 @@ const ProgressiveForm: React.FC<ProgressiveFormProps> = ({ onSubmit, onClose }) 
         >
             <div 
                 className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 w-full max-w-md animate-fade-in-up"
-                onClick={e => e.stopPropagation()} // Prevent closing when clicking inside
+                onClick={e => e.stopPropagation()}
             >
                 <h4 id="progressive-form-title" className="text-2xl font-display font-bold text-center text-gray-800 dark:text-gray-100">📍 Complete Your Profile</h4>
                 <p className="text-center text-gray-600 dark:text-gray-300 mt-2">Unlock personalized recommendations and the rest of the guide.</p>
-                <form onSubmit={handleSubmit} className="mt-8 space-y-4" noValidate aria-busy={isSubmitting}>
+                <form onSubmit={handleSubmit} className="mt-8 space-y-4" noValidate>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <div className="relative">
-                                {/* AutoFocus added for accessibility on modal open */}
-                                <input 
-                                    autoFocus 
-                                    className="sr-only" 
-                                    aria-hidden="true" 
-                                    tabIndex={-1} 
-                                />
+                                <input autoFocus className="sr-only" aria-hidden="true" tabIndex={-1} />
                                 <InputField 
                                     id="city" 
                                     type="text" 
@@ -131,7 +115,6 @@ const ProgressiveForm: React.FC<ProgressiveFormProps> = ({ onSubmit, onClose }) 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        aria-disabled={isSubmitting}
                         className="w-full flex items-center justify-center bg-church-primary text-white font-bold py-3 px-4 rounded-md hover:bg-church-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-church-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isSubmitting ? (

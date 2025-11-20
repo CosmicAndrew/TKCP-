@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Result } from '../../types';
 import { utf8ToBase64 } from '../../utils';
@@ -15,7 +16,6 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
     const [shareUrl, setShareUrl] = useState('');
     const [copyStatus, setCopyStatus] = useState('Copy');
 
-    // Always create the meeting URL for the hot lead case
     const meetingUrl = new URL(HUBSPOT_CONFIG.meetingLinks.priority);
     if (result.userData.firstName) meetingUrl.searchParams.append('firstname', result.userData.firstName);
     if (result.userData.lastName) meetingUrl.searchParams.append('lastname', result.userData.lastName);
@@ -27,7 +27,6 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
 
     useEffect(() => {
         if (isOpen) {
-            // Use a robust query parameter for warm/cold lead result sharing
             if (result.leadStatus !== 'hot') {
                 const resultDataString = JSON.stringify(result);
                 const encodedResult = utf8ToBase64(resultDataString);
@@ -35,7 +34,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
                 url.searchParams.set('results', encodedResult);
                 setShareUrl(url.href);
             }
-            setCopyStatus('Copy'); // Reset status when modal opens
+            setCopyStatus('Copy');
         }
     }, [isOpen, result]);
 
@@ -52,7 +51,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
     };
 
     const handleBookMeeting = () => {
-        HubSpot.trackEvent('Calendar Booking from Share Modal', HubSpot.getSessionUserId(), { meeting_type: 'priority' });
+        HubSpot.trackBehavioralEvent('Calendar Booking from Share Modal', { meeting_type: 'priority' });
         window.open(finalMeetingUrl, '_blank');
     };
 
@@ -70,7 +69,6 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
     }
 
     if (result.leadStatus === 'hot') {
-        // --- HOT LEAD MODAL ---
         return (
             <div 
                 className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
@@ -133,7 +131,6 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, result }) => {
         );
     }
 
-    // --- DEFAULT WARM/COLD LEAD MODAL ---
     return (
         <div 
             className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"

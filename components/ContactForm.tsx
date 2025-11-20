@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { UserData, Sector, LeadStatus } from '../types';
 import { US_STATES } from '../constants';
@@ -11,32 +12,18 @@ interface ContactFormProps {
     leadStatus: LeadStatus;
 }
 
-// Helper function to format phone number as (XXX) XXX-XXXX
 const formatPhoneNumber = (value: string) => {
     if (!value) return '';
-
     const phoneNumber = value.replace(/[^\d]/g, '');
     const trimmedNumber = phoneNumber.slice(0, 10);
-    
     const match = trimmedNumber.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
     if (!match) return trimmedNumber;
-    
     const [, areaCode, middle, last] = match;
-    
     let formatted = '';
-    if (areaCode) {
-        formatted += `(${areaCode}`;
-        if (areaCode.length === 3) {
-            formatted += ')';
-        }
-    }
-    if (middle) {
-        formatted += ` ${middle}`;
-    }
-    if (last) {
-        formatted += `-${last}`;
-    }
-
+    if (areaCode) formatted += `(${areaCode}`;
+    if (areaCode.length === 3) formatted += ')';
+    if (middle) formatted += ` ${middle}`;
+    if (last) formatted += `-${last}`;
     return formatted;
 };
 
@@ -57,33 +44,22 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, sector, leadStatus 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        if (name === 'phone') {
-            setFormData({ ...formData, [name]: formatPhoneNumber(value) });
-        } else {
-            setFormData({ ...formData, [name]: value });
-        }
-        
-        if (errors[name]) {
-             setErrors({ ...errors, [name]: '' });
-        }
+        setFormData({ 
+            ...formData, 
+            [name]: name === 'phone' ? formatPhoneNumber(value) : value 
+        });
+        if (errors[name]) setErrors({ ...errors, [name]: '' });
     };
     
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-        if (errors[name]) {
-             setErrors({ ...errors, [name]: '' });
-        }
+        if (errors[name]) setErrors({ ...errors, [name]: '' });
     };
 
     const focusFirstError = (newErrors: { [key: string]: string }) => {
         const firstErrorKey = Object.keys(newErrors)[0];
-        if (firstErrorKey) {
-            const element = document.getElementById(firstErrorKey);
-            if (element) {
-                element.focus();
-            }
-        }
+        document.getElementById(firstErrorKey)?.focus();
     };
 
     const validate = () => {
@@ -122,47 +98,24 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, sector, leadStatus 
             setIsSubmitting(true);
             try {
                 trackMetaEvent('SubmitApplication', { form_type: 'contact_form' });
-                // Assuming onSubmit triggers a parent state change that unmounts this form,
-                // but we await it just in case it's async.
                 await onSubmit(formData);
             } catch (error) {
                 console.error("Submission error:", error);
                 setIsSubmitting(false);
             }
         } else {
-            // Focus management: logical tab order flow for error correction
             focusFirstError(validationErrors);
         }
     };
     
-    const urlParams = new URLSearchParams(window.location.search);
-    const utmCampaign = urlParams.get('utm_campaign') || '';
-
     return (
         <div className="animate-fade-in">
             <h2 className="text-3xl font-display font-bold text-center text-gray-800 dark:text-gray-100">Excellent! Let's Talk Next Steps.</h2>
             <p className="text-center text-gray-600 dark:text-gray-300 mt-2">Provide your details for a priority consultation.</p>
-            <form onSubmit={handleSubmit} className="mt-8 space-y-6" noValidate aria-busy={isSubmitting}>
-                {/* Hidden fields for HubSpot */}
-                <input type="hidden" name="sector" value={sector} />
-                <input type="hidden" name="source_url" value={window.location.href} />
-                <input type="hidden" name="campaign_source" value={utmCampaign} />
-
+            <form onSubmit={handleSubmit} className="mt-8 space-y-6" noValidate>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
-                     <div className="relative">
-                        <InputField 
-                            id="firstName" 
-                            type="text" 
-                            placeholder="First Name" 
-                            value={formData.firstName || ''} 
-                            onChange={handleChange} 
-                            icon={<IconUser />} 
-                            required 
-                            label="First Name" 
-                            error={errors.firstName} 
-                        />
-                     </div>
+                     <InputField id="firstName" type="text" placeholder="First Name" value={formData.firstName || ''} onChange={handleChange} icon={<IconUser />} required label="First Name" error={errors.firstName} />
                      {errors.firstName && <p id="firstName-error" role="alert" className="text-red-500 text-sm mt-1 animate-pulse">{errors.firstName}</p>}
                    </div>
                    <div>
@@ -201,7 +154,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ onSubmit, sector, leadStatus 
                     {isSubmitting ? (
                         <span className="flex items-center" role="status" aria-live="polite">
                             <IconSpinner className="mr-2 animate-spin" />
-                            Creating Your Profile...
+                            Securing Your Spot...
                         </span>
                     ) : (
                         <>

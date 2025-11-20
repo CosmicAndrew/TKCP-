@@ -6,15 +6,35 @@ import * as HubSpot from '../../../services/hubspot';
 import { IconPrint, IconCheckCircle, IconSpinner } from '../../common/Icon';
 import ScoreGauge from '../../common/ScoreGauge';
 
-
 interface SectionProps {
     sector: Sector;
     result: Result;
 }
 
-// Placeholder for Meta Pixel tracking
 const trackMetaEvent = (eventName: string, params: object = {}) => {
     console.log(`[Meta Pixel Event]: ${eventName}`, params);
+};
+
+const svgToPngDataURL = (svgDataUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            } else {
+                reject(new Error('Could not get 2d context from canvas for SVG conversion.'));
+            }
+        };
+        img.onerror = () => {
+            reject(new Error('Failed to load SVG image for conversion.'));
+        };
+        img.src = svgDataUrl;
+    });
 };
 
 
@@ -33,30 +53,82 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
     const painLevel = findAnswerText(0, answers[0]?.value);
     const orgSize = findAnswerText(1, answers[1]?.value);
     const timeline = findAnswerText(2, answers[2]?.value);
-    const budgetStatus = findAnswerText(3, answers[3]?.value);
+    const compellingEvent = findAnswerText(3, answers[3]?.value);
     const date = new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
     const handleGeneratePdf = async () => {
         trackMetaEvent('Download', { content_type: 'buyers_guide_summary' });
-        HubSpot.trackEvent('Generated PDF Summary', HubSpot.getSessionUserId());
+        HubSpot.trackBehavioralEvent('Generated PDF Summary');
         const input = document.getElementById('printable-summary');
         if (input) {
             setIsGenerating(true);
+            document.body.classList.add('pdf-generating');
             try {
                 setLoadingText('Loading libraries...');
                 const { jsPDF } = await import('jspdf');
                 const html2canvas = (await import('html2canvas')).default;
                 
+                setLoadingText('Preparing document...');
+                const wasDarkMode = document.documentElement.classList.contains('dark');
+                if (wasDarkMode) {
+                    document.documentElement.classList.remove('dark');
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+
                 setLoadingText('Processing document...');
-                const canvas = await html2canvas(input, { scale: 2 });
+                const canvas = await html2canvas(input, { 
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                if (wasDarkMode) {
+                    document.documentElement.classList.add('dark');
+                }
+                
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
+            
+                const imgProps = pdf.getImageProperties(imgData);
                 const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                const pdfPageHeight = pdf.internal.pageSize.getHeight();
                 
+                const imgWidth = pdfWidth;
+                const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+                
+                let heightLeft = imgHeight;
+                let position = 0;
+                let page = 1;
+                
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pdfPageHeight;
+
+                while (heightLeft > 0) {
+                    position = -page * pdfPageHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pdfPageHeight;
+                    page++;
+                }
+
+                setLoadingText('Adding watermark...');
+                const pngLogoDataUrl = await svgToPngDataURL(TKCP_CONFIG.logoBase64);
+                const pageCount = pdf.internal.getNumberOfPages();
+                const logoWidth = 100;
+                const logoHeight = 30;
+
+                for (let i = 1; i <= pageCount; i++) {
+                    pdf.setPage(i);
+                    const GState = (pdf as any).GState;
+                    pdf.setGState(new GState({ opacity: 0.08 }));
+                    const x = (pdf.internal.pageSize.getWidth() - logoWidth) / 2;
+                    const y = (pdf.internal.pageSize.getHeight() - logoHeight) / 2;
+                    pdf.addImage(pngLogoDataUrl, 'PNG', x, y, logoWidth, logoHeight);
+                    pdf.setGState(new GState({ opacity: 1 }));
+                }
+
                 setLoadingText('Saving file...');
-                await new Promise(res => setTimeout(res, 500)); // Brief delay for UX
+                await new Promise(res => setTimeout(res, 500));
 
                 pdf.save(`TKCP_LED_Summary_${userData.lastName || 'Client'}.pdf`);
             } catch (error) {
@@ -64,6 +136,7 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 alert("Sorry, there was an error generating the PDF. Please try again.");
             } finally {
                 setIsGenerating(false);
+                document.body.classList.remove('pdf-generating');
             }
         }
     };
@@ -71,12 +144,11 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
 
     return (
         <div className="animate-fade-in-up">
-            {/* For dark mode, this container matches the main content background. Print styles will force a white background. */}
             <div id="printable-summary" className="bg-white dark:bg-gray-800 p-4">
                 <header className="print-header mb-6 text-center border-b-2 border-church-primary dark:border-church-accent pb-4">
                      <img src={TKCP_CONFIG.logoBase64} alt="TKCP Logo" className="mx-auto h-12 mb-2" />
-                    <h1 className="text-3xl font-display font-bold text-church-primary dark:text-blue-300">Personal LED Assessment Summary</h1>
-                     <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                    <h1 className="text-3xl font-display font-bold text-church-primary dark:text-blue-300 dark-mode-text-override">Personal LED Assessment Summary</h1>
+                     <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 dark-mode-text-override">
                         <p>{TKCP_CONFIG.companyName} | {TKCP_CONFIG.phone} | {TKCP_CONFIG.website}</p>
                         <p className="mt-1">
                             Prepared for: <strong>{userData.firstName || userData.fullName || 'Valued Client'}</strong> | Generated: <strong>{date}</strong>
@@ -84,16 +156,16 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     </div>
                 </header>
                 
-                <div className="md:flex md:gap-8">
+                <div className="summary-layout-container md:flex md:gap-8">
                      <section className="assessment-recap mb-6 flex-1">
-                        <h2 className="text-xl font-display font-bold text-gray-800 dark:text-gray-100 mb-4">Your Assessment Results</h2>
+                        <h2 className="text-xl font-display font-bold text-gray-800 dark:text-gray-100 mb-4 dark-mode-text-override">Your Assessment Results</h2>
                          <table className="results-table w-full border-collapse text-gray-700 dark:text-gray-300">
                             <tbody>
-                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Organization Size:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{orgSize}</td></tr>
-                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Current Pain Level:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{painLevel}</td></tr>
-                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Project Timeline:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{timeline}</td></tr>
-                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Budget Status:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{budgetStatus}</td></tr>
-                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100">Lead Score:</td><td className="p-2 border border-gray-300 dark:border-gray-600">{score}/{maxScore} ({leadStatus.charAt(0).toUpperCase() + leadStatus.slice(1)})</td></tr>
+                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Organization Size:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{orgSize}</td></tr>
+                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Current Pain Level:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{painLevel}</td></tr>
+                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Project Timeline:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{timeline}</td></tr>
+                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Primary Driver:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{compellingEvent}</td></tr>
+                                <tr><td className="p-2 border border-gray-300 dark:border-gray-600 font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override dark-mode-border-override">Lead Score:</td><td className="p-2 border border-gray-300 dark:border-gray-600 dark-mode-text-override dark-mode-border-override">{score}/{maxScore} ({leadStatus.charAt(0).toUpperCase() + leadStatus.slice(1)})</td></tr>
                             </tbody>
                         </table>
                     </section>
@@ -102,19 +174,18 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     </aside>
                 </div>
 
-
                 {geminiInsights && (
                     <section className="recommendations mb-6">
-                        <h2 className="text-xl font-display font-bold text-gray-800 dark:text-gray-100 mb-4">Personalized Insights & Recommendations</h2>
-                        <div className="recommendation-content bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
-                            <p className="font-semibold text-gray-800 dark:text-gray-100">Summary:</p>
-                            <p className="mb-4 text-gray-700 dark:text-gray-300">{geminiInsights.summary}</p>
-                            <p className="font-semibold text-gray-800 dark:text-gray-100">Actionable Next Steps:</p>
+                        <h2 className="text-xl font-display font-bold text-gray-800 dark:text-gray-100 mb-4 dark-mode-text-override">Personalized Insights & Recommendations</h2>
+                        <div className="recommendation-content bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg dark-mode-bg-override dark-mode-border-override">
+                            <p className="font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override">Summary:</p>
+                            <p className="mb-4 text-gray-700 dark:text-gray-300 dark-mode-text-override">{geminiInsights.summary}</p>
+                            <p className="font-semibold text-gray-800 dark:text-gray-100 dark-mode-text-override">Actionable Next Steps:</p>
                              <ul className="space-y-2 mt-2 text-gray-700 dark:text-gray-300">
                                 {geminiInsights.actionable_steps.map((step, i) => (
                                     <li key={i} className="flex items-start">
                                         <IconCheckCircle className="w-5 h-5 text-green-500 mr-2 mt-1 flex-shrink-0" />
-                                        <span>{step}</span>
+                                        <span className="dark-mode-text-override">{step}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -122,17 +193,22 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     </section>
                 )}
 
-
                 <section className="next-steps">
-                    <h2 className="text-xl font-display font-bold text-gray-800 dark:text-gray-100 mb-4">Your Next Steps</h2>
-                    <ol className="list-decimal list-inside space-y-2 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border dark:border-gray-700 text-gray-700 dark:text-gray-300">
+                    <h2 className="text-xl font-display font-bold text-gray-800 dark:text-gray-100 mb-4 dark-mode-text-override">Your Next Steps</h2>
+                    <ol className="list-decimal list-inside space-y-2 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border dark:border-gray-700 text-gray-700 dark:text-gray-300 dark-mode-bg-override dark-mode-border-override dark-mode-text-override">
                         <li>Review this summary with your leadership team.</li>
                         <li>Schedule your free consultation by calling us at <a href={TKCP_CONFIG.phoneLink} className="font-bold text-church-primary hover:underline">{TKCP_CONFIG.phone}</a>.</li>
                         <li>Prepare any specific questions about your space, budget, or goals.</li>
                     </ol>
                 </section>
                 
-                 <footer className="print-footer mt-6 pt-4 border-t dark:border-gray-700 text-center text-xs text-gray-500 dark:text-gray-400">
+                 <section className="mission-statement mt-6">
+                    <p className="text-center text-sm italic text-gray-600 dark:text-gray-400 border-t dark:border-gray-700 pt-4 dark-mode-text-override dark-mode-border-override">
+                        At Thy Kingdom Come Productions, we believe every LED installation is an opportunity to serve the Kingdom and honor Christ through excellence.
+                    </p>
+                </section>
+
+                 <footer className="print-footer mt-6 pt-4 border-t dark:border-gray-700 text-center text-xs text-gray-500 dark:text-gray-400 dark-mode-border-override dark-mode-text-override">
                     <p>© {new Date().getFullYear()} {TKCP_CONFIG.companyName} - Your Partner in Visual Excellence</p>
                 </footer>
             </div>

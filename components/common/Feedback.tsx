@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import * as HubSpot from '../../services/hubspot';
 
@@ -9,7 +10,6 @@ const EMOJIS = [
     { rating: 5, emoji: '🤩', label: 'Very Satisfied' },
 ];
 const CHAR_LIMIT = 150;
-
 
 const Feedback: React.FC = () => {
     const [submitted, setSubmitted] = useState(false);
@@ -24,12 +24,11 @@ const Feedback: React.FC = () => {
             return;
         }
 
-        HubSpot.trackEvent('Assessment Feedback Submitted', HubSpot.getSessionUserId(), { 
+        HubSpot.trackBehavioralEvent('Assessment Feedback Submitted', { 
             rating: rating,
             comment: comment || undefined
         });
 
-        console.log(`Feedback submitted: Rating=${rating}, Comment='${comment}'`);
         setSubmitted(true);
     };
 

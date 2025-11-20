@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ResultPageProps } from '../types';
 import { IconBookOpen, IconRefresh, IconCheckCircle } from './common/Icon';
@@ -28,7 +29,7 @@ const WarmLeadResult: React.FC<ResultPageProps> = ({ result, onReset, sector, on
     const { userData, score, maxScore, geminiInsights } = result;
     
     const handleBookMeeting = () => {
-        HubSpot.trackEvent('Calendar Booking Attempted', HubSpot.getSessionUserId(), { meeting_type: 'discovery' });
+        HubSpot.trackBehavioralEvent('Calendar Booking Attempted', { meeting_type: 'discovery' });
         trackMetaEvent('Schedule', { content_type: 'consultation_booking_warm' });
         
         const url = new URL(HUBSPOT_CONFIG.meetingLinks.discovery);
