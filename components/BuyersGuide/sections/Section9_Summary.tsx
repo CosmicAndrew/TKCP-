@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Result, Sector } from '../../../types';
 import { ASSESSMENT_QUESTIONS, TKCP_CONFIG } from '../../../constants';
 import * as HubSpot from '../../../services/hubspot';
+import { trackMetaEvent } from '../../../services/tracking';
 import { IconPrint, IconCheckCircle, IconSpinner } from '../../common/Icon';
 import ScoreGauge from '../../common/ScoreGauge';
 
@@ -11,13 +12,16 @@ interface SectionProps {
     result: Result;
 }
 
-const trackMetaEvent = (eventName: string, params: object = {}) => {
-    console.log(`[Meta Pixel Event]: ${eventName}`, params);
-};
-
+/**
+ * Converts an SVG data URL to a PNG data URL by drawing it onto a canvas.
+ * This is necessary because jsPDF may not support SVG rendering without plugins.
+ * @param svgDataUrl The data URL of the SVG image.
+ * @returns A Promise that resolves with the PNG data URL.
+ */
 const svgToPngDataURL = (svgDataUrl: string): Promise<string> => {
     return new Promise((resolve, reject) => {
         const img = new Image();
+        img.crossOrigin = 'Anonymous';
         img.onload = () => {
             const canvas = document.createElement('canvas');
             canvas.width = img.naturalWidth;
@@ -60,32 +64,62 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
         trackMetaEvent('Download', { content_type: 'buyers_guide_summary' });
         HubSpot.trackBehavioralEvent('Generated PDF Summary');
         const input = document.getElementById('printable-summary');
+        
         if (input) {
             setIsGenerating(true);
+            // Add class to force specific print styling (e.g. 2-col layout)
             document.body.classList.add('pdf-generating');
+            
             try {
-                setLoadingText('Loading libraries...');
+                setLoadingText('Preparing assets...');
+                // Allow DOM updates and animations to settle
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                // Ensure all images in the summary are fully loaded
+                const images = Array.from(input.getElementsByTagName('img'));
+                await Promise.all(images.map(img => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    });
+                }));
+
+                setLoadingText('Loading PDF engine...');
                 const { jsPDF } = await import('jspdf');
                 const html2canvas = (await import('html2canvas')).default;
                 
-                setLoadingText('Preparing document...');
+                setLoadingText('Processing layout...');
+                // Temporarily switch to light mode for clean capture
                 const wasDarkMode = document.documentElement.classList.contains('dark');
                 if (wasDarkMode) {
                     document.documentElement.classList.remove('dark');
-                    await new Promise(resolve => setTimeout(resolve, 50));
+                    // Allow theme transition to settle
+                    await new Promise(resolve => setTimeout(resolve, 300));
                 }
 
-                setLoadingText('Processing document...');
+                setLoadingText('Capturing high-res image...');
                 const canvas = await html2canvas(input, { 
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff'
+                    scale: 2, // Higher scale for better quality
+                    useCORS: true, // Important for external images
+                    logging: false,
+                    backgroundColor: '#ffffff', // Force white background
+                    windowWidth: 1280, // Force desktop width to ensure 2-col layout works even on mobile
+                    onclone: (clonedDoc) => {
+                        // Additional safety: force all text to be visible
+                        const clonedElement = clonedDoc.getElementById('printable-summary');
+                        if (clonedElement) {
+                            clonedElement.style.display = 'block';
+                        }
+                    }
                 });
 
+                // Restore dark mode if it was originally on
                 if (wasDarkMode) {
                     document.documentElement.classList.add('dark');
                 }
                 
+                setLoadingText('Generating PDF pages...');
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
             
@@ -100,9 +134,11 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 let position = 0;
                 let page = 1;
                 
+                // Add first page
                 pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
                 heightLeft -= pdfPageHeight;
 
+                // Add subsequent pages
                 while (heightLeft > 0) {
                     position = -page * pdfPageHeight;
                     pdf.addPage();
@@ -111,24 +147,30 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     page++;
                 }
 
-                setLoadingText('Adding watermark...');
-                const pngLogoDataUrl = await svgToPngDataURL(TKCP_CONFIG.logoBase64);
-                const pageCount = pdf.internal.getNumberOfPages();
-                const logoWidth = 100;
-                const logoHeight = 30;
+                setLoadingText('Adding branding...');
+                try {
+                    const pngLogoDataUrl = await svgToPngDataURL(TKCP_CONFIG.logoBase64);
+                    const pageCount = pdf.internal.getNumberOfPages();
+                    const logoWidth = 100;
+                    const logoHeight = 30; // Aspect ratio of logo is 200:60
 
-                for (let i = 1; i <= pageCount; i++) {
-                    pdf.setPage(i);
-                    const GState = (pdf as any).GState;
-                    pdf.setGState(new GState({ opacity: 0.08 }));
-                    const x = (pdf.internal.pageSize.getWidth() - logoWidth) / 2;
-                    const y = (pdf.internal.pageSize.getHeight() - logoHeight) / 2;
-                    pdf.addImage(pngLogoDataUrl, 'PNG', x, y, logoWidth, logoHeight);
-                    pdf.setGState(new GState({ opacity: 1 }));
+                    for (let i = 1; i <= pageCount; i++) {
+                        pdf.setPage(i);
+                        const GState = (pdf as any).GState;
+                        if (GState) {
+                            pdf.setGState(new GState({ opacity: 0.08 }));
+                            const x = (pdf.internal.pageSize.getWidth() - logoWidth) / 2;
+                            const y = (pdf.internal.pageSize.getHeight() - logoHeight) / 2;
+                            pdf.addImage(pngLogoDataUrl, 'PNG', x, y, logoWidth, logoHeight);
+                            pdf.setGState(new GState({ opacity: 1 }));
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Watermark addition failed", e);
                 }
 
-                setLoadingText('Saving file...');
-                await new Promise(res => setTimeout(res, 500));
+                setLoadingText('Finalizing download...');
+                await new Promise(res => setTimeout(res, 500)); // Brief delay for UX
 
                 pdf.save(`TKCP_LED_Summary_${userData.lastName || 'Client'}.pdf`);
             } catch (error) {
@@ -144,6 +186,7 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
 
     return (
         <div className="animate-fade-in-up">
+            {/* For dark mode, this container matches the main content background. Print styles will force a white background. */}
             <div id="printable-summary" className="bg-white dark:bg-gray-800 p-4">
                 <header className="print-header mb-6 text-center border-b-2 border-church-primary dark:border-church-accent pb-4">
                      <img src={TKCP_CONFIG.logoBase64} alt="TKCP Logo" className="mx-auto h-12 mb-2" />
@@ -173,6 +216,7 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                          <ScoreGauge score={score} maxScore={maxScore} sector={sector} />
                     </aside>
                 </div>
+
 
                 {geminiInsights && (
                     <section className="recommendations mb-6">
