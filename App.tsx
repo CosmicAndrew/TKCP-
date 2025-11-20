@@ -216,9 +216,14 @@ const App: React.FC = () => {
     }, []);
     
     const handleSectorSelect = (selectedSector: Sector) => {
-        trackMetaEvent('Lead', { sector: selectedSector });
-        HubSpot.trackBehavioralEvent('Selected Sector', { sector: selectedSector });
+        // Ensure state is updated in storage before firing events to prevent 'unknown' sector race condition
         localStorage.setItem(LOCAL_STORAGE_KEYS.sector, selectedSector);
+        
+        if (selectedSector) {
+            trackMetaEvent('Lead', { sector: selectedSector });
+            HubSpot.trackBehavioralEvent('Selected Sector', { sector: selectedSector });
+        }
+        
         setSector(selectedSector);
         setStep('quiz');
     };

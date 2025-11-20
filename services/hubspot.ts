@@ -151,8 +151,8 @@ export const trackBehavioralEvent = (eventName: string, properties: object = {})
     const detectedSector = localStorage.getItem(LOCAL_STORAGE_KEYS.sector) || 'unknown';
 
     const eventProperties = {
+        sector: detectedSector, // Default, can be overwritten by ...properties
         ...properties,
-        sector: detectedSector,
         session_id: sessionId,
         url: window.location.href,
         timestamp: new Date().toISOString()
