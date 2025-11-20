@@ -50,16 +50,8 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
         };
         localStorage.setItem(LOCAL_STORAGE_KEYS.quizState, JSON.stringify(stateToSave));
     }, [currentQuestionIndex, answers]);
-    
-    const triggerHapticFeedback = () => {
-        if ('vibrate' in navigator) {
-            const pattern = sector === 'church' ? [50] : [30, 40, 30]; // Single pulse for church, double for hospitality
-            navigator.vibrate(pattern);
-        }
-    };
 
     const handleAnswer = (questionIndex: number, answer: Answer) => {
-        triggerHapticFeedback();
         setAnswers(prev => ({ ...prev, [questionIndex]: answer }));
     };
 
