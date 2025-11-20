@@ -37,26 +37,21 @@ export const GUIDE_SECTIONS = [
     { id: 7, 'title': 'Your Custom Summary', 'component': Section7_Summary },
 ];
 
-const createSectionId = (id: number, title: string) => {
-    const slug = title.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-').replace(/[^\w-]+/g, '');
-    return `section-${id}-${slug}`;
-};
-
 const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBackToResults, onGuideComplete, guideEntrypoint }) => {
-    const mainContentRef = useRef<HTMLDivElement>(null);
     const [activeSection, setActiveSection] = useState(1);
     const [completedSections, setCompletedSections] = useState<Set<number>>(new Set([1]));
     const [userData, setUserData] = useState(result.userData);
     const [showProgressiveForm, setShowProgressiveForm] = useState(false);
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-    const sectionRefs = useRef<Map<number, HTMLElement>>(new Map());
 
     const isProfileComplete = !!userData.email;
     const isLastSection = activeSection === GUIDE_SECTIONS.length;
 
-     useEffect(() => {
+    useEffect(() => {
         HubSpot.trackBehavioralEvent(`Viewed Guide Section ${activeSection}`);
         
+        setCompletedSections(prev => new Set(prev).add(activeSection));
+
         if ((activeSection === 2 || activeSection === 3) && !isProfileComplete) {
             setShowProgressiveForm(true);
         }
@@ -64,41 +59,18 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
         if (isLastSection) {
             HubSpot.trackBehavioralEvent('Finished Buyer\'s Guide');
         }
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
     }, [activeSection, isProfileComplete, isLastSection]);
-    
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        const id = Number(entry.target.getAttribute('data-section-id'));
-                        if (id) {
-                            setActiveSection(id);
-                            setCompletedSections(prev => new Set(prev).add(id));
-                        }
-                    }
-                });
-            },
-            { root: null, rootMargin: '-40% 0px -60% 0px', threshold: 0 }
-        );
-
-        const currentRefs = sectionRefs.current;
-        currentRefs.forEach((el) => observer.observe(el));
-
-        return () => {
-            currentRefs.forEach((el) => el && observer.unobserve(el));
-        };
-    }, []);
 
     const handleNavigate = (sectionId: number) => {
         if (sectionId > 0 && sectionId <= GUIDE_SECTIONS.length) {
             if (sectionId > 1 && !isProfileComplete) {
                 setShowProgressiveForm(true);
-            } else {
-                const element = sectionRefs.current.get(sectionId);
-                element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+            setActiveSection(sectionId);
+            setIsMobileNavOpen(false);
         }
     };
     
@@ -134,10 +106,10 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
         }
 
         setShowProgressiveForm(false);
-        setCompletedSections(prev => new Set(prev).add(activeSection));
     };
     
     const currentResult = { ...result, userData };
+    const ActiveComponent = GUIDE_SECTIONS.find(s => s.id === activeSection)?.component;
 
     return (
         <div className="animate-fade-in buyer-guide-container">
@@ -200,7 +172,7 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                             {GUIDE_SECTIONS.map(section => (
                                 <li key={section.id}>
                                     <button 
-                                        onClick={() => { handleNavigate(section.id); setIsMobileNavOpen(false); }}
+                                        onClick={() => { handleNavigate(section.id); }}
                                         className={`w-full text-left p-3 rounded-md text-sm font-semibold transition-colors duration-300 ${activeSection === section.id ? 'bg-church-primary/10 text-church-primary dark:text-blue-300' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                                     >
                                         {section.title}
@@ -220,28 +192,16 @@ const BuyersGuide: React.FC<BuyersGuideProps> = ({ result, sector, onReset, onBa
                         completedSections={completedSections}
                     />
                 </aside>
-                <div ref={mainContentRef} className="flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col">
-                    {GUIDE_SECTIONS.map((section, index) => {
-                        const Component = section.component;
-                        const isFinalSection = index === GUIDE_SECTIONS.length - 1;
-                        return (
-                            <section
-                                key={section.id}
-                                id={createSectionId(section.id, section.title)}
-                                data-section-id={section.id}
-                                ref={(el) => {
-                                    if (el) sectionRefs.current.set(section.id, el);
-                                    else sectionRefs.current.delete(section.id);
-                                }}
-                                className={`py-8 ${isFinalSection ? '' : 'border-b dark:border-gray-700'}`}
-                            >
-                                {isFinalSection && <Confetti intensity="light" container="parent" />}
-                                <Suspense fallback={<div className="flex justify-center items-center h-64"><Spinner /></div>}>
-                                    <Component sector={sector} result={currentResult} />
-                                </Suspense>
-                            </section>
-                        );
-                    })}
+                <div className="flex-1 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-xl min-h-[60vh] flex flex-col">
+                    {ActiveComponent && (
+                        <section key={activeSection} className="py-4 animate-fade-in">
+                            {isLastSection && <Confetti intensity="light" container="parent" />}
+                            <Suspense fallback={<div className="flex justify-center items-center h-64"><Spinner /></div>}>
+                                <ActiveComponent sector={sector} result={currentResult} />
+                            </Suspense>
+                        </section>
+                    )}
+                    
                     <div className="mt-8 pt-6 border-t dark:border-gray-700 flex justify-between items-center print-hide">
                         <button 
                             onClick={() => handleNavigate(activeSection - 1)} 
