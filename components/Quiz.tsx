@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Sector, UserData, Answer, LeadStatus } from '../types';
 import { ASSESSMENT_QUESTIONS, calculateLeadTemperature, LOCAL_STORAGE_KEYS } from '../constants';
 import { trackMetaEvent } from '../services/tracking';
@@ -6,7 +7,6 @@ import ContactForm from './ContactForm';
 import EmailCaptureForm from './EmailCaptureForm';
 import QuestionCard from './QuestionCard';
 import ProgressBar from './common/ProgressBar';
-import { IconVolumeUp, IconVolumeOff } from './common/Icon';
 
 interface QuizProps {
     sector: Sector;
@@ -41,13 +41,6 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
     const [answers, setAnswers] = useState<{ [key: number]: Answer }>(initialState.answers);
     const [postQuizStep, setPostQuizStep] = useState<'contact' | 'emailCapture' | null>(null);
     const [leadStatusForForm, setLeadStatusForForm] = useState<LeadStatus | null>(null);
-    const [isMuted, setIsMuted] = useState(false);
-
-    const answerSound = useRef<HTMLAudioElement | null>(null);
-    
-    // --- Sector-Specific Audio ---
-    const hospitalityAudioData = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='; // Professional click
-    const churchAudioData = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='; // Gentle chime (using a valid placeholder)
 
     // Save state to localStorage
     useEffect(() => {
@@ -58,24 +51,6 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
         localStorage.setItem(LOCAL_STORAGE_KEYS.quizState, JSON.stringify(stateToSave));
     }, [currentQuestionIndex, answers]);
     
-    // Initialize audio on component mount
-    useEffect(() => {
-        try {
-            answerSound.current = new Audio(sector === 'church' ? churchAudioData : hospitalityAudioData);
-            answerSound.current.volume = 0.15; // Set default volume
-        } catch (e) {
-            console.error("Could not initialize audio:", e);
-        }
-    }, [sector, churchAudioData, hospitalityAudioData]);
-
-
-    const playSound = () => {
-        if (answerSound.current && !isMuted) {
-            answerSound.current.currentTime = 0; // Rewind to start
-            answerSound.current.play().catch(e => console.error("Audio play failed:", e));
-        }
-    };
-    
     const triggerHapticFeedback = () => {
         if ('vibrate' in navigator) {
             const pattern = sector === 'church' ? [50] : [30, 40, 30]; // Single pulse for church, double for hospitality
@@ -84,7 +59,6 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
     };
 
     const handleAnswer = (questionIndex: number, answer: Answer) => {
-        playSound();
         triggerHapticFeedback();
         setAnswers(prev => ({ ...prev, [questionIndex]: answer }));
     };
@@ -182,13 +156,6 @@ const Quiz: React.FC<QuizProps> = ({ sector, onComplete }) => {
                         />
                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">{encouragement}</p>
                     </div>
-                     <button
-                        onClick={() => setIsMuted(!isMuted)}
-                        className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300"
-                        aria-label={isMuted ? "Unmute audio feedback" : "Mute audio feedback"}
-                     >
-                        {isMuted ? <IconVolumeOff className="w-5 h-5" /> : <IconVolumeUp className="w-5 h-5" />}
-                    </button>
                 </div>
             </div>
 
