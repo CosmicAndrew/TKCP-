@@ -67,14 +67,18 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
         
         if (input) {
             setIsGenerating(true);
-            // Add class to force specific print styling (e.g. 2-col layout)
             document.body.classList.add('pdf-generating');
             
             try {
-                setLoadingText('Preparing assets...');
-                // Allow DOM updates and animations to settle
-                await new Promise(resolve => setTimeout(resolve, 800));
+                // 1. Ensure view is at top to help layout engines
+                window.scrollTo(0, 0);
 
+                setLoadingText('Preparing layout...');
+                // Wait for DOM updates and allow animations (like ScoreGauge) to settle.
+                // ScoreGauge takes ~1.5s, so we wait 2s to be safe.
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                setLoadingText('Checking assets...');
                 // Ensure all images in the summary are fully loaded
                 const images = Array.from(input.getElementsByTagName('img'));
                 await Promise.all(images.map(img => {
@@ -89,10 +93,10 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                 const { jsPDF } = await import('jspdf');
                 const html2canvas = (await import('html2canvas')).default;
                 
-                setLoadingText('Processing layout...');
                 // Temporarily switch to light mode for clean capture
                 const wasDarkMode = document.documentElement.classList.contains('dark');
                 if (wasDarkMode) {
+                    setLoadingText('Optimizing for print...');
                     document.documentElement.classList.remove('dark');
                     // Allow theme transition to settle
                     await new Promise(resolve => setTimeout(resolve, 300));
@@ -106,10 +110,15 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     backgroundColor: '#ffffff', // Force white background
                     windowWidth: 1280, // Force desktop width to ensure 2-col layout works even on mobile
                     onclone: (clonedDoc) => {
-                        // Additional safety: force all text to be visible
                         const clonedElement = clonedDoc.getElementById('printable-summary');
                         if (clonedElement) {
                             clonedElement.style.display = 'block';
+                            // Force styling to ensure visibility in PDF
+                            const allElements = clonedElement.querySelectorAll('*');
+                            allElements.forEach((el: any) => {
+                                el.style.animation = 'none';
+                                el.style.transition = 'none';
+                            });
                         }
                     }
                 });
@@ -147,7 +156,7 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     page++;
                 }
 
-                setLoadingText('Adding branding...');
+                setLoadingText('Finalizing document...');
                 try {
                     const pngLogoDataUrl = await svgToPngDataURL(TKCP_CONFIG.logoBase64);
                     const pageCount = pdf.internal.getNumberOfPages();
@@ -169,7 +178,7 @@ const Section9_Summary: React.FC<SectionProps> = ({ sector, result }) => {
                     console.warn("Watermark addition failed", e);
                 }
 
-                setLoadingText('Finalizing download...');
+                setLoadingText('Downloading...');
                 await new Promise(res => setTimeout(res, 500)); // Brief delay for UX
 
                 pdf.save(`TKCP_LED_Summary_${userData.lastName || 'Client'}.pdf`);
